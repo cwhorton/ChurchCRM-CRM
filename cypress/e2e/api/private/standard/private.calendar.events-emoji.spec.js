@@ -23,10 +23,16 @@ describe("API Private Calendar Events — utf8mb4 titles (#9736)", () => {
     /**
      * Look an event up by exact title through GET /api/events.
      * POST /api/events answers {"success":true} without the new id.
+     *
+     * `getAllEvents()` throws HttpNotFoundException — HTTP 404, not an empty
+     * list — when the table holds no rows at all (see
+     * src/api/routes/calendar/events.php:107). Accept it so the assertion
+     * below is what reports the problem.
      */
     const findEventIdByTitle = (title) =>
-        cy.makePrivateAdminAPICall("GET", "/api/events", null, 200).then((response) => {
-            const matches = response.body.Events.filter((event) => event.Title === title);
+        cy.makePrivateAdminAPICall("GET", "/api/events", null, [200, 404]).then((response) => {
+            const events = response.status === 404 ? [] : response.body.Events;
+            const matches = events.filter((event) => event.Title === title);
             expect(matches, `exactly one event titled "${title}"`).to.have.length(1);
             createdIds.push(matches[0].Id);
             return matches[0].Id;
@@ -35,7 +41,13 @@ describe("API Private Calendar Events — utf8mb4 titles (#9736)", () => {
     before(() => {
         // Clear anything an interrupted earlier run left behind, so the
         // "exactly one" lookups below stay deterministic.
-        cy.makePrivateAdminAPICall("GET", "/api/events", null, 200).then((response) => {
+        cy.makePrivateAdminAPICall("GET", "/api/events", null, [200, 404]).then((response) => {
+            // 404 = the table is empty, so there is nothing stale to remove.
+            // Asserting 200 here would abort the hook and skip every test on a
+            // clean database — the exact dirty-restart case this hook exists for.
+            if (response.status === 404) {
+                return;
+            }
             response.body.Events.filter(
                 (event) => event.Title === EMOJI_TITLE || event.Title === BMP_TITLE,
             ).forEach((event) => {
