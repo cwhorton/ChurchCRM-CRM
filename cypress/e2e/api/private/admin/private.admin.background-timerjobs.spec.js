@@ -20,9 +20,15 @@ describe("API Private Admin - Background Timer Jobs concurrency", () => {
     const MARKER = "sLastBirthdayEmailRunDate";
     const FEATURE = "bEnableBirthdayEmails";
     const TIMEZONE = "sTimeZone";
+    // #9724 added a server-side rate limit to the page-load trigger. It would
+    // skip all but the first of these concurrent requests, which is exactly
+    // what it is for — but it would also hide the #9727 race this spec exists
+    // to catch, so the limit is disabled for the duration.
+    const RATE_LIMIT = "iTimerJobsMinIntervalMinutes";
 
     let originalMarker;
     let originalFeature;
+    let originalRateLimit;
     let configuredTimezone;
 
     const configUrl = (name) => `/admin/api/system/config/${name}`;
@@ -101,6 +107,9 @@ describe("API Private Admin - Background Timer Jobs concurrency", () => {
         readConfig(FEATURE).then((value) => {
             originalFeature = value;
         });
+        readConfig(RATE_LIMIT).then((value) => {
+            originalRateLimit = value;
+        });
     });
 
     beforeEach(() => {
@@ -108,11 +117,13 @@ describe("API Private Admin - Background Timer Jobs concurrency", () => {
         // because the requests authenticate with the admin API key.
         cy.visit("/session/begin");
         writeConfig(FEATURE, "1");
+        writeConfig(RATE_LIMIT, "0");
     });
 
     after(() => {
         writeConfig(MARKER, originalMarker ?? "");
         writeConfig(FEATURE, originalFeature ?? "0");
+        writeConfig(RATE_LIMIT, originalRateLimit ?? "15");
     });
 
     it("returns 200 for every concurrent request when the run marker is unset", () => {
