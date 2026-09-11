@@ -35,6 +35,12 @@ describe("Volunteer Opportunity Assignment - Issue #7917", () => {
     before(() => {
         // Remove any leftover opportunity from an interrupted earlier run so the
         // "That name already exists." guard cannot make this suite flaky.
+        //
+        // The unassign step is not optional: if the earlier run died between
+        // assigning the opportunity and its own `after` hook, the API answers
+        // DELETE with 409 ("still assigned"), the record survives, and the POST
+        // below then fails the unique-name check with 400 — wedging every
+        // subsequent run of this suite until someone cleans the DB by hand.
         cy.request({
             method: "GET",
             url: "/api/volunteer-opportunities",
@@ -42,11 +48,33 @@ describe("Volunteer Opportunity Assignment - Issue #7917", () => {
         }).then((listRes) => {
             const stale = listRes.body.volunteerOpportunities.filter((opp) => opp.name === OPPORTUNITY_NAME);
             stale.forEach((opp) => {
+                // `?RemoveVO=` is an MVC route, so it authenticates by cookie,
+                // not by API key — and AuthMiddleware *replaces* the cookie
+                // session whenever it sees an `x-api-key` header. Every
+                // api-key request above therefore logs the browser session
+                // out, so the session has to be re-established immediately
+                // before each RemoveVO or it 302s to /session/begin and
+                // silently removes nothing. cy.session() is cached, so the
+                // repeat calls cost one validation request each.
+                cy.setupAdminSession();
+                cy.request({
+                    url: `${PERSON_VIEW_URL}?RemoveVO=${opp.id}`,
+                    failOnStatusCode: false,
+                });
                 cy.request({
                     method: "DELETE",
                     url: `/api/volunteer-opportunities/${opp.id}`,
                     headers: adminApiHeaders(),
                     failOnStatusCode: false,
+                }).then((deleteRes) => {
+                    // Fail here with a readable message rather than letting the
+                    // POST below report a baffling "expected 400 to equal 201".
+                    expect(
+                        deleteRes.status,
+                        `stale "${OPPORTUNITY_NAME}" (id ${opp.id}) must be deletable; a 409 means it is ` +
+                            "still assigned to someone other than person " +
+                            `${PERSON_ID} and needs clearing by hand`,
+                    ).to.eq(200);
                 });
             });
         });
@@ -111,6 +139,11 @@ describe("Volunteer Opportunity Assignment - Issue #7917", () => {
             $select[0].tomselect.close();
             $select[0].tomselect.blur();
         });
+        // TomSelect drops `dropdown-active` from the wrapper once the panel is
+        // really gone, so waiting on it removes the overlay race deterministically
+        // — better than `{ force: true }`, which would also mask a genuine
+        // regression that leaves something covering the button.
+        cy.get(VOLUNTEER_SELECT).siblings(".ts-wrapper").should("not.have.class", "dropdown-active");
 
         cy.get('#volunteer button[name="VolunteerOpportunityAssign"]').click();
 
@@ -127,8 +160,16 @@ describe("Volunteer Opportunity Assignment - Issue #7917", () => {
         cy.get("#volunteer table tbody").should("contain.text", OPPORTUNITY_NAME);
         cy.get(`#volunteer a[href*="RemoveVO=${opportunityId}"]`).should("exist");
 
-        // The opportunity is assigned, so it must no longer be offered for assignment.
+        // The opportunity is assigned, so it must no longer be offered for
+        // assignment. Assert both layers: the server-rendered <option> (the
+        // contract person-view.php is meant to honour) and the option pool
+        // TomSelect actually offers, so the check cannot go vacuous if the
+        // template is ever changed to render everything and lean on
+        // TomSelect's `hideSelected` instead.
         cy.get(VOLUNTEER_SELECT).find(`option[value="${opportunityId}"]`).should("not.exist");
+        cy.get(VOLUNTEER_SELECT).should(($select) => {
+            expect($select[0].tomselect.options, "TomSelect option pool").to.not.have.property(String(opportunityId));
+        });
 
         // Remove it again and assert the round-trip actually unwound.
         cy.get(`#volunteer a[href*="RemoveVO=${opportunityId}"]`).first().click();
@@ -137,8 +178,11 @@ describe("Volunteer Opportunity Assignment - Issue #7917", () => {
         cy.get("#volunteer").should("be.visible");
         cy.get(`#volunteer a[href*="RemoveVO=${opportunityId}"]`).should("not.exist");
         cy.get("#volunteer").should("contain.text", "No volunteer opportunity assignments yet.");
-        // ...and it is offered for assignment again.
+        // ...and it is offered for assignment again, at both layers.
         cy.get(VOLUNTEER_SELECT).find(`option[value="${opportunityId}"]`).should("exist");
+        cy.get(VOLUNTEER_SELECT).should(($select) => {
+            expect($select[0].tomselect.options, "TomSelect option pool").to.have.property(String(opportunityId));
+        });
     });
 
     it("should display volunteer tab content without errors", () => {
