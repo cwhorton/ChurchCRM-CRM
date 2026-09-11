@@ -36,6 +36,67 @@ const INSTALL_SQL = path.join(REPO_ROOT, 'src', 'mysql', 'install', 'Install.sql
 const SEED_SQL = path.join(REPO_ROOT, 'cypress', 'data', 'seed.sql');
 
 /**
+ * Return everything after the closing parenthesis of the column list — the
+ * table options tail, where the charset is declared.
+ *
+ * Anchoring on `lastIndexOf(')')` is not safe: the last `)` in a statement is
+ * only the end of the column list when no table option contains one. A
+ * table-level comment would break it —
+ * `) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Lookup (master) list';`
+ * anchors inside the comment text, starting the tail *after* the charset
+ * keyword, and the charset then reads as `null` with no diagnostic at all.
+ *
+ * Scanning forward from the opening parenthesis and matching it by depth is
+ * exact instead, as long as quoted text is stepped over: backtick
+ * identifiers, and single/double-quoted strings with their doubling and
+ * backslash escapes (a DEFAULT value may legitimately contain a parenthesis).
+ * @param {string} statementBody text between the table name and the `;`
+ * @returns {string} the options tail, or '' if no column list was found
+ */
+function extractOptionsTail(statementBody) {
+    const open = statementBody.indexOf('(');
+    if (open === -1) {
+        return '';
+    }
+
+    let depth = 0;
+    for (let i = open; i < statementBody.length; i++) {
+        const char = statementBody[i];
+
+        if (char === '`' || char === "'" || char === '"') {
+            i++;
+            while (i < statementBody.length) {
+                if (statementBody[i] === '\\' && char !== '`') {
+                    i += 2;
+                    continue;
+                }
+                if (statementBody[i] === char) {
+                    // A doubled quote is an escaped quote, not the end.
+                    if (statementBody[i + 1] === char) {
+                        i += 2;
+                        continue;
+                    }
+                    break;
+                }
+                i++;
+            }
+            continue;
+        }
+
+        if (char === '(') {
+            depth++;
+        } else if (char === ')') {
+            depth--;
+            if (depth === 0) {
+                return statementBody.slice(i);
+            }
+        }
+    }
+
+    return '';
+}
+
+/**
  * Extract `table name -> declared charset` from a .sql file.
  *
  * Matches each `CREATE TABLE \`name\` ( ... ) <options>;` statement and reads
@@ -51,8 +112,7 @@ function parseTableCharsets(filePath) {
     let match;
     while ((match = createTable.exec(sql)) !== null) {
         const [, tableName, statementBody] = match;
-        // Everything after the final ")" is the table options tail.
-        const optionsTail = statementBody.slice(statementBody.lastIndexOf(')'));
+        const optionsTail = extractOptionsTail(statementBody);
         const charset = optionsTail.match(/(?:DEFAULT\s+CHARSET=|CHARACTER\s+SET\s+)([A-Za-z0-9_]+)/i);
         charsets.set(tableName, charset ? charset[1].toLowerCase() : null);
     }
@@ -79,10 +139,12 @@ const installCharsets = parseTableCharsets(INSTALL_SQL);
 const seedCharsets = parseTableCharsets(SEED_SQL);
 
 const mismatches = [];
+const installOnly = [];
 let compared = 0;
 
 for (const [tableName, installCharset] of installCharsets) {
     if (!seedCharsets.has(tableName)) {
+        installOnly.push(tableName);
         continue; // not seeded — nothing to compare
     }
     compared++;
@@ -93,9 +155,30 @@ for (const [tableName, installCharset] of installCharsets) {
     }
 }
 
+// Runtime-created tables (`groupprop_<id>`) legitimately exist only in the
+// seed dump; anything else here is worth a look.
+const RUNTIME_TABLE = /^groupprop_\d+$/;
+const seedOnly = [...seedCharsets.keys()].filter(
+    (tableName) => !installCharsets.has(tableName) && !RUNTIME_TABLE.test(tableName)
+);
+
 console.log(
     `📋 Compared ${compared} table(s) present in both Install.sql (${installCharsets.size}) and seed.sql (${seedCharsets.size})\n`
 );
+
+// Report both directions. A `continue` on an unmatched table is correct — the
+// two files genuinely do not hold the same set — but silently comparing zero
+// entries is how a brand-new utf8mb4 table added to Install.sql and forgotten
+// in seed.sql would escape the very drift this guard exists to catch. These
+// are informational, not failures: neither list is wrong by itself.
+if (installOnly.length > 0) {
+    console.log(`ℹ️  ${installOnly.length} table(s) in Install.sql with no seed.sql block (add one if the table should be seeded):`);
+    console.log(`   ${installOnly.join(', ')}\n`);
+}
+if (seedOnly.length > 0) {
+    console.log(`ℹ️  ${seedOnly.length} non-runtime table(s) in seed.sql with no Install.sql block:`);
+    console.log(`   ${seedOnly.join(', ')}\n`);
+}
 
 if (mismatches.length > 0) {
     console.error('❌ Charset drift between Install.sql and cypress/data/seed.sql:\n');
