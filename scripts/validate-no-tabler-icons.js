@@ -25,15 +25,23 @@ const ROOT = path.join(__dirname, '..');
 const SCAN_ROOTS = ['src', 'webpack'];
 const EXTENSIONS = new Set(['.php', '.js', '.jsx', '.ts', '.tsx', '.html', '.twig', '.css', '.scss']);
 
-// Third-party or generated trees: not ours to fix, and `@tabler/core` itself
-// legitimately mentions `ti-` selectors.
-const SKIP_DIRS = new Set([
+// Directory names that are never ours to fix wherever they appear:
+// dependencies and Propel-generated model code.
+const SKIP_DIR_NAMES = new Set([
     'node_modules',
     'vendor',
-    'external', // src/skin/external — vendored front-end libraries
-    'v2', // src/skin/v2 — webpack build output
     'Base', // Propel-generated
     'Map', // Propel-generated
+]);
+
+// Specific trees, matched by their path relative to the repo root. These are
+// deliberately *not* matched by bare directory name: `src/skin/v2/` is webpack
+// build output and must be skipped, while the application's own `src/v2/`
+// source tree must be scanned — it is one of the two trees that drifted back
+// to Tabler classes in #9752.
+const SKIP_DIR_PATHS = new Set([
+    path.join('src', 'skin', 'external'), // vendored front-end libraries
+    path.join('src', 'skin', 'v2'), // webpack build output
 ]);
 
 // `ti-foo` as a standalone token (so `multi-line`, `anti-aliased` etc. are
@@ -45,13 +53,14 @@ const PATTERNS = [
 
 function walk(dir, out) {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
         if (entry.isDirectory()) {
-            if (SKIP_DIRS.has(entry.name)) {
+            if (SKIP_DIR_NAMES.has(entry.name) || SKIP_DIR_PATHS.has(path.relative(ROOT, full))) {
                 continue;
             }
-            walk(path.join(dir, entry.name), out);
+            walk(full, out);
         } else if (entry.isFile() && EXTENSIONS.has(path.extname(entry.name))) {
-            out.push(path.join(dir, entry.name));
+            out.push(full);
         }
     }
     return out;
