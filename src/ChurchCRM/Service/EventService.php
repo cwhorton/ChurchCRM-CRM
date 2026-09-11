@@ -9,6 +9,8 @@ use ChurchCRM\model\ChurchCRM\EventQuery;
 use ChurchCRM\model\ChurchCRM\EventType;
 use ChurchCRM\model\ChurchCRM\EventTypeQuery;
 use ChurchCRM\model\ChurchCRM\Map\EventTableMap;
+use ChurchCRM\Plugin\Hook\HookManager;
+use ChurchCRM\Plugin\Hooks;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Propel;
@@ -222,6 +224,13 @@ class EventService
                 $event->save($con);
                 $event->reload(false, $con);
                 $eventId = $event->getId();
+
+                // Bulk creation is still creation — a plugin listening on
+                // event.created must see every occurrence, not just the events
+                // made one at a time through newEvent()/quickCreateEvent().
+                // Dispatched here (after save, before the audience link) to
+                // match the ordering those two routes already use (#9734).
+                HookManager::doAction(Hooks::EVENT_CREATED, $event);
 
                 if ($linkedGroupId > 0) {
                     $audience = new EventAudience();
