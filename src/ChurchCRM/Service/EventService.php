@@ -184,6 +184,8 @@ class EventService
         }
 
         $created = [];
+
+        $createdEvents = [];
         $skipped = 0;
 
         // One transaction for the whole series: the existence check below is a
@@ -225,12 +227,6 @@ class EventService
                 $event->reload(false, $con);
                 $eventId = $event->getId();
 
-                // Bulk creation is still creation — a plugin listening on
-                // event.created must see every occurrence, not just the events
-                // made one at a time through newEvent()/quickCreateEvent().
-                // Dispatched here (after save, before the audience link) to
-                // match the ordering those two routes already use (#9734).
-                HookManager::doAction(Hooks::EVENT_CREATED, $event);
 
                 if ($linkedGroupId > 0) {
                     $audience = new EventAudience();
@@ -244,6 +240,7 @@ class EventService
                     'title' => $eventTitle,
                     'date' => $date,
                 ];
+                $createdEvents[] = $event;
             }
 
             $con->commit();
@@ -251,6 +248,16 @@ class EventService
             $con->rollBack();
 
             throw $e;
+        }
+
+        // Bulk creation is still creation — a plugin listening on
+        // event.created must see every occurrence, not just the events made
+        // one at a time through newEvent()/quickCreateEvent(). Dispatched after
+        // the commit so a listener reading on the default connection sees the
+        // rows, and only when the whole series was written (a rollback above
+        // creates nothing, so nothing is announced).
+        foreach ($createdEvents as $createdEvent) {
+            HookManager::doAction(Hooks::EVENT_CREATED, $createdEvent);
         }
 
         return [
