@@ -6,6 +6,7 @@ require_once __DIR__ . '/../Include/PageInit.php';
 use ChurchCRM\dto\SystemConfig;
 use ChurchCRM\Reports\PdfLabel;
 use ChurchCRM\dto\Cart;
+use ChurchCRM\model\ChurchCRM\Family;
 use ChurchCRM\Utils\InputUtils;
 use ChurchCRM\Utils\MiscUtils;
 use ChurchCRM\Utils\LoggerUtils;
@@ -567,14 +568,27 @@ function SelectLabelAddress(array $aRow): array
 {
     $sPersonAddress1 = trim((string) ($aRow['per_Address1'] ?? ''));
     $sPersonAddress2 = trim((string) ($aRow['per_Address2'] ?? ''));
-    $sPrefix = ($sPersonAddress1 !== '' || $sPersonAddress2 !== '') ? 'per_' : 'fam_';
+    if ($sPersonAddress1 !== '' || $sPersonAddress2 !== '') {
+        return [
+            'Address1' => $sPersonAddress1,
+            'Address2' => $sPersonAddress2,
+            'City'     => trim((string) ($aRow['per_City'] ?? '')),
+            'State'    => trim((string) ($aRow['per_State'] ?? '')),
+            'Zip'      => trim((string) ($aRow['per_Zip'] ?? '')),
+        ];
+    }
+
+    // The family's mailing address (#9743): the flagged second address when
+    // the family has one, the primary address otherwise, as the newsletter
+    // and confirm labels already do.
+    $aMailing = Family::mailingAddressPartsFromRow($aRow);
 
     return [
-        'Address1' => trim((string) ($aRow[$sPrefix . 'Address1'] ?? '')),
-        'Address2' => trim((string) ($aRow[$sPrefix . 'Address2'] ?? '')),
-        'City'     => trim((string) ($aRow[$sPrefix . 'City'] ?? '')),
-        'State'    => trim((string) ($aRow[$sPrefix . 'State'] ?? '')),
-        'Zip'      => trim((string) ($aRow[$sPrefix . 'Zip'] ?? '')),
+        'Address1' => $aMailing['Address1'],
+        'Address2' => $aMailing['Address2'],
+        'City'     => $aMailing['City'],
+        'State'    => $aMailing['State'],
+        'Zip'      => $aMailing['Zip'],
     ];
 }
 
@@ -629,6 +643,18 @@ function GenerateLabels(&$pdf, $mode, $iBulkMailPresort, $bToParents, $bOnlyComp
 
         if ($mode === 'fam') {
             $aName = GroupBySalutation($aRow['per_fam_ID'], $aAdultRole, $aChildRole);
+
+            // One label per household (#9873): the adults' salutation when an
+            // adult of the family is in the cart, else the children's (so a
+            // class list still gets "To the parents of"), else the family
+            // name. Before, a family with adults and children in the cart got
+            // one label for each group.
+            foreach (['adult', 'child', 'other'] as $sGroup) {
+                if ($aName[$sGroup] !== 'Nothing to return') {
+                    $aName = [$sGroup => $aName[$sGroup]];
+                    break;
+                }
+            }
         } else {
             $sName = MiscUtils::formatFullName(
                 $aRow['per_Title'],
