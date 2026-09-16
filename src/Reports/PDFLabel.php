@@ -6,6 +6,7 @@ require_once __DIR__ . '/../Include/PageInit.php';
 use ChurchCRM\dto\SystemConfig;
 use ChurchCRM\Reports\PdfLabel;
 use ChurchCRM\dto\Cart;
+use ChurchCRM\model\ChurchCRM\Family;
 use ChurchCRM\Utils\InputUtils;
 use ChurchCRM\Utils\MiscUtils;
 use ChurchCRM\Utils\LoggerUtils;
@@ -567,14 +568,27 @@ function SelectLabelAddress(array $aRow): array
 {
     $sPersonAddress1 = trim((string) ($aRow['per_Address1'] ?? ''));
     $sPersonAddress2 = trim((string) ($aRow['per_Address2'] ?? ''));
-    $sPrefix = ($sPersonAddress1 !== '' || $sPersonAddress2 !== '') ? 'per_' : 'fam_';
+    if ($sPersonAddress1 !== '' || $sPersonAddress2 !== '') {
+        return [
+            'Address1' => $sPersonAddress1,
+            'Address2' => $sPersonAddress2,
+            'City'     => trim((string) ($aRow['per_City'] ?? '')),
+            'State'    => trim((string) ($aRow['per_State'] ?? '')),
+            'Zip'      => trim((string) ($aRow['per_Zip'] ?? '')),
+        ];
+    }
+
+    // The family's mailing address (#9743): the flagged second address when
+    // the family has one, the primary address otherwise, as the newsletter
+    // and confirm labels already do.
+    $aMailing = Family::mailingAddressPartsFromRow($aRow);
 
     return [
-        'Address1' => trim((string) ($aRow[$sPrefix . 'Address1'] ?? '')),
-        'Address2' => trim((string) ($aRow[$sPrefix . 'Address2'] ?? '')),
-        'City'     => trim((string) ($aRow[$sPrefix . 'City'] ?? '')),
-        'State'    => trim((string) ($aRow[$sPrefix . 'State'] ?? '')),
-        'Zip'      => trim((string) ($aRow[$sPrefix . 'Zip'] ?? '')),
+        'Address1' => $aMailing['Address1'],
+        'Address2' => $aMailing['Address2'],
+        'City'     => $aMailing['City'],
+        'State'    => $aMailing['State'],
+        'Zip'      => $aMailing['Zip'],
     ];
 }
 
