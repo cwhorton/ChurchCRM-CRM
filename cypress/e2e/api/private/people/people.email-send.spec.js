@@ -100,6 +100,14 @@ describe("API POST /api/email/send", () => {
                     expect(full.body.HTML).to.include(churchEmail);
                     expect(full.body.HTML).to.include("Line one<br");
                     expect(full.body.HTML).to.not.include("<script");
+                    // Footer = the Church Information display preview: name, address, phone, email.
+                    // Read the live values: other specs in the same run change the church name.
+                    cy.makePrivateAdminAPICall("GET", "/admin/api/system/config/sChurchName").then((name) => {
+                        expect(full.body.HTML).to.include(`<strong>${name.body.value}</strong>`);
+                    });
+                    cy.makePrivateAdminAPICall("GET", "/admin/api/system/config/sChurchEmail").then((email) => {
+                        expect(full.body.HTML).to.include(`mailto:${email.body.value}`);
+                    });
                 });
             });
         });
