@@ -333,10 +333,11 @@ class LocalAuthentication implements IAuthenticationProvider
         $IsUserOnPasswordChangePageNow = str_contains($_SERVER['REQUEST_URI'] ?? '', '/v2/user/current/changepassword');
         // A masquerading administrator (#9843) is not the account's owner: the
         // account's own obligations — a forced password change, 2FA enrolment —
-        // are theirs to meet on their next real login, not the administrator's to
-        // meet on their behalf. Enforcing them here trapped the administrator on
-        // the change-password page, and the banner's Exit request was redirected
-        // there too (review, 2026-09-18).
+        // are theirs to meet on their next real login, not the administrator's
+        // to meet on their behalf. Enforcing them here trapped the administrator
+        // on the change-password page, and the banner's Exit request was
+        // redirected there too, so the masquerade could not be ended at all.
+        // The flags themselves are left untouched.
         $impersonating = ImpersonationService::isActive();
         if ($this->currentUser->getNeedPasswordChange() && !$IsUserOnPasswordChangePageNow && !$impersonating) {
             LoggerUtils::getAuthLogger()->info('User needs password change; redirecting to password change', $logCtx);
