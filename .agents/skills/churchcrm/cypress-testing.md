@@ -2901,3 +2901,16 @@ cy.visit(this.verifyPath);   // resolves against CYPRESS_BASE_URL
 
 The same applies to any absolute link read out of a page, an email body, or an
 API payload before handing it to `cy.visit()` or `cy.request()`.
+### Asserting the text inside a generated PDF <!-- learned: 2026-09-18 -->
+
+The reports are FPDF output with compressed page streams, and the repo has no PDF parser devDependency — but none is needed. Fetch the PDF with `cy.request({ encoding: "binary" })` (cy.visit() only accepts text/html), then inflate each `stream … endstream` block with the browser's `DecompressionStream("deflate")` and collect the `(text) Tj` operands. Core fonts (Helvetica, Times) write text as literal strings, and every `Cell()`/`MultiCell()` line is one `Tj`, so a label or address block comes back line for line. The full helper (`pdfText`) lives in `cypress/e2e/ui/reports/mailing-address-reports.spec.js`; the shape:
+
+```javascript
+// stream dictionaries carry /Length N and /Filter /FlateDecode
+const inflated = new Blob([bytes.subarray(start, start + length)])
+    .stream().pipeThrough(new DecompressionStream("deflate"));
+const content = new TextDecoder("latin1").decode(await new Response(inflated).arrayBuffer());
+const lines = Array.from(content.matchAll(/\(((?:\\.|[^\\)])*)\)\s*Tj/g), ([, t]) => t.replace(/\\([\\()])/g, "$1"));
+```
+
+Assert on a sequence around a unique marker (`lines.indexOf(familyName)` then `slice`) rather than on `includes` alone, so the test proves *which* record printed *what*. Two report gotchas: the directory report pre-selects classifications, so people created with the default Unassigned classification (0) never appear — set `Classification<n>` in the family editor; and `DELETE /api/family/{id}` only unlinks members (`per_fam_ID = 0`), so clean up with `?deleteMembers=true` when the test created people.
