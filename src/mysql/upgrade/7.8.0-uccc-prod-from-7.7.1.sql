@@ -14,7 +14,7 @@
 --     and no longer generate dates of their own (D20, D31): the recurrence columns go;
 --   * a team may be linked to a Sunday School class (D23), a ministry says whether it
 --     provides teachers (D29), administrators open calendars to ministries (D25);
---   * default volunteers live on a schedule's staffing needs (D32);
+--   * default volunteers, several per position, live in their own table (D32, D35);
 --   * the "Other" event type (D31).
 --
 -- Production has no schedules or occurrences (V2 is off there), so no row needs converting;
@@ -45,16 +45,24 @@ ALTER TABLE `volunteer_schedule_vsch`
   ADD CONSTRAINT `fk_vsch_event` FOREIGN KEY (`vsch_event_id`)
       REFERENCES `events_event` (`event_id`) ON DELETE SET NULL;
 
-ALTER TABLE `volunteer_requirement_vreq`
-  ADD COLUMN `vreq_Default_per_ID` mediumint(9) unsigned DEFAULT NULL AFTER `vreq_Notes`,
-  ADD COLUMN `vreq_DefaultAccepted` tinyint(1) unsigned NOT NULL DEFAULT 0 AFTER `vreq_Default_per_ID`,
-  ADD COLUMN `vreq_DefaultSetBy_per_ID` mediumint(9) unsigned DEFAULT NULL AFTER `vreq_DefaultAccepted`,
-  ADD KEY `vreq_default_person_idx` (`vreq_Default_per_ID`),
-  ADD KEY `vreq_default_set_by_idx` (`vreq_DefaultSetBy_per_ID`),
-  ADD CONSTRAINT `fk_vreq_default_person` FOREIGN KEY (`vreq_Default_per_ID`)
-      REFERENCES `person_per` (`per_ID`) ON DELETE SET NULL,
-  ADD CONSTRAINT `fk_vreq_default_set_by` FOREIGN KEY (`vreq_DefaultSetBy_per_ID`)
-      REFERENCES `person_per` (`per_ID`) ON DELETE SET NULL;
+CREATE TABLE IF NOT EXISTS `volunteer_requirement_default_vrdf` (
+  `vrdf_ID`           int(11)               NOT NULL AUTO_INCREMENT,
+  `vrdf_vreq_ID`      int(11)               NOT NULL,
+  `vrdf_per_ID`       mediumint(9) unsigned NOT NULL,
+  `vrdf_Accepted`     tinyint(1) unsigned   NOT NULL DEFAULT 0,
+  `vrdf_SetBy_per_ID` mediumint(9) unsigned          DEFAULT NULL,
+  `vrdf_Sort`         smallint(6)           NOT NULL DEFAULT 0,
+  PRIMARY KEY (`vrdf_ID`),
+  UNIQUE KEY `vrdf_requirement_person_uidx` (`vrdf_vreq_ID`, `vrdf_per_ID`),
+  KEY `vrdf_person_idx`                     (`vrdf_per_ID`),
+  KEY `vrdf_set_by_idx`                     (`vrdf_SetBy_per_ID`),
+  CONSTRAINT `fk_vrdf_requirement` FOREIGN KEY (`vrdf_vreq_ID`)
+      REFERENCES `volunteer_requirement_vreq` (`vreq_ID`) ON DELETE CASCADE,
+  CONSTRAINT `fk_vrdf_person` FOREIGN KEY (`vrdf_per_ID`)
+      REFERENCES `person_per` (`per_ID`) ON DELETE CASCADE,
+  CONSTRAINT `fk_vrdf_set_by` FOREIGN KEY (`vrdf_SetBy_per_ID`)
+      REFERENCES `person_per` (`per_ID`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 ALTER TABLE `volunteer_team_vtem`
   ADD COLUMN `vtem_grp_ID` mediumint(8) unsigned DEFAULT NULL AFTER `vtem_Active`,

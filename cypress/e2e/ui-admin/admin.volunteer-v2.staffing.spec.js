@@ -13,7 +13,7 @@
  * This spec walks that exact path through the browser:
  *
  *   1. A schedule created through the schedule form, with its default staffing needs,
- *      yields occurrences showing `0/1` filled and "1 Lead Teacher" still needed —
+ *      yields occurrences reading "Needs 1 more" with "1 Lead Teacher" named as short —
  *      never "Fully staffed".
  *   2. A schedule saved with every need UNCHECKED warns in the form and its occurrences
  *      say "No staffing needs set", which is a different sentence from "Fully staffed"
@@ -448,8 +448,8 @@ describe("Volunteer v2 — staffing needs (§2.10)", () => {
                             cy.get("td").eq(4).invoke("text").invoke("trim").should("eq", "");
                             cy.get("td").eq(4).find(".text-red .fa-triangle-exclamation").should("exist");
                             cy.get("td").eq(4).find("[title]").invoke("attr", "title")
-                                .should("contain", "0 of 1")
-                                .and("contain", "1 ")
+                                .should("contain", "Needs 1 more")
+                                .and("contain", "0 of 1")
                                 .and("contain", "Lead Teacher");
                         });
                 });
@@ -696,8 +696,7 @@ describe("Volunteer v2 — staffing needs (§2.10)", () => {
                 cy.contains("Nobody is qualified for this position yet");
             });
 
-            // Choose the default through the underlying select (TomSelect mirrors it and
-            // fires change), then tick Set as Accepted once it appears.
+            // Choose the default, then tick Set as Accepted once it appears.
             cy.get(`.generate-default-row[data-position-id="${posLead}"] select.generate-default-select`).then(($select) => {
                 const value = $select.find("option").eq(1).val();
                 cy.wrap($select).select(String(value), { force: true });
@@ -707,8 +706,8 @@ describe("Volunteer v2 — staffing needs (§2.10)", () => {
 
             cy.intercept("POST", `**/api/ministries/schedules/${scheduleId}/generate`).as("generate");
             cy.get("#generate-form-save").click();
-            cy.wait("@generate").its("request.body.defaults").should("deep.eq", [
-                { positionId: posLead, personId: PERSON_DEFAULT, accepted: true },
+            cy.wait("@generate").its("request.body.requirements").should("deep.eq", [
+                { positionId: posLead, defaults: [{ personId: PERSON_DEFAULT, accepted: true }] },
             ]);
             cy.get("#generateOccurrencesModal").should("not.be.visible");
             cy.get("#volunteerSchedulesTable tbody tr", { timeout: 15000 })
@@ -754,8 +753,8 @@ describe("Volunteer v2 — staffing needs (§2.10)", () => {
             cy.intercept("POST", `**/api/ministries/schedules/${scheduleId}/generate`).as("generate");
             cy.get("#generate-form-save").click();
             cy.wait("@generate").then(({ request, response }) => {
-                // D32: every row is sent, a blank one as "no default for this position".
-                expect(request.body.defaults).to.deep.eq([{ positionId: posLead, personId: null, accepted: false }]);
+                // D32: every row with pickers is sent, an empty list as "no default for this position".
+                expect(request.body.requirements).to.deep.eq([{ positionId: posLead, defaults: [] }]);
                 expect(response.body.created).to.be.greaterThan(0);
                 expect(response.body.assigned).to.eq(0);
             });
@@ -790,7 +789,7 @@ describe("Volunteer v2 — staffing needs (§2.10)", () => {
         it("overrides this week's needs and puts them back", () => {
             cy.visit(`/ministries/occurrences/${occurrenceId}`);
             cy.get("#requirements-loading").should("not.be.visible");
-            cy.get(".volunteer-requirement .requirement-counts").should("contain.text", "0 / 1");
+            cy.get(".volunteer-requirement .requirement-counts").should("have.text", "Needs 1 more");
 
             cy.get("#requirements-edit").click();
             cy.get("#volunteer-needs-modal").should("be.visible");
@@ -810,8 +809,8 @@ describe("Volunteer v2 — staffing needs (§2.10)", () => {
             cy.get("#volunteer-needs-modal").should("not.be.visible");
             cy.get(".volunteer-requirement").should("have.length", 2);
             cy.get(`.volunteer-requirement[data-position-id="${posLead}"] .requirement-counts`).should(
-                "contain.text",
-                "0 / 3",
+                "have.text",
+                "Needs 3 more",
             );
 
             // And back again.
@@ -823,8 +822,8 @@ describe("Volunteer v2 — staffing needs (§2.10)", () => {
             cy.get("#volunteer-needs-modal").should("not.be.visible");
             cy.get(".volunteer-requirement").should("have.length", 1);
             cy.get(`.volunteer-requirement[data-position-id="${posLead}"] .requirement-counts`).should(
-                "contain.text",
-                "0 / 1",
+                "have.text",
+                "Needs 1 more",
             );
 
             // Last, because cy.request() rotates the session cookie out from under the
@@ -867,8 +866,8 @@ describe("Volunteer v2 — staffing needs (§2.10)", () => {
             cy.get("#volunteer-needs-modal").should("not.be.visible");
             cy.get("#requirements-empty").should("not.be.visible");
             cy.get(`.volunteer-requirement[data-position-id="${posLead}"] .requirement-counts`).should(
-                "contain.text",
-                "0 / 2",
+                "have.text",
+                "Needs 2 more",
             );
         });
 

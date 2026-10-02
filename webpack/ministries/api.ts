@@ -685,6 +685,8 @@ export interface VolunteerOccurrenceSummary {
   liveCount: number;
   gapCount: number;
   openCount: number;
+  /** The summed maximums (a NULL max counts its min), for "Full · 3 of 3" and friends (D34). */
+  capacity: number;
   pendingCount: number;
   /**
    * The genuinely-short positions by name, so a list can say "1 Lead Teacher, 2 Helper"
@@ -714,14 +716,32 @@ export interface VolunteerCandidatePosition {
   order: number;
 }
 
+/** One default volunteer as the schedule and Generate dialogs send it (D32, D35). */
+export interface VolunteerDefaultInput {
+  personId: number;
+  /** Record them as having accepted every occurrence, so they are not asked to respond. */
+  accepted: boolean;
+}
+
 /** One row of the staffing-needs editor as it is sent back to the server. */
 export interface VolunteerRequirementInput {
   positionId: number;
   minCount: number;
   maxCount: number | null;
-  /** D32, a schedule's needs only: null clears the default; absent keeps the stored one. */
-  defaultPersonId?: number | null;
-  defaultAccepted?: boolean;
+  /** D35, a schedule's needs only: the whole list, in assignment order; `[]` clears it, absent keeps it. */
+  defaults?: VolunteerDefaultInput[];
+}
+
+/** One of a schedule's default volunteers for a position (D32, D35). */
+export interface VolunteerRequirementDefault {
+  personId: number;
+  name: string | null;
+  accepted: boolean;
+  /** Who chose them; the daily top-up assigns in this person's name. */
+  setBy: number | null;
+  setByName: string | null;
+  /** False while their qualification is revoked (their slot is then left open). */
+  qualified: boolean;
 }
 
 /** A requirement as `volunteerRequirementToArray()` shapes it. */
@@ -735,12 +755,8 @@ export interface VolunteerRequirementRow {
   maxCount: number | null;
   notes: string | null;
   source: "schedule" | "occurrence";
-  /** D32: the schedule's default volunteer for this position. */
-  defaultPersonId: number | null;
-  defaultPersonName: string | null;
-  defaultAccepted: boolean;
-  /** False while the default's qualification is revoked (the position is then left open); null with no default. */
-  defaultQualified: boolean | null;
+  /** D35: the schedule's default volunteers for this position, in assignment order; none on an override. */
+  defaults: VolunteerRequirementDefault[];
 }
 
 export interface VolunteerOccurrenceRequirements {
@@ -991,7 +1007,9 @@ export interface VolunteerMyOpportunity {
   end: string | null;
   openCount: number;
   minCount: number;
+  maxCount: number | null;
   liveCount: number;
+  gapCount: number;
   alreadyServing: boolean;
   alreadyServingPositionNames: string[];
 }
@@ -1279,13 +1297,11 @@ export function listUpcomingEvents(params: {
   return request(`/upcoming-events?${query.toString()}`);
 }
 
-/** One "Fill by default with" answer of the Generate Occurrences dialog. */
-export interface VolunteerGenerateDefault {
+/** One position's "Fill by default with" answers in the Generate Occurrences dialog (D35). */
+export interface VolunteerGenerateDefaults {
   positionId: number;
-  /** Null: no default for this position (D32 saves it on the schedule as none). */
-  personId: number | null;
-  /** Record them as having accepted every occurrence, so they are not asked to respond. */
-  accepted: boolean;
+  /** Saved on the schedule as the whole list; `[]` clears it (D32). */
+  defaults: VolunteerDefaultInput[];
 }
 
 /** What a schedule looks for on the calendar, with names (D30); the keys of other modes are null. */
@@ -1321,14 +1337,14 @@ export interface VolunteerGenerateResult {
 
 export function generateOccurrences(
   scheduleId: number,
-  options: { through?: string; defaults?: VolunteerGenerateDefault[] } = {},
+  options: { through?: string; requirements?: VolunteerGenerateDefaults[] } = {},
 ): Promise<VolunteerGenerateResult> {
   const body: Record<string, unknown> = {};
   if (options.through) {
     body.through = options.through;
   }
-  if (options.defaults && options.defaults.length > 0) {
-    body.defaults = options.defaults;
+  if (options.requirements && options.requirements.length > 0) {
+    body.requirements = options.requirements;
   }
 
   return request(`/schedules/${scheduleId}/generate`, {
@@ -1374,8 +1390,11 @@ export type VolunteerDashboardGap = {
   positionId: number;
   positionName: string | null;
   minCount: number;
+  maxCount: number | null;
   liveCount: number;
   gapCount: number;
+  openCount: number;
+  pendingCount: number;
 } & VolunteerDashboardContext;
 
 export type VolunteerDashboardPending = VolunteerAssignment &
@@ -1443,6 +1462,9 @@ export interface VolunteerMinistryEventStaffing {
   filled: number;
   pending: number;
   gap: number;
+  /** Room left and summed maximums, for the D34 wording. */
+  openCount: number;
+  capacity: number;
   requirementCount: number;
   /** `unplanned` = no staffing needs set (§2.10). */
   status: "unplanned" | "gap" | "pending" | "filled";

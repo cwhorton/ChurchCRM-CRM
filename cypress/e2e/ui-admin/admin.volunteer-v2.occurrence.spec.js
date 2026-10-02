@@ -323,6 +323,14 @@ describe("Volunteer v2 — occurrence / staffing view (#9709)", () => {
 
     after(() => {
         clearAssignments();
+        // The series is re-created every run; leaving it behind trips the row-count
+        // guard, and an occurrence whose event is gone would be picked up next run.
+        cy.dbQuery("DELETE FROM volunteer_occurrence_vocc WHERE vocc_vsch_ID = ?", [scheduleId]);
+        cy.dbQuery(
+            "DELETE FROM calendar_events WHERE event_id IN (SELECT event_id FROM events_event WHERE event_title = ?)",
+            [EVENT_TITLE],
+        );
+        cy.dbQuery("DELETE FROM events_event WHERE event_title = ?", [EVENT_TITLE]);
         setVersion("v1");
     });
 
@@ -371,10 +379,10 @@ describe("Volunteer v2 — occurrence / staffing view (#9709)", () => {
             cy.visit(occurrenceUrl());
 
             cy.get(`.volunteer-requirement[data-position-id="${posEspresso}"] .requirement-counts`)
-                .should("contain", "0")
-                .and("contain", "1");
-            cy.get(`.volunteer-requirement[data-position-id="${posEspresso}"] .requirement-gap`)
-                .should("be.visible");
+                .should("have.text", "Needs 1 more")
+                .and("have.attr", "data-tone", "danger");
+            cy.get(`.volunteer-requirement[data-position-id="${posEspresso}"] .requirement-detail`)
+                .should("have.text", "0 of 1");
         });
 
         it("renders a first-class empty state for a position with nobody assigned", () => {
@@ -384,8 +392,9 @@ describe("Volunteer v2 — occurrence / staffing view (#9709)", () => {
             // one empty state that cannot be disturbed by a leftover row.
             cy.get(`.volunteer-requirement[data-position-id="${posExpeditor}"] .volunteer-empty`)
                 .should("be.visible");
-            cy.get(`.volunteer-requirement[data-position-id="${posExpeditor}"] .requirement-gap`)
-                .should("not.be.visible");
+            cy.get(`.volunteer-requirement[data-position-id="${posExpeditor}"] .requirement-counts`)
+                .should("have.text", "Optional · up to 1 welcome")
+                .and("have.attr", "data-tone", "secondary");
         });
 
         it("renders the localized page strings, never a raw key", () => {
@@ -451,8 +460,9 @@ describe("Volunteer v2 — occurrence / staffing view (#9709)", () => {
             cy.get("#volunteer-assign-modal").should("not.have.class", "show");
             cy.get(`.volunteer-requirement[data-position-id="${posEspresso}"] .volunteer-assignment-row[data-status="pending"]`)
                 .should("have.length", 1);
-            cy.get(`.volunteer-requirement[data-position-id="${posEspresso}"] .requirement-gap`)
-                .should("not.be.visible");
+            cy.get(`.volunteer-requirement[data-position-id="${posEspresso}"] .requirement-counts`)
+                .should("have.text", "Full · 1 of 1")
+                .and("have.attr", "data-tone", "warning");
             cy.get(`.volunteer-requirement[data-position-id="${posEspresso}"] .volunteer-status-badge`)
                 .should("contain", "Pending");
         });
@@ -534,8 +544,9 @@ describe("Volunteer v2 — occurrence / staffing view (#9709)", () => {
             cy.get(".bootbox.modal").should("be.visible");
             cy.get(".bootbox .btn-primary, .bootbox .btn-danger").last().click();
 
-            cy.get(`.volunteer-requirement[data-position-id="${posEspresso}"] .requirement-gap`)
-                .should("be.visible");
+            cy.get(`.volunteer-requirement[data-position-id="${posEspresso}"] .requirement-counts`)
+                .should("have.text", "Needs 1 more")
+                .and("have.attr", "data-tone", "danger");
             cy.get(`.volunteer-requirement[data-position-id="${posEspresso}"] .volunteer-status-badge`)
                 .should("contain", "Cancelled");
         });
