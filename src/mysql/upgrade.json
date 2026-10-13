@@ -106,7 +106,12 @@
   },
   "current": {
     "versions": ["7.8.0"],
-    "scripts": ["/mysql/upgrade/7.8.1-uccc-login-as-user-history.sql", "/mysql/upgrade/7.8.1-person-grade.sql", "/mysql/upgrade/7.8.1-person-grade.php", "/mysql/upgrade/7.9.0.sql"],
+    "scripts": [
+      "/mysql/upgrade/7.8.1-uccc-login-as-user-history.sql",
+      "/mysql/upgrade/7.8.1-person-grade.sql",
+      "/mysql/upgrade/7.8.1-person-grade.php",
+      "/mysql/upgrade/7.9.0.sql"
+    ],
     "dbVersion": "7.8.1"
   }
 }
