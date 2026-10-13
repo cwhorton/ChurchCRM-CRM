@@ -5,6 +5,8 @@ require_once __DIR__ . '/Include/PageInit.php';
 
 use ChurchCRM\Authentication\AuthenticationManager;
 use ChurchCRM\Bootstrapper;
+use ChurchCRM\data\Countries;
+use ChurchCRM\data\States;
 use ChurchCRM\dto\SystemConfig;
 use ChurchCRM\dto\SystemURLs;
 use ChurchCRM\model\ChurchCRM\Family;
@@ -280,15 +282,15 @@ if (isset($_POST['FamilySubmit']) || isset($_POST['FamilySubmitAndAdd'])) {
             ->setAddress1($sAddress1)
             ->setAddress2($sAddress2)
             ->setCity($sCity)
-            ->setState($sState)
+            ->setState(States::keepStoredIfSame($sCountry, $family->getState(), $sState))
             ->setZip($sZip)
-            ->setCountry($sCountry)
+            ->setCountry(Countries::keepStoredIfSame($family->getCountry(), $sCountry))
             ->setSecondAddress1($sSecondAddress1)
             ->setSecondAddress2($sSecondAddress2)
             ->setSecondCity($sSecondCity)
-            ->setSecondState($sSecondState)
+            ->setSecondState(States::keepStoredIfSame($sSecondCountry, $family->getSecondState(), $sSecondState))
             ->setSecondZip($sSecondZip)
-            ->setSecondCountry($sSecondCountry)
+            ->setSecondCountry(Countries::keepStoredIfSame($family->getSecondCountry(), $sSecondCountry))
             ->setSecondIsMailing($bSecondIsMailing)
             ->setHomePhone($sHomePhone)
             ->setSendNewsletter($bSendNewsLetterString)
@@ -596,7 +598,8 @@ $sSecondAddress2Attr = htmlspecialchars(stripslashes($sSecondAddress2 ?? ''), EN
 $sSecondCityAttr = htmlspecialchars(stripslashes($sSecondCity ?? ''), ENT_QUOTES, 'UTF-8');
 $sSecondStateAttr = htmlspecialchars(stripslashes($sSecondState ?? ''), ENT_QUOTES, 'UTF-8');
 $sSecondZipAttr = htmlspecialchars(stripslashes($sSecondZip ?? ''), ENT_QUOTES, 'UTF-8');
-$sSecondCountryAttr = htmlspecialchars(stripslashes($sSecondCountry ?? ''), ENT_QUOTES, 'UTF-8');
+$sSecondCountryAttr = htmlspecialchars(stripslashes(Countries::toISO($sSecondCountry)), ENT_QUOTES, 'UTF-8');
+$sCountry = Countries::toISO($sCountry);
 
 require_once __DIR__ . '/Include/Header.php';
 ?>
