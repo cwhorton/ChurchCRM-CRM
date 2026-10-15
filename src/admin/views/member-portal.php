@@ -247,7 +247,7 @@ $themesDocUrl = 'https://github.com/ChurchCRM/CRM/blob/master/docs/portal-themes
                                                        <?= in_array((int) $classification['id'], $tickedClassifications, true) ? 'checked' : '' ?>>
                                                 <span class="form-check-label">
                                                     <?= InputUtils::escapeHTML($classification['name']) ?>
-                                                    <span class="badge bg-secondary-lt text-secondary ms-1" data-cy="classification-count"><?= (int) $classification['activeCount'] ?></span>
+                                                    <span class="badge bg-secondary text-white ms-1" data-cy="classification-count"><?= (int) $classification['activeCount'] ?></span>
                                                 </span>
                                             </label>
                                         <?php endforeach; ?>

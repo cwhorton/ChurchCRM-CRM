@@ -45,6 +45,7 @@ function wireDisable(card: HTMLElement): void {
   if (!form || !reason) {
     return;
   }
+  document.getElementById("portal-signin-disable-modal")?.addEventListener("shown.bs.modal", () => reason.focus());
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();

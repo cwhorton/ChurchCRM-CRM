@@ -16,9 +16,9 @@ use Slim\Routing\RouteCollectorProxy;
 // Served at /admin/api/member-portal/* — '/admin' is the app base path, and
 // AdminRoleAuthMiddleware already gates every route in this app.
 //
-// Booleans and text on the Admin → Member Portal page save through the
-// existing POST /admin/api/system/config/{name}. Only theme activation needs a
-// route of its own, because the validator has to be able to refuse (design §4).
+// The Settings tab's booleans save through the existing
+// POST /admin/api/system/config/{name}. Theme activation and the Sign-in tab
+// have routes of their own, because their checks have to be able to refuse.
 $app->group('/api/member-portal', function (RouteCollectorProxy $group): void {
     $group->get('/stats', 'getMemberPortalStatsAPI');
     $group->get('/themes', 'listMemberPortalThemesAPI');
