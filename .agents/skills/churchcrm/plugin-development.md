@@ -244,6 +244,26 @@ $app->group('/my-plugin/api', function (RouteCollectorProxy $group) use ($plugin
 });
 ```
 
+## Member Portal: pages, capabilities and nav
+
+Member sign-in design §8.5. A plugin reaches the portal only through portal
+capabilities, which the portal permissions model (`ChurchCRM\Portal\Permissions`)
+decides for core and plugins alike.
+
+| Piece | Where | Notes |
+|-------|-------|-------|
+| Capabilities | `plugin.json` → `portal.capabilities[]`: `key`, `label`, `description`, `scopeType` | `key` = `plugin.<id>.<name>`; `scopeType` is `none`, `family`, `team`, `ministry`, `group` or the plugin's own word. An undeclared key is always refused |
+| Rules | `getPortalRules(): PortalRule[]` (`CallbackPortalRule` for a closure) | evaluated live per request; return `PortalRuleGrant(capability, scope, label)` |
+| Pages and API | `plugin.json` → `portalRoutesFile` | included twice, with `$group` and `$portalArea` (`'pages'` under `/portal/plugins/<id>`, `'api'` under `/api/portal/plugins/<id>`), behind the portal session. Each route adds `RequirePortalCapability` |
+| Templates | `portal/templates/*.html.twig`, rendered by `PortalTwig::renderPluginPage()` | extend `layout.html.twig`; `portal_can()` hides sections |
+| Nav | `getPortalNavItems(): [{label, url, icon, capability, id?}]` | shown when `scopesFor(capability)` is not empty, before My Family |
+
+Turning the plugin off removes its capabilities from every check, its rules,
+pages and nav. Given grants stay stored and work again when it is turned back
+on; `PluginInstaller::uninstall()` deletes them. Defaults in `AbstractPlugin`
+return empty lists. The plugin is trusted code; the model gives it one way to
+decide, not a sandbox.
+
 ## What a Plugin Can and Cannot Do <!-- learned: 2026-04-13 -->
 
 This section is the quick-reference contract every ChurchCRM plugin is

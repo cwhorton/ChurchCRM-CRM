@@ -133,6 +133,7 @@ filesystem access, no database access and no session.
 | `gettext(text)` | The translation of `text` |
 | `ngettext(singular, plural, count)` | The translation of `singular`/`plural` for `count` |
 | `email_wrap` (filter) | An email address, escaped, that may wrap after the `@` and before each `.` instead of mid-word: `{{ profile.email\|email_wrap }}`. Safe HTML — do not escape it again. |
+| `portal_can(capability, scope)` | Whether the member holds a portal capability, to show or hide a section or a button: `{% if portal_can('volunteer.team.manage', team) %}`. `scope` is the record the page has (an object with an `id`, or the id itself); leave it out to ask "on any scope". The page and the API check again — hiding a button is a convenience, not the permission. |
 
 ---
 
@@ -168,7 +169,7 @@ portal route, ever addresses somebody else.
 | `email` | string | |
 | `avatarUrl` | string | `/api/portal/me/photo`, cache-busted; **empty when no photo has been uploaded** — render initials instead |
 | `familyId` | int | `0` when the person has no family |
-| `isTeamLeader` | bool | `true` when this person leads at least one volunteer team. Also `true` on a self-service login — that is the point of it |
+| `isTeamLeader` | bool | Same as `portal_can('volunteer.team.manage')`. Kept for older themes; new templates call `portal_can()` |
 | `isStaff` | bool | `true` for a login that also has the admin shell — the account menu offers it "Admin Console" |
 
 ### `nav`
@@ -182,6 +183,7 @@ what this member may see.
 | `label` | string | Already translated |
 | `url` | string | Ready to use in `href` |
 | `icon` | string | A Font Awesome class, e.g. `fa-solid fa-house` |
+| `capability` | string\|null | The portal capability the entry needs; `null` for Home |
 | `active` | bool | `true` for the page being rendered |
 | `badge` | string | A short count or flag; empty when there is nothing to show |
 
@@ -235,7 +237,7 @@ will stop working on your pages.
 | `profile/password.html.twig` | `GET/POST /portal/profile/password` (every role); also `GET/POST /v2/user/current/changepassword` for a self-service session | `pageTitle`, `formAction`, `minPasswordLength`, `oldPasswordError`, `newPasswordError` |
 | `profile/password-changed.html.twig` | Either of those routes, after a successful change | `pageTitle` |
 | `profile/two-factor.html.twig` | `GET /portal/profile/two-factor` (every role); also `GET /v2/user/current/manage2fa` for a self-service session | `pageTitle` |
-| `family/index.html.twig` | `GET /portal/family` | `pageTitle`, `family`, `members`, `canEdit`, `canConfirm`, `familyRoles`, `defaultNewMemberRoleId` |
+| `family/index.html.twig` | `GET /portal/family` | `pageTitle`, `family`, `members`, `canEdit`, `canConfirm`, `canSeeContacts`, `familyRoles`, `defaultNewMemberRoleId` |
 | `family/edit.html.twig` | `GET /portal/family/edit` | `pageTitle`, `family`, `members`, `canEdit`, `countries` |
 | `family/confirm.html.twig` | `GET /portal/family/confirm` | `pageTitle`, `family`, `members`, `canEdit`, `canConfirm` |
 | `teams/index.html.twig` | `GET /portal/teams` | `pageTitle`, `teams` |
@@ -299,19 +301,20 @@ orders them.
 | `id` | int | |
 | `fullName` | string | |
 | `role` | string | The family-role name |
-| `email`, `cellPhone` | string | |
+| `email`, `cellPhone` | string | Empty for other members unless this member holds `portal.family.contacts.view` (an adult of the family) |
 | `photoUrl` | string | `/api/portal/family/members/{id}/photo` (or `/api/portal/me/photo` for the member's own row), cache-busted; empty when that member has no photo |
 | `initials` | string | The two-letter stand-in for a missing photo |
 | `isSelf` | bool | `true` for the signed-in member's own row |
-| `isAdult` | bool | `true` for a head or spouse — the roles `sDirRoleHead` and `sDirRoleSpouse` name |
+| `isAdult` | bool | `true` for a head or spouse — the roles `sDirRoleHead` and `sDirRoleSpouse` name — who is 18 or older, or whose birth year is not known |
 | `awaitingReview` | bool | `true` for someone a member proposed with "Add a family member" whom staff have not approved yet (People → Self Registrations) |
 
 ### `canEdit`, `canConfirm`, `countries`, `familyRoles`, `familySummary`
 
 | Variable | Type | Notes |
 |---|---|---|
-| `canEdit` | bool | Whether this member may change the family's details — true only for an adult of the family |
-| `canConfirm` | bool | Whether the "Confirm your family details" card is offered |
+| `canEdit` | bool | Whether this member may change the family's details (`portal.family.edit`) — true for an adult of the family |
+| `canConfirm` | bool | Whether the "Confirm your family details" card is offered (`portal.family.confirm`) |
+| `canSeeContacts` | bool | Whether other members' email and phone are filled in (`portal.family.contacts.view`) |
 | `countries` | map | Country code → country name, for the address form's `<select>` |
 | `familyRoles` | list | `{id, name}` for each family role, for the "add a family member" form |
 | `defaultNewMemberRoleId` | int | The role that form starts on — the configured child role, not head of household |
