@@ -49,7 +49,7 @@ Each is a separate file, so a theme can replace one without touching the others:
 
 | Partial | Renders |
 |---|---|
-| `partials/header.html.twig` | Church logo and name, and the account menu ("Hello &lt;first name&gt;" → Email History, Change Password, Admin Console for staff, Sign out) |
+| `partials/header.html.twig` | Church logo and name, and the account menu ("Hello &lt;first name&gt;" → Email History, Change Password, Admin Console for staff, Sign out). On the sign-in pages nobody is signed in (`member.id` is `0`), so only the logo and name show |
 | `partials/nav.html.twig` | The `nav` entries, and the toggle target `#portal-nav` |
 | `partials/footer.html.twig` | Church contact details on the leading edge, `church.socialLinks` as icon links on the trailing edge |
 | `partials/flash.html.twig` | The fixed notice container, holding this request's `flash` messages. **A theme that overrides `layout.html.twig` must keep this include** — without it there is no container, and every message the portal raises goes unseen. |
@@ -244,6 +244,13 @@ will stop working on your pages.
 | `family/none.html.twig` | All three family URLs, for a member with no family | `pageTitle`, `officeEmail`, `officePhone`, `officePhoneHref` |
 | `email/index.html.twig` | `GET /portal/email-history` | `pageTitle`, `emails`, `page`, `pages`, `total`, `previousUrl`, `nextUrl` |
 | `email/show.html.twig` | `GET /portal/email-history/{id}` | `pageTitle`, `email`, `body`, `hasBody` |
+| `login/request.html.twig` | `GET /portal/login`, and the form again when the address is not an email address | `pageTitle`, `email`, `emailError`, `loginUrl`, `staffSignInUrl` |
+| `login/code.html.twig` | After every email request, whatever the address: the answer and the box for the code | `pageTitle`, `codeError`, `loginUrl`, `staffSignInUrl`, `offerRememberDevice` |
+| `login/confirm.html.twig` | `GET /portal/login/confirm/{token}`, the page an emailed link opens. It posts to `confirmUrl`; opening it changes nothing | `pageTitle`, `firstName`, `churchName`, `confirmUrl`, `loginUrl`, `staffSignInUrl`, `offerRememberDevice` |
+| `login/link-expired.html.twig` | A link that is unknown, expired, used or replaced by a newer email | `pageTitle`, `loginUrl`, `staffSignInUrl` |
+| `login/failed.html.twig` | A right code or link for a person who may no longer sign in. It never says why | `pageTitle`, `loginUrl`, `staffSignInUrl` |
+| `login/unavailable.html.twig` | Every `/portal/login` page while member sign-in is off | `pageTitle`, `staffSignInUrl` |
+| `login/remember-device.html.twig`, `login/staff-link.html.twig` | Included by the sign-in pages: the "This is my own device" box (shown when `offerRememberDevice`; never ticked) and the Staff sign-in link | as their page |
 | `errors/403.html.twig` | A page this member may not open | `pageTitle` |
 | `errors/404.html.twig` | An unknown portal URL (and 405) | `pageTitle` |
 | `errors/500.html.twig` | An unexpected failure | `pageTitle` |

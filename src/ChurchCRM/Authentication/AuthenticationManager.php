@@ -268,6 +268,11 @@ class AuthenticationManager
         return SystemURLs::getRootPath() . '/session/begin';
     }
 
+    public static function getPortalLoginURL(): string
+    {
+        return SystemURLs::getRootPath() . '/portal/login';
+    }
+
     public static function getForgotPasswordURL(): string
     {
         return SystemURLs::getRootPath() . '/session/forgot-password/reset-request';
