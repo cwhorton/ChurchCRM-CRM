@@ -32,6 +32,7 @@ class Person extends BasePerson implements PhotoInterface
 {
     public const SELF_REGISTER = -1;
     public const SELF_VERIFY = -2;
+    public const UPGRADE = -3;
     private ?Photo $photo = null;
     private bool $skipPostUpdateNote = false;
 
