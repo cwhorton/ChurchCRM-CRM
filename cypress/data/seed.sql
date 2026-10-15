@@ -2705,6 +2705,32 @@ CREATE TABLE `person_signin_request_psr` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `person_email_change_pec`
+-- Member sign-in (#10463); mirrors src/mysql/install/Install.sql
+--
+
+DROP TABLE IF EXISTS `person_email_change_pec`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `person_email_change_pec` (
+  `pec_ID`          int(11)                  NOT NULL AUTO_INCREMENT,
+  `pec_per_ID`      mediumint(9) unsigned    NOT NULL,
+  `pec_Kind`        enum('change','confirm') NOT NULL,
+  `pec_Email`       varchar(100)             NOT NULL,
+  `pec_TokenHash`   char(64)                 NOT NULL,
+  `pec_CreatedAt`   datetime                 NOT NULL,
+  `pec_ExpiresAt`   datetime                 NOT NULL,
+  `pec_UsedAt`      datetime                          DEFAULT NULL,
+  `pec_CancelledAt` datetime                          DEFAULT NULL,
+  PRIMARY KEY (`pec_ID`),
+  UNIQUE KEY `pec_token_uidx` (`pec_TokenHash`),
+  KEY `pec_person_idx`        (`pec_per_ID`),
+  CONSTRAINT `fk_pec_person` FOREIGN KEY (`pec_per_ID`)
+      REFERENCES `person_per` (`per_ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `person_device_pdv`
 -- Member sign-in (#10463); mirrors src/mysql/install/Install.sql
 --
