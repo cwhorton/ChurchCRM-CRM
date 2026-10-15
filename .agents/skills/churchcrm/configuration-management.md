@@ -49,6 +49,12 @@ goes through `POST /admin/api/member-portal/theme`, because activation runs
 theme cannot render — a plain config write would happily store a value that
 breaks the portal for every member.
 
+The **Sign-in** tab (member sign-in, #10463) owns the keys in
+`MemberSignInSettingsService::KEYS` and saves them through
+`POST /admin/api/member-portal/sign-in`, all or none. The generic config API
+routes those keys through the same `normalize()`, so a rule such as "member
+sign-in only while email works" holds whichever way a value is written.
+
 ---
 
 ## SystemConfig Basics
