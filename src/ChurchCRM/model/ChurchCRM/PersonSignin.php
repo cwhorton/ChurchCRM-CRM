@@ -21,5 +21,12 @@ use ChurchCRM\model\ChurchCRM\Base\PersonSignin as BasePersonSignin;
  */
 class PersonSignin extends BasePersonSignin
 {
-
+    /**
+     * Ends every portal session of this person on its next request (member
+     * sign-in design §5). Save the row afterwards.
+     */
+    public function endAllSessions(): self
+    {
+        return $this->setSessionVersion((int) $this->getSessionVersion() + 1);
+    }
 }
