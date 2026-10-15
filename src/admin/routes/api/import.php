@@ -11,6 +11,8 @@ use ChurchCRM\model\ChurchCRM\PersonCustomMasterQuery;
 use ChurchCRM\model\ChurchCRM\PropertyQuery;
 use ChurchCRM\model\ChurchCRM\RecordProperty;
 use ChurchCRM\model\ChurchCRM\RecordPropertyQuery;
+use ChurchCRM\Portal\Auth\EmailChangeChannel;
+use ChurchCRM\Portal\Auth\SignInEmailPolicy;
 use ChurchCRM\Slim\Middleware\Request\Auth\AdminRoleAuthMiddleware;
 use ChurchCRM\Slim\SlimUtils;
 use ChurchCRM\Utils\DateTimeUtils;
@@ -661,6 +663,7 @@ $app->group('/api/import', function (RouteCollectorProxy $group): void {
         // CSV omits a Country aren't silently stored blank and rendered as the
         // first country in the dropdown (Afghanistan). See issue #4347.
         $defaultCountry = AddressDefaults::country();
+        $emailPolicy = new SignInEmailPolicy();
 
         try {
             foreach ($csv->getRecords() as $row) {
@@ -901,6 +904,7 @@ $app->group('/api/import', function (RouteCollectorProxy $group): void {
                 $person->setDateEntered(date('YmdHis'));
                 $person->setEnteredBy(AuthenticationManager::getCurrentUser()->getId());
                 $person->save($con);
+                $emailPolicy->recordChange($person, null, EmailChangeChannel::IMPORT, AuthenticationManager::getCurrentUser());
 
                 writeCustomFields($con, 'person_custom', 'per_ID', $person->getId(), $personCustoms, $personCustomTypes);
                 writeProperties($con, $person->getId(), $personProps, $personPropPrompts);
