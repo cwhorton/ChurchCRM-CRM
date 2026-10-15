@@ -17,7 +17,7 @@ import { askForEmail, postCode, resetEmailSignIn, restoreSettings, signInEmail, 
  */
 
 const MATHEW = { id: 2, email: "mathew.campbell@example.com" };
-const LENA = { id: 100, email: "lena.walker@example.com", username: "lena.black.editself.notes@example.com", password: "changeme" };
+const LENA = { id: 100, email: "lena.walker@example.com" };
 const TONY = { id: 3, email: "tony.wade@example.com" };
 const JUDITH = { id: 95, username: "judith.matthews@example.com", password: "noMoney$" };
 
