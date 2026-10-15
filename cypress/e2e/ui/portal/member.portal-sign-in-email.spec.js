@@ -242,7 +242,7 @@ describe("Member Portal sign-in by email", () => {
         cy.request({ url: `/api/person/${member.personId}`, failOnStatusCode: false }).its("status").should("eq", 401);
         cy.request({ url: "/v2/dashboard", followRedirect: false }).then((response) => {
             expect(response.status).to.eq(302);
-            expect(response.redirectedToUrl).to.include("/session/begin");
+            expect(response.redirectedToUrl).to.match(/\/admin\/$/);
         });
         cy.request({ url: "/PropertyList.php", followRedirect: false }).its("status").should("eq", 302);
     });

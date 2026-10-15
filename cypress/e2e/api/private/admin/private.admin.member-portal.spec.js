@@ -175,7 +175,7 @@ describe("API Private Admin Member Portal", () => {
             cy.makePrivateAdminAPICall("GET", "/admin/api/member-portal/stats", null, 200).then((before) => {
                 cy.request({
                     method: "POST",
-                    url: "/session/begin",
+                    url: "/admin/",
                     form: true,
                     body: { User: MEMBER_USER, Password: MEMBER_PASSWORD },
                     followRedirect: false,
@@ -196,7 +196,7 @@ describe("API Private Admin Member Portal", () => {
             // A real member session, then a portal page: the middleware stamps.
             cy.request({
                 method: "POST",
-                url: "/session/begin",
+                url: "/admin/",
                 form: true,
                 body: { User: MEMBER_USER, Password: MEMBER_PASSWORD },
                 followRedirect: false,
@@ -214,7 +214,7 @@ describe("API Private Admin Member Portal", () => {
                 // compares the stored value and not a session flag.
                 cy.request({
                     method: "POST",
-                    url: "/session/begin",
+                    url: "/admin/",
                     form: true,
                     body: { User: MEMBER_USER, Password: MEMBER_PASSWORD },
                     followRedirect: false,
