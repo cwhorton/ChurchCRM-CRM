@@ -108,12 +108,12 @@ CREATE TABLE `config_cfg` (
 LOCK TABLES `config_cfg` WRITE;
 /*!40000 ALTER TABLE `config_cfg` DISABLE KEYS */;
 SET autocommit=0;
-INSERT INTO `config_cfg` VALUES ('bAllowPrereleaseUpgrade',''),('bEnableExternalCalendarAPI',''),('bEnableNonDeductible',''),('bEnableSelfRegistration','1'),('bForceUppercaseZip',''),('bHideFamilyNewsletter',''),('bHideFriendDate',''),('bHideLatLon',''),('bHideWeddingDate',''),('bPHPMailerAutoTLS',''),('bRequire2FA',''),('bSearchIncludeFamilyCustomProperties',''),('bSendUserDeletedEmail',''),('bSMTPAuth','0'),('bUseDonationEnvelopes',''),('bUseScannedChecks',''),('iChurchLatitude','39.1111974'),('iChurchLongitude','-94.5838009'),('IncludeDataInNewPersonNotifications',''),('plugin.external-backup.enabled','0'),('plugin.holidays.categories','official,religious'),('plugin.holidays.countries','USA'),('plugin.holidays.enabled','1'),('sChurchAddress','123 Main St'),('sChurchChkAcctNum','111111111'),('sChurchCity','Kansas City'),('sChurchCountry','United States'),('sChurchEmail','demo@churchcrm.io'),('sChurchName','Main St. Cathedral'),('sChurchPhone','555 123 4234'),('sChurchState','MO'),('sChurchZip','64106'),('sConfirmSigner','Elder Joe Smith'),('sDefaultCity','Kansas City'),('sDefaultCountry','United States'),('sDefaultState','MO'),('sDirectoryDisclaimer1','Every effort was made to insure the accuracy of this directory.  If there are any errors or omissions, please contact the church office.This directory is for the use of the people of'),('sLogLevel','100'),('sPHPMailerSMTPSecure',''),('sPledgeSummary2','as of'),('sReminderSigner','Elder Joe Smith'),('sSMTPHost','mailserver:1025'),('sSMTPPass',''),('sSMTPUser',''),('sTaxSigner','Elder Joe Smith'),('sTimeZone','America/Detroit'),('sTwoFASecretKey','ChangeThisToASecureRandomStringBeforeUse');
+INSERT INTO `config_cfg` VALUES ('bAllowPrereleaseUpgrade',''),('bEnableExternalCalendarAPI',''),('bEnableNonDeductible',''),('bEnableSelfRegistration','1'),('bForceUppercaseZip',''),('bHideFamilyNewsletter',''),('bHideFriendDate',''),('bHideLatLon',''),('bHideWeddingDate',''),('bPHPMailerAutoTLS',''),('bRequire2FA',''),('bSearchIncludeFamilyCustomProperties',''),('bSendUserDeletedEmail',''),('bSMTPAuth','0'),('bUseDonationEnvelopes',''),('bUseScannedChecks',''),('iChurchLatitude','39.1111974'),('iChurchLongitude','-94.5838009'),('iMaxFailedLoginsPerIP','1000'),('IncludeDataInNewPersonNotifications',''),('plugin.external-backup.enabled','0'),('plugin.holidays.categories','official,religious'),('plugin.holidays.countries','USA'),('plugin.holidays.enabled','1'),('sChurchAddress','123 Main St'),('sChurchChkAcctNum','111111111'),('sChurchCity','Kansas City'),('sChurchCountry','United States'),('sChurchEmail','demo@churchcrm.io'),('sChurchName','Main St. Cathedral'),('sChurchPhone','555 123 4234'),('sChurchState','MO'),('sChurchZip','64106'),('sConfirmSigner','Elder Joe Smith'),('sDefaultCity','Kansas City'),('sDefaultCountry','United States'),('sDefaultState','MO'),('sDirectoryDisclaimer1','Every effort was made to insure the accuracy of this directory.  If there are any errors or omissions, please contact the church office.This directory is for the use of the people of'),('sLogLevel','100'),('sPHPMailerSMTPSecure',''),('sPledgeSummary2','as of'),('sReminderSigner','Elder Joe Smith'),('sSMTPHost','mailserver:1025'),('sSMTPPass',''),('sSMTPUser',''),('sTaxSigner','Elder Joe Smith'),('sTimeZone','America/Detroit'),('sTwoFASecretKey','ChangeThisToASecureRandomStringBeforeUse');
 /*!40000 ALTER TABLE `config_cfg` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
 
--- Dumped table `config_cfg` with 45 row(s)
+-- Dumped table `config_cfg` with 46 row(s)
 --
 
 --
@@ -1787,6 +1787,9 @@ CREATE TABLE `rate_limit_rlm` (
   KEY `rlm_reset_at_idx` (`rlm_ResetAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+-- locked.user (7) stays locked until 2100: the hash is SHA-256 of '7'.
+INSERT INTO `rate_limit_rlm` VALUES (1,'signin.lockout','7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451',1,4102444800);
 
 --
 -- Table structure for table `userconfig_ucfg`
