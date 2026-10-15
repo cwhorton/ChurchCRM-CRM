@@ -288,6 +288,7 @@ $themesDocUrl = 'https://github.com/ChurchCRM/CRM/blob/master/docs/portal-themes
                             </div>
                             <div class="card-body">
                                 <?= $numberField('iSignInLinkMinutes', gettext('Link and code lifetime (minutes)'), $signInValues['iSignInLinkMinutes'], 1, 1440, $signIn['tooltips']) ?>
+                                <?= $numberField('iMemberSignInRequestsPerIP', gettext('Sign-in emails per IP address per hour'), $signInValues['iMemberSignInRequestsPerIP'], 0, 10000, $signIn['tooltips']) ?>
                                 <?= $numberField('iPortalIdleMinutes', gettext('Idle time (minutes)'), $signInValues['iPortalIdleMinutes'], 1, 1440, $signIn['tooltips']) ?>
                                 <?= $numberField('iRememberDeviceDays', gettext('Keep me signed in (days)'), $signInValues['iRememberDeviceDays'], 0, 365, $signIn['tooltips']) ?>
                                 <?= $switchRow('bPortalPasskeys', gettext('Passkeys'), $signInValues['bPortalPasskeys'] === '1', $signIn['tooltips']) ?>

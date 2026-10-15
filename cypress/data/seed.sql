@@ -108,7 +108,7 @@ CREATE TABLE `config_cfg` (
 LOCK TABLES `config_cfg` WRITE;
 /*!40000 ALTER TABLE `config_cfg` DISABLE KEYS */;
 SET autocommit=0;
-INSERT INTO `config_cfg` VALUES ('bAllowPrereleaseUpgrade',''),('bEnableExternalCalendarAPI',''),('bEnableNonDeductible',''),('bEnableSelfRegistration','1'),('bForceUppercaseZip',''),('bHideFamilyNewsletter',''),('bHideFriendDate',''),('bHideLatLon',''),('bHideWeddingDate',''),('bPHPMailerAutoTLS',''),('bRequire2FA',''),('bSearchIncludeFamilyCustomProperties',''),('bSendUserDeletedEmail',''),('bSMTPAuth','0'),('bUseDonationEnvelopes',''),('bUseScannedChecks',''),('iChurchLatitude','39.1111974'),('iChurchLongitude','-94.5838009'),('iMaxFailedLoginsPerIP','1000'),('IncludeDataInNewPersonNotifications',''),('plugin.external-backup.enabled','0'),('plugin.holidays.categories','official,religious'),('plugin.holidays.countries','USA'),('plugin.holidays.enabled','1'),('sChurchAddress','123 Main St'),('sChurchChkAcctNum','111111111'),('sChurchCity','Kansas City'),('sChurchCountry','United States'),('sChurchEmail','demo@churchcrm.io'),('sChurchName','Main St. Cathedral'),('sChurchPhone','555 123 4234'),('sChurchState','MO'),('sChurchZip','64106'),('sConfirmSigner','Elder Joe Smith'),('sDefaultCity','Kansas City'),('sDefaultCountry','United States'),('sDefaultState','MO'),('sDirectoryDisclaimer1','Every effort was made to insure the accuracy of this directory.  If there are any errors or omissions, please contact the church office.This directory is for the use of the people of'),('sLogLevel','100'),('sPHPMailerSMTPSecure',''),('sPledgeSummary2','as of'),('sReminderSigner','Elder Joe Smith'),('sSMTPHost','mailserver:1025'),('sSMTPPass',''),('sSMTPUser',''),('sTaxSigner','Elder Joe Smith'),('sTimeZone','America/Detroit'),('sTwoFASecretKey','ChangeThisToASecureRandomStringBeforeUse');
+INSERT INTO `config_cfg` VALUES ('bAllowPrereleaseUpgrade',''),('bEnableExternalCalendarAPI',''),('bEnableNonDeductible',''),('bEnableSelfRegistration','1'),('bForceUppercaseZip',''),('bHideFamilyNewsletter',''),('bHideFriendDate',''),('bHideLatLon',''),('bHideWeddingDate',''),('bPHPMailerAutoTLS',''),('bRequire2FA',''),('bSearchIncludeFamilyCustomProperties',''),('bSendUserDeletedEmail',''),('bSMTPAuth','0'),('bUseDonationEnvelopes',''),('bUseScannedChecks',''),('iChurchLatitude','39.1111974'),('iChurchLongitude','-94.5838009'),('iMaxFailedLoginsPerIP','1000'),('iMemberSignInRequestsPerIP','1000'),('IncludeDataInNewPersonNotifications',''),('plugin.external-backup.enabled','0'),('plugin.holidays.categories','official,religious'),('plugin.holidays.countries','USA'),('plugin.holidays.enabled','1'),('sChurchAddress','123 Main St'),('sChurchChkAcctNum','111111111'),('sChurchCity','Kansas City'),('sChurchCountry','United States'),('sChurchEmail','demo@churchcrm.io'),('sChurchName','Main St. Cathedral'),('sChurchPhone','555 123 4234'),('sChurchState','MO'),('sChurchZip','64106'),('sConfirmSigner','Elder Joe Smith'),('sDefaultCity','Kansas City'),('sDefaultCountry','United States'),('sDefaultState','MO'),('sDirectoryDisclaimer1','Every effort was made to insure the accuracy of this directory.  If there are any errors or omissions, please contact the church office.This directory is for the use of the people of'),('sLogLevel','100'),('sPHPMailerSMTPSecure',''),('sPledgeSummary2','as of'),('sReminderSigner','Elder Joe Smith'),('sSMTPHost','mailserver:1025'),('sSMTPPass',''),('sSMTPUser',''),('sTaxSigner','Elder Joe Smith'),('sTimeZone','America/Detroit'),('sTwoFASecretKey','ChangeThisToASecureRandomStringBeforeUse');
 /*!40000 ALTER TABLE `config_cfg` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -2700,6 +2700,32 @@ CREATE TABLE `person_signin_request_psr` (
   KEY `psr_person_idx`        (`psr_per_ID`),
   KEY `psr_expires_idx`       (`psr_ExpiresAt`),
   CONSTRAINT `fk_psr_person` FOREIGN KEY (`psr_per_ID`)
+      REFERENCES `person_per` (`per_ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `person_email_change_pec`
+-- Member sign-in (#10463); mirrors src/mysql/install/Install.sql
+--
+
+DROP TABLE IF EXISTS `person_email_change_pec`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `person_email_change_pec` (
+  `pec_ID`          int(11)                  NOT NULL AUTO_INCREMENT,
+  `pec_per_ID`      mediumint(9) unsigned    NOT NULL,
+  `pec_Kind`        enum('change','confirm') NOT NULL,
+  `pec_Email`       varchar(100)             NOT NULL,
+  `pec_TokenHash`   char(64)                 NOT NULL,
+  `pec_CreatedAt`   datetime                 NOT NULL,
+  `pec_ExpiresAt`   datetime                 NOT NULL,
+  `pec_UsedAt`      datetime                          DEFAULT NULL,
+  `pec_CancelledAt` datetime                          DEFAULT NULL,
+  PRIMARY KEY (`pec_ID`),
+  UNIQUE KEY `pec_token_uidx` (`pec_TokenHash`),
+  KEY `pec_person_idx`        (`pec_per_ID`),
+  CONSTRAINT `fk_pec_person` FOREIGN KEY (`pec_per_ID`)
       REFERENCES `person_per` (`per_ID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
