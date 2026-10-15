@@ -257,6 +257,9 @@ class TimelineService
         if ($dbNote->getDisplayEditedBy() === Person::SELF_VERIFY) {
             return gettext('Self Verification');
         }
+        if ($dbNote->getDisplayEditedBy() === Person::UPGRADE) {
+            return gettext('System Upgrade');
+        }
         $editor = PersonQuery::create()->findPk($dbNote->getDisplayEditedBy());
 
         return $editor !== null ? $editor->getFullName() : gettext('Unknown');
