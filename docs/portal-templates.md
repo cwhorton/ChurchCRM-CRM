@@ -246,6 +246,7 @@ will stop working on your pages.
 | `family/none.html.twig` | All three family URLs, for a member with no family | `pageTitle`, `officeEmail`, `officePhone`, `officePhoneHref` |
 | `email/index.html.twig` | `GET /portal/email-history` | `pageTitle`, `emails`, `page`, `pages`, `total`, `previousUrl`, `nextUrl` |
 | `email/show.html.twig` | `GET /portal/email-history/{id}` | `pageTitle`, `email`, `body`, `hasBody` |
+| `devices/index.html.twig` | `GET /portal/devices`, Sign-in and devices | `pageTitle`, `devices`, `offerRememberDevice` |
 | `login/request.html.twig` | `GET /portal/login`, and the form again when the address is not an email address | `pageTitle`, `email`, `emailError`, `loginUrl`, `staffSignInUrl` |
 | `login/code.html.twig` | After every email request, whatever the address: the answer and the box for the code | `pageTitle`, `codeError`, `loginUrl`, `staffSignInUrl`, `offerRememberDevice` |
 | `login/confirm.html.twig` | `GET /portal/login/confirm/{token}`, the page an emailed link opens. It posts to `confirmUrl`; opening it changes nothing | `pageTitle`, `firstName`, `churchName`, `confirmUrl`, `loginUrl`, `staffSignInUrl`, `offerRememberDevice` |
@@ -549,6 +550,20 @@ of the message**.
 Scope: the page shows the rows addressed to this person. Email sent to the
 family's shared address is not included — see
 `src/api/routes/portal/portal-emails.php`.
+
+### Sign-in and devices
+
+`devices/index.html.twig` lists the devices where the member ticked **This is my
+own device** and can still be signed in, most recently used first. Each entry in
+`devices` has `id`, `label` (a browser and system such as `Chrome · macOS`, empty
+when the user agent said neither), `addedAt` and `lastUsedAt` (formatted, with the
+time) and `isThisDevice`. `offerRememberDevice` is false when the church set the
+days to 0.
+
+Every sign-out is a form that posts with `csrf_field()`:
+`/portal/devices/{id}/sign-out` for one device and
+`/portal/devices/sign-out-everywhere` for all of them, which also ends every
+session, this one included. An override must keep both posts.
 
 ---
 
