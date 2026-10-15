@@ -28,6 +28,7 @@ enum SignInReason: string
     case IDLE = 'idle';
     case REPLACED = 'replaced';
     case SIGNED_OUT_EVERYWHERE = 'signed_out_everywhere';
+    case SIGNED_OUT = 'signed_out';
     case THROTTLED_ADDRESS = 'throttled_address';
     case THROTTLED_IP = 'throttled_ip';
     case THROTTLED_PERSON = 'throttled_person';
@@ -55,6 +56,7 @@ enum SignInReason: string
             self::IDLE => gettext('Idle too long'),
             self::REPLACED => gettext('Replaced by another sign-in'),
             self::SIGNED_OUT_EVERYWHERE => gettext('Signed out everywhere'),
+            self::SIGNED_OUT => gettext('Signed out'),
             self::THROTTLED_ADDRESS => gettext('Too many sign-in requests for this email address'),
             self::THROTTLED_IP => gettext('Too many sign-in requests from this IP address'),
             self::THROTTLED_PERSON => gettext('Too many sign-in emails today'),

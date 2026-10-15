@@ -247,6 +247,29 @@ describe("Member Portal sign-in by email", () => {
         cy.request({ url: "/PropertyList.php", followRedirect: false }).its("status").should("eq", 302);
     });
 
+    it("signs out a portal-only session completely and lands on /portal/login", () => {
+        lastAuditId().then((startId) => {
+            signInWithLink();
+            cy.get("#portal-account-toggle").click();
+            cy.get("#portalAccountSignOut").click();
+            cy.location("pathname").should("match", /\/portal\/login$/);
+            cy.get("#portalSignInEmail").should("be.visible");
+
+            cy.request({ url: "/api/portal/me", failOnStatusCode: false }).its("status").should("eq", 401);
+            cy.request({ url: "/portal/", followRedirect: false }).then((response) => {
+                expect(response.status).to.eq(302);
+                expect(response.redirectedToUrl).to.include("/portal/login");
+            });
+            auditSince(startId).then((rows) => {
+                const ended = rows.filter((row) => row.psa_Event === "session_ended");
+                expect(ended).to.have.length(1);
+                expect(ended[0].psa_Reason).to.eq("signed_out");
+                expect(ended[0].psa_Method).to.eq("email_link");
+                expect(ended[0].psa_per_ID).to.eq(member.personId);
+            });
+        });
+    });
+
     it("says member sign-in isn't available while it is off, with the staff link", () => {
         setConfig("bMemberSignIn", "0");
         cy.visit("/portal/login");
