@@ -43,4 +43,14 @@ enum SignInMethod: string
     {
         return $this !== self::STAFF && $this !== self::ASSISTED;
     }
+
+    /**
+     * One principal per session (§6.4): a member way in ends a staff session left
+     * in the same browser, so a member never carries staff authority. STAFF and
+     * ASSISTED start from that staff session.
+     */
+    public function replacesStaffSession(): bool
+    {
+        return $this !== self::STAFF && $this !== self::ASSISTED;
+    }
 }

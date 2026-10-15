@@ -152,6 +152,45 @@ class AuthenticationManager
     }
 
     /**
+     * Ends the staff sign-in in this browser and keeps the rest of the PHP
+     * session: a member sign-in replaces it (one principal per session, §6.4).
+     */
+    public static function endStaffSession(): void
+    {
+        if (!isset($_SESSION['AuthenticationProvider'])) {
+            return;
+        }
+
+        try {
+            if ($_SESSION['AuthenticationProvider'] instanceof IAuthenticationProvider) {
+                $_SESSION['AuthenticationProvider']->endSession();
+            }
+        } catch (\Throwable $e) {
+            LoggerUtils::getAuthLogger()->warning('Error ending the staff session', ['exception' => $e]);
+        }
+        unset($_SESSION['AuthenticationProvider']);
+        LoggerUtils::getAuthLogger()->info('Staff session ended by a member sign-in in the same browser');
+    }
+
+    /** A staff sign-in replaces a member session in this browser (one principal per session, §6.4). */
+    private static function replacePortalSession(): void
+    {
+        $principal = PortalSessionStore::load();
+        if (!$principal instanceof PortalPrincipal) {
+            return;
+        }
+
+        PortalSessionStore::clear();
+        SignInAudit::record(
+            SignInAuditEvent::SESSION_ENDED,
+            $principal->personId,
+            $principal->method,
+            SignInReason::REPLACED,
+            $principal->actorUserId,
+        );
+    }
+
+    /**
      * Signs out whatever this browser holds, staff or portal session (design §7),
      * and returns where to send it: a member goes back to the member sign-in page.
      */
@@ -205,6 +244,10 @@ class AuthenticationManager
         }
 
         $result = self::getAuthenticationProvider()->authenticate($AuthenticationRequest);
+
+        if ($result->isAuthenticated && !$AuthenticationRequest instanceof APITokenAuthenticationRequest) {
+            self::replacePortalSession();
+        }
 
         if (null !== $result->nextStepURL) {
             $logger->debug('Authentication requires additional step: ' . $result->nextStepURL);

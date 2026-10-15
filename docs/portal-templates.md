@@ -170,7 +170,9 @@ portal route, ever addresses somebody else.
 | `avatarUrl` | string | `/api/portal/me/photo`, cache-busted; **empty when no photo has been uploaded** — render initials instead |
 | `familyId` | int | `0` when the person has no family |
 | `isTeamLeader` | bool | Same as `portal_can('volunteer.team.manage')`. Kept for older themes; new templates call `portal_can()` |
-| `isStaff` | bool | `true` for a login that also has the admin shell — the account menu offers it "Admin Console" |
+| `isStaff` | bool | `true` for a staff session that also has the admin shell |
+| `signedInWithPassword` | bool | `true` for a staff session. The Change Password and two-factor pages exist only then; a member session has neither |
+| `adminConsoleUrl` | string | Where "Admin Console" goes: the staff dashboard from a staff session, the `/admin` staff sign-in from a member session whose person also has a staff account, and empty otherwise |
 
 ### `nav`
 

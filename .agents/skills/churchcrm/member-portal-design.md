@@ -222,7 +222,7 @@ every update; copy it and rename the copy.
 
 ### 2.2 Request flow
 
-1. Login as today (`/session/begin`). On success the landing is decided by one rule:
+1. Staff sign in at `/admin` (`/session/begin` redirects there; members use `/portal/login`). On success the landing is decided by one rule:
    `isEditSelfExclusive()` → `/portal`; everyone else → `/v2/dashboard`. The interim
    `/external/limited-access` page is retired: its route redirects to `/portal`. There is no
    feature flag; installing the release is what turns the portal on, and it only adds capability
@@ -324,7 +324,7 @@ render.
 | `csrf_field()` | `CSRFUtils::getTokenInputField()` |
 | `nonce()` | `SystemURLs::getCSPNonce()` |
 | `church` | `{name, address, city, state, zip, phone, email, website, logoUrl, logoOnDarkUrl, socialLinks}` from `ChurchMetaData`; `logoUrl` is the uploaded logo from PR #9719 when set, else the stock image. `logoOnDarkUrl` is the same logo, but its fallback is ChurchCRM's paper + blue mark for a dark background (#10423); the default theme's dark header uses it. A theme may replace either with `theme_asset()`. `socialLinks` (#9907) is the church's configured social accounts, ordered X, YouTube, Facebook, Instagram, each `{id, label, url, icon}`, empty when none is set — the default theme's footer renders them as icon links on its trailing edge |
-| `member` | `{id, firstName, lastName, fullName, email, avatarUrl, familyId, isTeamLeader, isStaff}` |
+| `member` | `{id, firstName, lastName, fullName, email, avatarUrl, familyId, isTeamLeader, isStaff, signedInWithPassword, adminConsoleUrl}` |
 | `portal_can(capability, scope)` | the portal permissions check (member sign-in design §8.2) for showing a section or button; routes use `RequirePortalCapability` |
 | `nav` | the `PortalNav` model: ordered `[{id, label, url, icon, capability, active, badge}]`, each entry shown when the member holds its capability |
 | `flash` | `[{type, message}]` from the session |
@@ -447,7 +447,7 @@ Config items (all without a System Settings category): `sMemberPortalTheme`,
 Navigation (the `nav` model), in order, each hidden when its feature is off or the member has
 nothing there: **Home · Calendar · Volunteering · My Teams · My Family · Profile**. The header
 shows the church logo and name, and one account menu: a button reading "Hello <first name>" over
-**Email History** (§5.8), **Change Password**, **Admin Console** (staff logins only) and **Sign out**; a plain GET `/session/end` is a full logout.
+**Email History** (§5.8), **Change Password** (staff sessions only), **Admin Console** (back to the staff side from a staff session; the `/admin` sign-in from a member session whose person has a staff account) and **Sign out**; a plain GET `/session/end` is a full logout.
 The church name is not a link that restyles itself under the pointer. No admin sidebar anywhere.
 Staff opening the portal leave it again through Admin Console (P10); there is no fixed "viewing as
 yourself" bar.

@@ -37,7 +37,9 @@ $finishSignIn = static function (Request $request, Response $response, EmailSign
 };
 
 $loginForm = static function (Request $request, Response $response) use ($renderLoginPage, $redirect): Response {
-    if (PortalSessionStore::has()) {
+    // A signed-in member goes on to the portal. A browser holding a staff session
+    // sees the form: signing in here replaces that session (design §6.4).
+    if (PortalSessionStore::load()?->method->replacesStaffSession()) {
         return $redirect(PortalSignInPages::landingUrl());
     }
 
