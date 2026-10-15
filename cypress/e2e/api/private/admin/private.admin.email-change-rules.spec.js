@@ -149,15 +149,16 @@ const giveGrant = (personId) =>
 describe("Sign-in email changes by staff, imports and registration (§9)", () => {
     const saved = {};
 
+    let lastEmailLogId;
+
     before(() => {
         useMemberSignIn(saved);
+        db("SELECT COALESCE(MAX(eml_ID), 0) AS id FROM email_log_eml").then((rows) => {
+            lastEmailLogId = Number(rows[0].id);
+        });
     });
 
-    beforeEach(() => {
-        cy.task("mail:clear");
-    });
-
-    afterEach(() => {
+    const resetPeople = () => {
         cy.clearCookies();
         [MATHEW, LENA, TONY].forEach(({ id, email }) => {
             db("UPDATE person_per SET per_Email = ? WHERE per_ID = ?", [email, id]);
@@ -170,10 +171,19 @@ describe("Sign-in email changes by staff, imports and registration (§9)", () =>
         db("DELETE FROM portal_grant_pgr WHERE pgr_Reason = 'Email change spec'");
         db("DELETE FROM family_email_move_fem WHERE fem_per_ID IN (?, ?, ?)", ids);
         db("DELETE FROM person_signin_request_psr WHERE psr_per_ID IN (?, ?, ?)", ids);
+    };
+
+    beforeEach(() => {
+        resetPeople();
+        cy.task("mail:clear");
     });
+
+    afterEach(resetPeople);
 
     after(() => {
         restoreSettings(saved);
+        // Other specs read the seeded email history of these people.
+        db("DELETE FROM email_log_eml WHERE eml_ID > ?", [lastEmailLogId]);
     });
 
     it("before the first sign-in, a staff change is the address on record: it signs in at once and is audited", () => {

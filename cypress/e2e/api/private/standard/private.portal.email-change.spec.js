@@ -87,12 +87,19 @@ const pressConfirm = (path, body) => {
 describe("A member changes their own email in the portal (§9)", () => {
     const saved = {};
 
+    let lastEmailLogId;
+
     before(() => {
         useMemberSignIn(saved);
+        db("SELECT COALESCE(MAX(eml_ID), 0) AS id FROM email_log_eml").then((rows) => {
+            lastEmailLogId = Number(rows[0].id);
+        });
     });
 
     after(() => {
         restoreSettings(saved);
+        // Other specs read the seeded email history of these people.
+        db("DELETE FROM email_log_eml WHERE eml_ID > ?", [lastEmailLogId]);
     });
 
     beforeEach(() => {
