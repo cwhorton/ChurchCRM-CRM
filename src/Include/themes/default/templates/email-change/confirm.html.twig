@@ -2,27 +2,13 @@
 
 {#
   The page an email-change link opens (member sign-in design §9). It is public:
-  the link is often opened on another device, so there is no member, no
-  navigation and no account menu. Opening it changes nothing; the button posts
-  back and spends the link.
+  the link is often opened on another device, so it draws no navigation.
+  Opening it changes nothing; the button posts back and spends the link.
 
   Variables: `state` (confirm, done or invalid), `kind` (change: the link went
   to the new address; confirm: it went to the previous address), `email`,
   `firstName`, `churchName`, `token`. See docs/portal-templates.md.
 #}
-
-{% block header %}
-<header class="portal-header">
-    <div class="portal-container portal-header-inner">
-        <span class="portal-brand">
-            {% if church.logoOnDarkUrl %}
-            <img class="portal-brand-logo" src="{{ church.logoOnDarkUrl }}" alt="{{ church.name }}">
-            {% endif %}
-            <span class="portal-brand-name">{{ church.name|default('ChurchCRM') }}</span>
-        </span>
-    </div>
-</header>
-{% endblock %}
 
 {% block nav %}{% endblock %}
 
