@@ -11,6 +11,9 @@ use ChurchCRM\model\ChurchCRM\Family;
 use ChurchCRM\model\ChurchCRM\Person;
 use ChurchCRM\model\ChurchCRM\PersonCustom;
 use ChurchCRM\model\ChurchCRM\PersonQuery;
+use ChurchCRM\model\ChurchCRM\PersonSigninQuery;
+use ChurchCRM\Portal\Auth\EmailChangeChannel;
+use ChurchCRM\Portal\Auth\SignInEmailPolicy;
 use ChurchCRM\Service\UserService;
 use ChurchCRM\Utils\CustomFieldUtils;
 use ChurchCRM\Utils\DateTimeUtils;
@@ -320,6 +323,17 @@ if (isset($_POST['PersonSubmit']) || isset($_POST['PersonSubmitAndAdd'])) {
         }
     }
 
+    // The personal email is the member sign-in identity (member sign-in design §9).
+    $emailPolicy = new SignInEmailPolicy();
+    $sOldEmail = $person instanceof Person ? (string) $person->getEmail() : '';
+    if ($sEmailError === '' && $person instanceof Person) {
+        $emailRefusal = $emailPolicy->changeRefusal($person, $sEmail, AuthenticationManager::getCurrentUser());
+        if ($emailRefusal !== null) {
+            $sEmailError = '<span class="text-danger">' . InputUtils::escapeHTML($emailRefusal) . '</span>';
+            $bErrorFlag = true;
+        }
+    }
+
     // Validate Work Email
     if (strlen($sWorkEmail) > 0) {
         if (!MiscUtils::checkEmail($sWorkEmail)) {
@@ -445,6 +459,7 @@ if (isset($_POST['PersonSubmit']) || isset($_POST['PersonSubmitAndAdd'])) {
 
         $person->save();
         $person->reload();
+        $emailPolicy->recordChange($person, $sOldEmail, EmailChangeChannel::STAFF, AuthenticationManager::getCurrentUser());
 
         if (!$personAlreadyExist) {
             $iPersonID = $person->getId();
@@ -588,6 +603,18 @@ $rsFamilies = RunQuery($sSQL);
 //Get Family Roles for the drop-down
 $sSQL = 'SELECT * FROM list_lst WHERE lst_ID = 2 ORDER BY lst_OptionSequence';
 $rsFamilyRoles = RunQuery($sSQL);
+
+$bEmailLocked = false;
+$sEmailHint = '';
+if ($person instanceof Person && !$person->isNew()) {
+    $emailPolicy ??= new SignInEmailPolicy();
+    if (!AuthenticationManager::getCurrentUser()->isAdmin() && $emailPolicy->needsAdministrator($person)) {
+        $bEmailLocked = true;
+        $sEmailHint = gettext('Only an administrator can change the email of a person who has a staff account or portal permissions.');
+    } elseif ($emailPolicy->hasSignedIn(PersonSigninQuery::create()->findPk((int) $person->getId()))) {
+        $sEmailHint = gettext('This person has signed in to the Member Portal. Changing this email signs them out everywhere, and the new address cannot be used to sign in until it is confirmed.');
+    }
+}
 
 $aBreadcrumbs = PageHeader::breadcrumbs([
     [gettext('People'), '/people/dashboard'],
@@ -933,8 +960,11 @@ require_once __DIR__ . '/Include/Header.php';
                             <span class="input-group-text"><i class="fa-solid fa-at"></i></span>
                             <input type="email" name="Email" id="Email"
                                    value="<?= InputUtils::escapeAttribute(stripslashes($sEmail)) ?>"
-                                   maxlength="100" class="form-control">
+                                   maxlength="100" class="form-control"<?= $bEmailLocked ? ' readonly aria-describedby="EmailHint"' : ($sEmailHint !== '' ? ' aria-describedby="EmailHint"' : '') ?>>
                         </div>
+                        <?php if ($sEmailHint !== '') { ?>
+                            <div class="form-hint" id="EmailHint"><?= InputUtils::escapeHTML($sEmailHint) ?></div>
+                        <?php } ?>
                         <?php if ($sEmailError) { ?>
                             <span class="text-danger small"><?= $sEmailError ?></span>
                         <?php } ?>

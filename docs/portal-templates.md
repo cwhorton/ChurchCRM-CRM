@@ -107,6 +107,7 @@ that overrides one of those pages must keep them if it wants the page to work:
 |---|---|
 | `portal-profile-form`, `portal-profile-save` | `profile/edit.html.twig` |
 | `portal-photo-input`, `portal-photo-preview`, `portal-photo-error` | `profile/edit.html.twig` |
+| `portal-email-hint` (the line under the email field that names a waiting address) | `profile/edit.html.twig` |
 | `portal-family-form`, `portal-family-save` | `family/edit.html.twig` |
 | `portal-confirm-form`, `portal-confirm-submit`, `portal-confirm-comment`, `portal-confirm-comment-field` | `family/confirm.html.twig` |
 | `portal-add-member-dialog`, `portal-add-member-form`, `portal-add-member-open`, `portal-add-member-submit`, `portal-add-member-cancel` | `family/index.html.twig` |
@@ -253,6 +254,7 @@ will stop working on your pages.
 | `login/failed.html.twig` | A right code or link for a person who may no longer sign in. It never says why | `pageTitle`, `loginUrl`, `staffSignInUrl` |
 | `login/unavailable.html.twig` | Every `/portal/login` page while member sign-in is off | `pageTitle`, `staffSignInUrl` |
 | `login/remember-device.html.twig`, `login/staff-link.html.twig` | Included by the sign-in pages: the "This is my own device" box (shown when `offerRememberDevice`; never ticked) and the Staff sign-in link | as their page |
+| `email-change/confirm.html.twig` | `GET/POST /portal/email/confirm/{token}`, the link in an email-change message. **Public:** the default template draws no navigation | `pageTitle`, `state` (`confirm`, `done` or `invalid`), `kind` (`change` when the link went to the new address, `confirm` when it went to the previous one), `email`, `firstName`, `churchName`, `token` |
 | `errors/403.html.twig` | A page this member may not open | `pageTitle` |
 | `errors/404.html.twig` | An unknown portal URL (and 405) | `pageTitle` |
 | `errors/500.html.twig` | An unexpected failure | `pageTitle` |
@@ -276,6 +278,8 @@ The signed-in member's own person record, as `GET /api/portal/me` returns it.
 | `id` | int | The person id |
 | `title`, `firstName`, `middleName`, `lastName`, `suffix` | string | |
 | `email`, `workEmail` | string | |
+| `pendingEmail` | string | A new address the member asked for, while the link sent to it is still open; empty otherwise. The email changes only when that link is used |
+| `emailLocked` | bool | True when only an administrator may change this email (the person has a staff account or portal permissions); render the field read-only |
 | `homePhone`, `cellPhone`, `workPhone` | string | |
 | `birthday` | string | ISO `YYYY-MM-DD`, empty when unknown |
 | `fullName` | string | Formatted per the installation's name format |
