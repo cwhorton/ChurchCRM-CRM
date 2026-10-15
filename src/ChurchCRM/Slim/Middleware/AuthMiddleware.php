@@ -4,6 +4,7 @@ namespace ChurchCRM\Slim\Middleware;
 
 use ChurchCRM\Authentication\AuthenticationManager;
 use ChurchCRM\Authentication\Requests\APITokenAuthenticationRequest;
+use ChurchCRM\Authentication\StaffSignInPage;
 use ChurchCRM\dto\SystemURLs;
 use ChurchCRM\model\ChurchCRM\User;
 use ChurchCRM\Portal\Auth\PortalSessionStore;
@@ -112,6 +113,9 @@ class AuthMiddleware implements MiddlewareInterface
                 // PortalSessionMiddleware validates it on /portal and /api/portal, and
                 // VolunteerPortalMemberMiddleware on the volunteer API the portal pages
                 // call; every other route refuses it below.
+            } elseif (StaffSignInPage::isRequestFor($request)) {
+                // The /admin root is the staff sign-in page (member sign-in design §7):
+                // signed out, or a member session, it shows the sign-in form.
             } else {
                 $logger = LoggerUtils::getAppLogger();
                 $logger->warning('No authenticated user or session', [
@@ -329,7 +333,7 @@ class AuthMiddleware implements MiddlewareInterface
 
         $redirectUrl = $this->isPortalPath($request)
             ? AuthenticationManager::getPortalLoginURL()
-            : AuthenticationManager::getSessionBeginURL();
+            : AuthenticationManager::getStaffSignInURL();
 
         return (new Response())->withStatus(302)->withHeader('Location', $redirectUrl);
     }

@@ -146,7 +146,7 @@ class AuthenticationManager
             );
         } finally {
             if (!$preventRedirect) {
-                RedirectUtils::redirect(self::getSessionBeginURL());
+                RedirectUtils::redirect(self::getStaffSignInURL());
             }
         }
     }
@@ -174,7 +174,7 @@ class AuthenticationManager
 
         return $principal instanceof PortalPrincipal && !$staffSignedIn
             ? self::getPortalLoginURL()
-            : self::getSessionBeginURL();
+            : self::getStaffSignInURL();
     }
 
     public static function authenticate(AuthenticationRequest $AuthenticationRequest): AuthenticationResult
@@ -256,7 +256,11 @@ class AuthenticationManager
         }
     }
 
-    public static function ensureAuthentication(): void
+    /**
+     * @param bool $rememberPage false for a request that names no real page, so
+     *                           sign-in does not land on a not-found page
+     */
+    public static function ensureAuthentication(bool $rememberPage = true): void
     {
         // This function differs from the semantic `ValidateUserSessionIsActive` in that it will
         // take corrective action to redirect the user to an appropriate login location
@@ -272,15 +276,7 @@ class AuthenticationManager
                 LoggerUtils::getAuthLogger()->debug(
                     'Session not authenticated.  Redirecting to login page'
                 );
-
-                // Store the originally requested URL in the session for post-login redirect.
-                // Using the session (server-side) prevents open-redirect attacks via a crafted query parameter.
-                $safeUri = RedirectUtils::stripAndValidatePath($_SERVER['REQUEST_URI'] ?? '');
-                if ($safeUri !== '') {
-                    $_SESSION['location'] = $safeUri;
-                }
-
-                RedirectUtils::redirect(self::getSessionBeginURL());
+                self::redirectToStaffSignIn($rememberPage);
             } elseif (null !== $result->nextStepURL) {
                 LoggerUtils::getAuthLogger()->debug(
                     'Session authenticated, but redirect requested by authentication provider.'
@@ -293,8 +289,25 @@ class AuthenticationManager
                 'Error determining session authentication status.  Redirecting to login page.',
                 ['exception' => $error]
             );
-            RedirectUtils::redirect(self::getSessionBeginURL());
+            self::redirectToStaffSignIn($rememberPage);
         }
+    }
+
+    /**
+     * Store the originally requested URL in the session for post-login redirect,
+     * whether or not this browser ever signed in (design §7). Using the session
+     * (server-side) prevents open-redirect attacks via a crafted query parameter.
+     */
+    private static function redirectToStaffSignIn(bool $rememberPage): void
+    {
+        if ($rememberPage) {
+            $safeUri = RedirectUtils::stripAndValidatePath($_SERVER['REQUEST_URI'] ?? '');
+            if ($safeUri !== '') {
+                $_SESSION['location'] = $safeUri;
+            }
+        }
+
+        RedirectUtils::redirect(self::getStaffSignInURL());
     }
 
     /**
@@ -320,9 +333,10 @@ class AuthenticationManager
         return false;
     }
 
-    public static function getSessionBeginURL(): string
+    /** The staff sign-in page, the `/admin` root (design §7). `/session/begin` redirects there. */
+    public static function getStaffSignInURL(): string
     {
-        return SystemURLs::getRootPath() . '/session/begin';
+        return SystemURLs::getRootPath() . '/admin/';
     }
 
     public static function getPortalLoginURL(): string
