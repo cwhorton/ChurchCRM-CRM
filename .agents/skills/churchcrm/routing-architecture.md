@@ -580,7 +580,7 @@ The member-facing area (epic #8977, design
 | Component | Location |
 |-----------|----------|
 | Entry point | `src/portal/index.php` — `MvcAppFactory::create('/portal', [...])`, **no** module role middleware |
-| Page gate | `ChurchCRM\Portal\PortalAccessMiddleware` + `CSRFMiddleware`, added to the route **group**, not the app |
+| Page gate | `ChurchCRM\Portal\Auth\PortalSessionMiddleware`, then `PortalAccessMiddleware` + `CSRFMiddleware`, added to the route **group**, not the app. `/api/portal/*` groups use `PortalSessionMiddleware` + `PortalApiMiddleware`. Portal code reads who it serves from `PortalContext`, never `AuthenticationManager::getCurrentUser()` |
 | Routes | `src/portal/routes/*.php` — `home.php` and `volunteer.php` (inside the gated group, using `$group`), `theme-asset.php` (public, uses `$app`) |
 | Views | Twig, not `PhpRenderer`: `src/Include/themes/default/templates/**/*.twig` |
 | Error pages | The module's own, via the new `errorHandler` option on `MvcAppFactory` |
