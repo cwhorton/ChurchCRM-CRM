@@ -1,37 +1,31 @@
 /// <reference types="cypress" />
 
+import { askForEmail, postCode, resetEmailSignIn, restoreSettings, signInEmail, useMemberSignIn } from "../../../../support/member-sign-in";
+
 /**
  * Member sign-in row 10 (#10463): the sign-in email is a credential
  * (docs/member-sign-in-design.md §9). Staff change it in the person editor;
- * whether the address may sign in is read from GET /api/person/{id}/sign-in.
+ * whether an address may sign in is tried at /portal/login and read from
+ * GET /api/person/{id}/sign-in.
  *
  * Seed people: 2 Mathew (head, Member, no account), 100 Lena (spouse, a
  * self-service account, which is not a staff account), 3 Tony (a staff account).
  * judith.matthews (95) has Edit Records and is not an administrator.
  *
- * "Has signed in", the family email move, devices, passkeys, grants, the
- * session timeout and the audit have no HTTP surface until rows 5, 7, 8 and 9,
- * so they are set and read with cy.dbQuery().
+ * The family email move, devices, passkeys, grants and the audit have no HTTP
+ * surface until rows 7, 8 and 9, so they are set and read with cy.dbQuery().
  */
 
 const MATHEW = { id: 2, email: "mathew.campbell@example.com" };
 const LENA = { id: 100, email: "lena.walker@example.com", username: "lena.black.editself.notes@example.com", password: "changeme" };
 const TONY = { id: 3, email: "tony.wade@example.com" };
 const JUDITH = { id: 95, username: "judith.matthews@example.com", password: "noMoney$" };
-const SETTINGS_URL = "/admin/api/member-portal/sign-in";
-const RULE_KEYS = ["sMemberSignInFamilyRoles", "sMemberSignInClassifications", "iMemberSignInMinAge"];
 
 const db = (sql, params = []) =>
     cy.dbQuery(sql, params).then((result) => {
         expect(result.error, sql).to.be.null;
         return result.rows;
     });
-
-const setConfig = (name, value) =>
-    db(
-        "INSERT INTO config_cfg (cfg_name, cfg_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE cfg_value = VALUES(cfg_value)",
-        [name, value],
-    );
 
 const lastAuditId = () =>
     db("SELECT COALESCE(MAX(psa_ID), 0) AS id FROM portal_signin_audit_psa").then((rows) => Number(rows[0].id));
@@ -118,12 +112,21 @@ const useLinkTwice = (path) =>
         return press().then((first) => press().then((second) => [first, second]));
     });
 
-const markSignedIn = (person) =>
-    db(
-        "INSERT INTO person_signin_psi (psi_per_ID, psi_ProvenEmail, psi_ProvenAt, psi_FirstSignIn, psi_LastSignIn, psi_LastMethod) VALUES (?, ?, NOW(), NOW(), NOW(), 'email_code') " +
-            "ON DUPLICATE KEY UPDATE psi_ProvenEmail = VALUES(psi_ProvenEmail), psi_ProvenAt = VALUES(psi_ProvenAt)",
-        [person.id, person.email],
-    );
+/** Signs in at /portal/login with the emailed code, in the current cookie jar. */
+const signInByEmail = (address) => {
+    cy.clearCookies();
+    resetEmailSignIn();
+    askForEmail(address);
+    return signInEmail(address).then(({ code }) => postCode(code));
+};
+
+/** Whether /portal/login emails a sign-in code to the address. */
+const signInCodeSentTo = (address) => {
+    cy.clearCookies();
+    resetEmailSignIn();
+    askForEmail(address);
+    return mailTo(address).then((messages) => messages.some((m) => (m.Subject || "").includes("Your Member Portal sign-in code")));
+};
 
 const markFamilyEmailMoved = (person, familyId) => {
     db(
@@ -145,26 +148,12 @@ const giveGrant = (personId) =>
 
 describe("Sign-in email changes by staff, imports and registration (§9)", () => {
     const saved = {};
-    let savedTimeout;
 
     before(() => {
-        cy.makePrivateAdminAPICall("GET", SETTINGS_URL, null, 200).then(({ body }) => {
-            RULE_KEYS.forEach((key) => {
-                saved[key] = body.values[key];
-            });
-        });
-        db("SELECT cfg_value FROM config_cfg WHERE cfg_name = 'iSessionTimeout'").then((rows) => {
-            savedTimeout = rows.length ? rows[0].cfg_value : null;
-        });
+        useMemberSignIn(saved);
     });
 
     beforeEach(() => {
-        cy.makePrivateAdminAPICall(
-            "POST",
-            SETTINGS_URL,
-            { sMemberSignInFamilyRoles: [1, 2, 3], sMemberSignInClassifications: [1, 2], iMemberSignInMinAge: 13 },
-            200,
-        );
         cy.task("mail:clear");
     });
 
@@ -180,15 +169,11 @@ describe("Sign-in email changes by staff, imports and registration (§9)", () =>
         db("DELETE FROM person_passkey_ppk WHERE ppk_per_ID IN (?, ?, ?)", ids);
         db("DELETE FROM portal_grant_pgr WHERE pgr_Reason = 'Email change spec'");
         db("DELETE FROM family_email_move_fem WHERE fem_per_ID IN (?, ?, ?)", ids);
-        if (savedTimeout === null) {
-            db("DELETE FROM config_cfg WHERE cfg_name = 'iSessionTimeout'");
-        } else {
-            setConfig("iSessionTimeout", savedTimeout);
-        }
+        db("DELETE FROM person_signin_request_psr WHERE psr_per_ID IN (?, ?, ?)", ids);
     });
 
     after(() => {
-        cy.makePrivateAdminAPICall("POST", SETTINGS_URL, saved, 200);
+        restoreSettings(saved);
     });
 
     it("before the first sign-in, a staff change is the address on record: it signs in at once and is audited", () => {
@@ -201,8 +186,9 @@ describe("Sign-in email changes by staff, imports and registration (§9)", () =>
                 expect(body.unconfirmedEmail).to.be.null;
             });
             mailTo(MATHEW.email).should("have.length", 0);
+            signInCodeSentTo(newEmail).should("eq", true);
             auditSince(MATHEW.id, startId).then((rows) => {
-                expect(rows.map((row) => row.psa_Event)).to.deep.eq(["email_changed"]);
+                expect(rows[0].psa_Event).to.eq("email_changed");
                 expect(rows[0].psa_Actor_usr_ID).to.eq(JUDITH.id);
                 expect(rows[0].psa_Email).to.eq(newEmail);
                 expect(rows[0].psa_Detail).to.eq(`from=${MATHEW.email}; via=staff`);
@@ -215,19 +201,17 @@ describe("Sign-in email changes by staff, imports and registration (§9)", () =>
         const randomHash = () => Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
 
         const replaceSignedInEmail = () => {
-            markSignedIn(LENA);
+            signInByEmail(LENA.email);
+            cy.task("mail:clear");
             saveEmailInPersonEditor(LENA.id, newEmail).its("status").should("eq", 302);
             cy.clearCookies();
         };
 
         it("ends every session and remembered device, keeps passkeys, tells the old address and leaves the new one unconfirmed", () => {
             lastAuditId().then((startId) => {
-                signIn(LENA);
-                cy.request("/portal/").its("status").should("eq", 200);
-                setConfig("iSessionTimeout", "1");
-                cy.wait(2100);
+                signInByEmail(LENA.email);
                 cy.request("/api/portal/me").its("body.profile.id").should("eq", LENA.id);
-                markSignedIn(LENA);
+                db("SELECT psi_ProvenEmail FROM person_signin_psi WHERE psi_per_ID = ?", [LENA.id]).its("0.psi_ProvenEmail").should("eq", LENA.email);
                 db(
                     "INSERT INTO person_device_pdv (pdv_per_ID, pdv_TokenHash, pdv_Kind, pdv_CreatedAt, pdv_ExpiresAt) VALUES (?, ?, 'browser', NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY))",
                     [LENA.id, randomHash()],
@@ -236,11 +220,10 @@ describe("Sign-in email changes by staff, imports and registration (§9)", () =>
                     "INSERT INTO person_passkey_ppk (ppk_per_ID, ppk_CredentialId, ppk_CredentialHash, ppk_PublicKey, ppk_CreatedAt) VALUES (?, 'cypress-credential', ?, 'cypress-key', NOW())",
                     [LENA.id, randomHash()],
                 );
+                cy.task("mail:clear");
 
                 keepingSession(() => {
-                    setConfig("iSessionTimeout", savedTimeout ?? "3600");
                     saveEmailInPersonEditor(LENA.id, newEmail).its("status").should("eq", 302);
-                    setConfig("iSessionTimeout", "1");
                 });
 
                 cy.request({ url: "/api/portal/me", failOnStatusCode: false }).its("status").should("eq", 401);
@@ -262,6 +245,7 @@ describe("Sign-in email changes by staff, imports and registration (§9)", () =>
                     cy.task("mail:get", { id: messages[0].ID }).its("body.Text").should("contain", newEmail);
                 });
                 mailTo(newEmail).should("have.length", 0);
+                signInCodeSentTo(newEmail).should("eq", false);
 
                 auditSince(LENA.id, startId).then((rows) => {
                     const changed = rows.find((row) => row.psa_Event === "email_changed");
@@ -285,13 +269,15 @@ describe("Sign-in email changes by staff, imports and registration (§9)", () =>
                     status(LENA.id).its("reason").should("eq", "email_unconfirmed");
 
                     useLinkTwice(path).should("deep.eq", ["done", "invalid"]);
+                    signInCodeSentTo(newEmail).should("eq", true);
                     status(LENA.id).then((body) => {
                         expect(body.maySignIn).to.eq(true);
                         expect(body.unconfirmedEmail).to.be.null;
                     });
                     openLink(path).its("state").should("eq", "invalid");
                 });
-                auditSince(LENA.id, startId).then((rows) => {
+                auditSince(LENA.id, startId).then((all) => {
+                    const rows = all.filter((row) => row.psa_Event.startsWith("email_c"));
                     expect(rows).to.have.length(1);
                     expect(rows[0].psa_Event).to.eq("email_confirmed");
                     expect(rows[0].psa_Actor_usr_ID).to.be.null;
@@ -311,12 +297,14 @@ describe("Sign-in email changes by staff, imports and registration (§9)", () =>
             cy.makePrivateAdminAPICall("POST", `/api/person/${LENA.id}/sign-in/confirm-email`, { email: "someone.else@example.com" }, 409);
             status(LENA.id).its("reason").should("eq", "email_unconfirmed");
 
+            signInCodeSentTo(newEmail).should("eq", false);
             lastAuditId().then((startId) => {
                 cy.makePrivateAdminAPICall("POST", `/api/person/${LENA.id}/sign-in/confirm-email`, { email: newEmail }, 200);
                 status(LENA.id).its("maySignIn").should("eq", true);
+                signInCodeSentTo(newEmail).should("eq", true);
                 auditSince(LENA.id, startId).then((rows) => {
-                    expect(rows.map((row) => `${row.psa_Event}:${row.psa_Actor_usr_ID}:${row.psa_Detail}`)).to.deep.eq([
-                        "email_confirmed:1:via=person_page; source=staff",
+                    expect(rows.filter((row) => row.psa_Event === "email_confirmed").map((row) => `${row.psa_Actor_usr_ID}:${row.psa_Detail}`)).to.deep.eq([
+                        "1:via=person_page; source=staff",
                     ]);
                 });
             });
@@ -340,11 +328,13 @@ describe("Sign-in email changes by staff, imports and registration (§9)", () =>
                 cy.makePrivateEditRecordsAPICall("GET", `/api/person/${MATHEW.id}/sign-in`, null, 200)
                     .its("body.canConfirmEmail")
                     .should("eq", true);
+                signInCodeSentTo(MATHEW.email).should("eq", false);
                 cy.makePrivateEditRecordsAPICall("POST", `/api/person/${MATHEW.id}/sign-in/confirm-email`, { email: MATHEW.email }, 200);
                 status(MATHEW.id).its("maySignIn").should("eq", true);
+                signInCodeSentTo(MATHEW.email).should("eq", true);
                 db("SELECT fem_NeedsConfirm FROM family_email_move_fem WHERE fem_per_ID = ?", [MATHEW.id]).its("0.fem_NeedsConfirm").should("eq", 0);
                 auditSince(MATHEW.id, startId).then((rows) => {
-                    expect(rows.map((row) => `${row.psa_Event}:${row.psa_Actor_usr_ID}:${row.psa_Detail}`)).to.deep.eq([
+                    expect(rows.filter((row) => row.psa_Event.startsWith("email_c")).map((row) => `${row.psa_Event}:${row.psa_Actor_usr_ID}:${row.psa_Detail}`)).to.deep.eq([
                         `email_confirmed:${JUDITH.id}:via=person_page; source=family_email`,
                     ]);
                 });

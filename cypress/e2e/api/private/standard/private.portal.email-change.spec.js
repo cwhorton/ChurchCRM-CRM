@@ -1,17 +1,19 @@
 /// <reference types="cypress" />
 
+import { askForEmail, postCode, resetEmailSignIn, restoreSettings, signInEmail, useMemberSignIn } from "../../../../support/member-sign-in";
+
 /**
  * Member sign-in row 10 (#10463): a member changes their own email in the
  * portal (docs/member-sign-in-design.md §9). The new address gets a link and
  * the change happens when it is used; the old address gets a notice.
  *
- * Persona: Lena Black (user and person 100, family 20, spouse), a self-service
- * account, which is not a staff account. Amanda Black (99) is in her family.
+ * Persona: Lena Black (person 100, family 20, spouse), signed in by email at
+ * /portal/login. Amanda Black (99) is in her family.
  * Given grants, an expired link, the proven email and the audit have no HTTP
  * surface until rows 5 and 9, so they are set and read with cy.dbQuery().
  */
 
-const LENA = { id: 100, email: "lena.walker@example.com", username: "lena.black.editself.notes@example.com", password: "changeme" };
+const LENA = { id: 100, email: "lena.walker@example.com" };
 const AMANDA = { id: 99, email: "amanda.black@example.com" };
 
 const db = (sql, params = []) =>
@@ -25,16 +27,11 @@ const lastAuditId = () =>
 
 const signInToPortal = () => {
     cy.clearCookies();
-    cy.request({
-        method: "POST",
-        url: "/session/begin",
-        form: true,
-        followRedirect: false,
-        body: { User: LENA.username, Password: LENA.password },
-    })
-        .its("status")
-        .should("eq", 302);
-    cy.request("/portal/").its("status").should("eq", 200);
+    resetEmailSignIn([LENA.id]);
+    askForEmail(LENA.email);
+    signInEmail(LENA.email).then(({ code }) => postCode(code));
+    cy.request("/api/portal/me").its("body.profile.id").should("eq", LENA.id);
+    cy.task("mail:clear");
 };
 
 const csrfToken = () =>
@@ -88,6 +85,16 @@ const pressConfirm = (path, body) => {
 };
 
 describe("A member changes their own email in the portal (§9)", () => {
+    const saved = {};
+
+    before(() => {
+        useMemberSignIn(saved);
+    });
+
+    after(() => {
+        restoreSettings(saved);
+    });
+
     beforeEach(() => {
         cy.task("mail:clear");
         cy.expireSignInThrottle("email-change.person");
@@ -100,6 +107,7 @@ describe("A member changes their own email in the portal (§9)", () => {
         db("DELETE FROM person_signin_psi WHERE psi_per_ID = ?", [LENA.id]);
         db("DELETE FROM person_email_change_pec WHERE pec_per_ID = ?", [LENA.id]);
         db("DELETE FROM portal_grant_pgr WHERE pgr_Reason = 'Email change spec'");
+        db("DELETE FROM person_signin_request_psr WHERE psr_per_ID = ?", [LENA.id]);
         cy.expireSignInThrottle("email-change.person");
     });
 
