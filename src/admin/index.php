@@ -22,6 +22,7 @@ require __DIR__ . '/routes/api/options.php';
 require __DIR__ . '/routes/api/member-portal.php';
 require __DIR__ . '/routes/api/person-sign-in.php';
 require __DIR__ . '/routes/api/member-portal-reports.php';
+require __DIR__ . '/routes/api/person-portal-access.php';
 require __DIR__ . '/routes/api/map.php';
 require __DIR__ . '/routes/api/system/church-logo.php';
 require __DIR__ . '/routes/api/system/system-config.php';

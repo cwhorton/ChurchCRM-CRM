@@ -54,6 +54,7 @@ use ChurchCRM\Utils\InputUtils;
             <li class="mb-1" id="portal-signin-devices"><i class="fa-solid fa-laptop me-2 text-body-secondary"></i><?= sprintf(gettext('Remembered devices: %d'), (int) $portalSignIn['devices']) ?></li>
             <li class="mb-1" id="portal-signin-passkeys"><i class="fa-solid fa-key me-2 text-body-secondary"></i><?= sprintf(gettext('Passkeys: %d'), (int) $portalSignIn['passkeys']) ?></li>
         </ul>
+        <?php include __DIR__ . '/portal-signin-access.php'; ?>
     </div>
     <?php if ($portalSignInCanManage) : ?>
         <div class="card-footer d-flex flex-wrap gap-2">
