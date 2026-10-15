@@ -3,6 +3,7 @@
 namespace ChurchCRM\Portal;
 
 use ChurchCRM\dto\SystemURLs;
+use ChurchCRM\Plugin\PluginManager;
 use ChurchCRM\Portal\Auth\PortalContext;
 use ChurchCRM\Portal\Auth\PortalPrincipal;
 use ChurchCRM\Portal\Permissions\CorePortalCapabilities;
@@ -15,7 +16,8 @@ use ChurchCRM\Portal\Permissions\PortalAuthorizationService;
  * My Family · Profile. Each entry names the portal capability it needs and is
  * shown when the member holds it on at least one scope (member sign-in design
  * §8.2), so the menu and the routes ask the same question. Home needs nothing,
- * and My Family stays for a member with no family, whose page says so.
+ * and My Family stays for a member with no family, whose page says so. Active
+ * plugins add their own entries before My Family.
  *
  * A nav entry is `{id, label, url, icon, capability, active, badge}`; `url` is
  * already prefixed with the install root path, and `icon` is a Font Awesome
@@ -86,6 +88,9 @@ class PortalNav
                 'capability' => CorePortalCapabilities::PROFILE_EDIT,
             ],
         ];
+
+        // Plugin entries (member sign-in design §8.5) go before My Family.
+        array_splice($entries, (int) array_search(self::FAMILY, array_column($entries, 'id'), true), 0, PluginManager::getPortalNavItems());
 
         $principal = PortalContext::principal();
         $authz = new PortalAuthorizationService();

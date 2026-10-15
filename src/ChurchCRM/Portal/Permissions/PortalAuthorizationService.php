@@ -187,9 +187,10 @@ final class PortalAuthorizationService implements PortalAuthorization
         $grants = [];
         foreach (PortalCapabilityRegistry::activeRules() as $ruleKey => $rule) {
             $source = $ruleKey === EveryoneRule::KEY ? EffectiveGrant::SOURCE_EVERYONE : EffectiveGrant::SOURCE_RULE;
+            $owner = PortalCapabilityRegistry::ruleOwner($ruleKey);
             try {
                 foreach ($rule->grantsFor($person) as $ruleGrant) {
-                    if (self::fitsCatalog($ruleGrant->capability, $ruleGrant->scope)) {
+                    if (self::fitsCatalog($ruleGrant->capability, $ruleGrant->scope, $owner)) {
                         $grants[] = new EffectiveGrant($ruleGrant->capability, $ruleGrant->scope, $source, $ruleGrant->label, $ruleKey);
                     }
                 }
@@ -265,11 +266,17 @@ final class PortalAuthorizationService implements PortalAuthorization
         return sprintf(gettext('Given by %1$s until %2$s'), $giver, DateTimeUtils::formatDate($endsAt));
     }
 
-    private static function fitsCatalog(string $capability, PortalScope $scope): bool
+    /**
+     * A grant counts only for a known capability on a scope of its type. A
+     * plugin's rule may give only that plugin's own capabilities.
+     */
+    private static function fitsCatalog(string $capability, PortalScope $scope, ?string $ruleOwner = null): bool
     {
         $definition = PortalCapabilityRegistry::get($capability);
 
-        return $definition instanceof PortalCapability && $definition->scopeType === $scope->type;
+        return $definition instanceof PortalCapability
+            && $definition->scopeType === $scope->type
+            && ($ruleOwner === null || $ruleOwner === PortalCapability::OWNER_CORE || $ruleOwner === $definition->owner);
     }
 
     private static function featureIsOn(string $setting): bool
