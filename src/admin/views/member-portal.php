@@ -188,7 +188,7 @@ $themesDocUrl = 'https://github.com/ChurchCRM/CRM/blob/master/docs/portal-themes
                     . '</div>';
             };
             ?>
-            <form id="memberSignInForm" novalidate>
+            <form id="memberSignInForm" novalidate autocomplete="off">
                 <div class="row row-cards">
                     <div class="col-12">
                         <div class="card" id="memberSignInCard">

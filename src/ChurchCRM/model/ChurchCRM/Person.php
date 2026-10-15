@@ -102,12 +102,6 @@ class Person extends BasePerson implements PhotoInterface
         );
     }
 
-    /** The person's own email only (`per_Email`), the address member sign-in matches (§4). */
-    public function getPersonalEmail(): ?string
-    {
-        return parent::getEmail();
-    }
-
     public static function signInBlockedReasonFor(
         mixed $dateDeceased,
         mixed $dateDeactivated,

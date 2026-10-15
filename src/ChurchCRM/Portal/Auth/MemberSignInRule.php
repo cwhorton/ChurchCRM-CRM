@@ -199,7 +199,7 @@ final class MemberSignInRule
             return $reason;
         }
 
-        $email = self::normalizeEmail((string) $person->getPersonalEmail());
+        $email = self::normalizeEmail((string) $person->getEmail());
         if ($email === '') {
             return SignInReason::NO_EMAIL;
         }

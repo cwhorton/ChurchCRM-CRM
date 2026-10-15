@@ -207,7 +207,7 @@ final class MemberSignInSettingsService
 
         $people = [];
         foreach (PersonQuery::create()->filterById($ids, Criteria::IN)->find() as $person) {
-            $people[(int) $person->getId()] = ['id' => (int) $person->getId(), 'text' => self::pickerText($person->getFullName(), $person->getPersonalEmail())];
+            $people[(int) $person->getId()] = ['id' => (int) $person->getId(), 'text' => self::pickerText($person->getFullName(), $person->getEmail())];
         }
 
         return array_values(array_filter(array_map(static fn (int $id): ?array => $people[$id] ?? null, $ids)));
@@ -235,7 +235,7 @@ final class MemberSignInSettingsService
             ->limit(15)
             ->find();
         foreach ($people as $index => $person) {
-            $results[] = ['id' => $index + 1, 'objid' => (int) $person->getId(), 'text' => self::pickerText($person->getFullName(), $person->getPersonalEmail())];
+            $results[] = ['id' => $index + 1, 'objid' => (int) $person->getId(), 'text' => self::pickerText($person->getFullName(), $person->getEmail())];
         }
 
         return $results;
