@@ -140,8 +140,10 @@ class AuthMiddleware implements MiddlewareInterface
      *    serves nothing but allow-listed static files, and staying public is
      *    what keeps a cached portal page from breaking on a logged-out asset
      *    request (design §2.2 step 6).
+     *  - /portal/email/confirm/… — the page an email-change link opens (member
+     *    sign-in design §9); the token in the link is what identifies the request.
      *
-     * Both are built with the install's root path, so a subdirectory install
+     * Each is built with the install's root path, so a subdirectory install
      * ('/crm/api/public') matches exactly as a root install does.
      */
     private function isPublicPath(ServerRequestInterface $request): bool
@@ -149,7 +151,7 @@ class AuthMiddleware implements MiddlewareInterface
         $path = $request->getUri()->getPath();
         $rootPath = SystemURLs::getRootPath();
 
-        foreach (['/api/public', '/portal/theme'] as $publicPrefix) {
+        foreach (['/api/public', '/portal/theme', '/portal/email/confirm'] as $publicPrefix) {
             $publicPath = $rootPath . $publicPrefix;
             if ($path === $publicPath || str_starts_with($path, $publicPath . '/')) {
                 return true;

@@ -30,6 +30,10 @@ $app = MvcAppFactory::create('/portal', [
 // logged-out asset request.
 require __DIR__ . '/routes/theme-asset.php';
 
+// Public: the confirm page an email-change link opens (member sign-in design
+// §9). The link alone identifies the request, so it needs no session.
+require __DIR__ . '/routes/email-confirm.php';
+
 // Everything else is a portal page: a portal session (member sign-in design
 // §5), no API keys, CSRF on every state-changing request.
 $app->group('', function (RouteCollectorProxy $group): void {
