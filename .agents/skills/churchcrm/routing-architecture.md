@@ -595,13 +595,15 @@ through and 302s everything else to `/portal/`; `Include/PageInit.php` does the
 same for legacy pages; `AuthenticationManager::getDefaultLandingPath()` picks the
 post-login destination. `/external/limited-access` is now a 302 to `/portal/`.
 
-**2. One route is public inside an authenticated module.**
-`GET /portal/theme/{name}/{path}` streams theme assets and must work without a
-session. App-level middleware cannot be skipped per route, so
-`AuthMiddleware::isPublicPath()` carves it out alongside `/api/public`, and
-`PortalAccessMiddleware` is attached to the page group rather than the app. A
-missing asset returns a bare 404, not the HTML error page — there is no session
-to render a page for.
+**2. A few routes are public inside an authenticated module.**
+`GET /portal/theme/{name}/{path}` (theme assets), `/portal/login` (member
+sign-in) and `/portal/email/confirm/{token}` (an email-change link) must work
+without a session. App-level middleware cannot be skipped per route, so
+`AuthMiddleware::isPublicPath()` carves them out alongside `/api/public`, and
+the session and access middlewares are attached to the page group rather than
+the app. A public page calls `PortalTwig::preparePage()` itself. A missing
+asset returns a bare 404, not the HTML error page — there is no session to
+render a page for.
 
 **3. Templates come from a theme, not from `views/`.**
 `ChurchCRM\Portal\PortalTwig::render()` is the only way a portal page becomes a
