@@ -9,7 +9,6 @@ use ChurchCRM\model\ChurchCRM\PersonQuery;
 use ChurchCRM\model\ChurchCRM\PersonSignin;
 use ChurchCRM\model\ChurchCRM\PersonSigninQuery;
 use ChurchCRM\model\ChurchCRM\User;
-use ChurchCRM\Portal\PortalStatsService;
 use ChurchCRM\Slim\Middleware\BrowserRequestTrait;
 use ChurchCRM\Slim\SlimUtils;
 use ChurchCRM\Utils\DateTimeUtils;
@@ -81,7 +80,7 @@ final class PortalSessionMiddleware implements MiddlewareInterface
         }
 
         PortalSessionStore::touch();
-        $this->recordActivity($principal, $state, $staffUser);
+        $this->recordActivity($principal, $state);
         PortalContext::set($principal, $person, $staffUser);
 
         return $handler->handle($request->withAttribute(self::PRINCIPAL_ATTRIBUTE, $principal));
@@ -155,7 +154,7 @@ final class PortalSessionMiddleware implements MiddlewareInterface
         };
     }
 
-    private function recordActivity(PortalPrincipal $principal, ?PersonSignin $state, ?User $staffUser): void
+    private function recordActivity(PortalPrincipal $principal, ?PersonSignin $state): void
     {
         if (!$principal->method->updatesSignInRecord()) {
             return;
@@ -167,9 +166,6 @@ final class PortalSessionMiddleware implements MiddlewareInterface
             if (!$last instanceof DateTimeInterface || $now->getTimestamp() - $last->getTimestamp() >= self::ACTIVITY_WRITE_SECONDS) {
                 $state ??= (new PersonSignin())->setPersonId($principal->personId);
                 $state->setLastActivity($now)->save();
-            }
-            if ($principal->method === SignInMethod::STAFF && $staffUser instanceof User) {
-                PortalStatsService::recordPortalActivity($staffUser);
             }
         } catch (Throwable $e) {
             LoggerUtils::getAppLogger()->warning('Could not record Member Portal activity', [
