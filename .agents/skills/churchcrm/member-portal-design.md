@@ -325,7 +325,8 @@ render.
 | `nonce()` | `SystemURLs::getCSPNonce()` |
 | `church` | `{name, address, city, state, zip, phone, email, website, logoUrl, logoOnDarkUrl, socialLinks}` from `ChurchMetaData`; `logoUrl` is the uploaded logo from PR #9719 when set, else the stock image. `logoOnDarkUrl` is the same logo, but its fallback is ChurchCRM's paper + blue mark for a dark background (#10423); the default theme's dark header uses it. A theme may replace either with `theme_asset()`. `socialLinks` (#9907) is the church's configured social accounts, ordered X, YouTube, Facebook, Instagram, each `{id, label, url, icon}`, empty when none is set — the default theme's footer renders them as icon links on its trailing edge |
 | `member` | `{id, firstName, lastName, fullName, email, avatarUrl, familyId, isTeamLeader, isStaff}` |
-| `nav` | the `PortalNav` model: ordered `[{id, label, url, icon, active, badge}]` |
+| `portal_can(capability, scope)` | the portal permissions check (member sign-in design §8.2) for showing a section or button; routes use `RequirePortalCapability` |
+| `nav` | the `PortalNav` model: ordered `[{id, label, url, icon, capability, active, badge}]`, each entry shown when the member holds its capability |
 | `flash` | `[{type, message}]` from the session |
 | `portal` | `{rootPath, themeName, locale, isRTL, developerMode}` |
 | `email_wrap` (filter) | the escaped address with `<wbr>` after the `@` and before each `.`, so it wraps at a readable point (#10421) |
@@ -651,9 +652,8 @@ The "Ministries looking for help" section and "I'd like to help" are unchanged.
 **As built (MP6, #9867).** The nav carries one entry, **Volunteering**, pointing at the schedule
 page; the two pages carry a secondary tab bar between them (*My schedule* / *Find something to do*),
 because two sidebar entries do not survive the move to a six-item top nav. The entry and both
-routes ask one predicate, `PortalNav::isVolunteeringVisible()` — `User::isVolunteerV2Enabled()` and
-`bPortalShowVolunteer`, the latter read defensively because MP3 is what declares it — so the portal
-never offers a page it would then refuse. The home page's "My volunteering" card is real: the
+routes ask one portal capability, `portal.volunteer.use` — on while `User::isVolunteerV2Enabled()`
+and `bPortalShowVolunteer` are — so the portal never offers a page it would then refuse. The home page's "My volunteering" card is real: the
 member's next live assignment and a count of the ones still waiting for an answer, read
 client-side from `/api/ministries/me/assignments` by `portal.min.js`, best-effort and silent on
 failure. The layout also gained `bootbox` (the volunteer pages' prompts and confirmations) and
@@ -697,11 +697,10 @@ here rather than left for the next reader to rediscover:
    `ministries-occurrence.min.js` unchanged — the same move P15 made for the two member pages. The
    one difference is that the linked calendar event is NAMED but not LINKED, because
    `/event/view/{id}` is an admin-shell page a member would be bounced away from.
-5. **The nav entry is narrower than the routes.** `My Teams` is shown only to somebody with an
-   explicit `team` grant (`isVolunteerTeamLeaderEnabled()`), while `/portal/teams` also admits a
-   coordinator, manager or administrator who opens the portal as themselves. A coordinator is not
-   a team leader (volunteer design §4.4) and their way into a team is the ministry page; claiming
-   otherwise in their navigation would be wrong, and refusing them the page would be pointless.
+5. **The nav entry and the routes ask one capability.** Since member sign-in row 2, My Teams and
+   every team page need `volunteer.team.manage` on the team (`RequirePortalCapability`); another
+   team's page is 404. Staff permissions add nothing: a coordinator, manager or administrator
+   opening the portal sees only the teams they lead, and runs the rest from the ministry page.
 
 The components the team page shares with the admin ministry page live in
 `webpack/ministries/components/` — `ui.ts` (the §5.8 state machine, the modal fade guard, the

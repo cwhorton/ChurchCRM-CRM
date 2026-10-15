@@ -8,6 +8,7 @@ use ChurchCRM\Slim\Middleware\AuthMiddleware;
 use ChurchCRM\Slim\Middleware\CorsMiddleware;
 use ChurchCRM\Slim\Middleware\VersionMiddleware;
 use ChurchCRM\Slim\SlimUtils;
+use ChurchCRM\Volunteer\Middleware\VolunteerPortalMemberMiddleware;
 use Slim\Factory\AppFactory;
 
 // Get base path by combining $sRootPath from Config.php with /api endpoint
@@ -27,6 +28,7 @@ $errorMiddleware = $app->addErrorMiddleware(\ChurchCRM\dto\SystemConfig::debugEn
 SlimUtils::registerDefaultJsonErrorHandler($errorMiddleware);
 
 $app->add(new CorsMiddleware());
+$app->add(new VolunteerPortalMemberMiddleware());
 $app->add(AuthMiddleware::class);
 $app->add(VersionMiddleware::class);
 

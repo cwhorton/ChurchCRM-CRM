@@ -13,6 +13,10 @@
             "kind": "schema",
             "reason": "Migration spec for the 7.9.0 family email move (member sign-in row 11): the app no longer writes a family email, so the fixtures, the upgrade block and its marker table are reached in SQL."
         },
+        "cypress/e2e/api/private/standard/private.portal.permissions.spec.js": {
+            "kind": "fixture",
+            "reason": "Member sign-in row 2 (#10463): given portal grants, the session timeout behind a portal-only session, and a person's family role and birth year for the adult rule have no HTTP surface until row 9 adds the admin pages."
+        },
         "cypress/e2e/api/private/standard/private.portal.session.spec.js": {
             "kind": "fixture",
             "reason": "Member sign-in row 1 (#10463): Disable sign-in, the session version, the timeouts and the sign-in audit have no HTTP surface until rows 4 and 9 add the admin pages."
