@@ -4,7 +4,6 @@ namespace ChurchCRM\Service;
 
 use ChurchCRM\model\ChurchCRM\EmailLog;
 use ChurchCRM\model\ChurchCRM\EmailLogQuery;
-use ChurchCRM\model\ChurchCRM\FamilyQuery;
 use ChurchCRM\model\ChurchCRM\PersonQuery;
 use ChurchCRM\model\ChurchCRM\UserQuery;
 use ChurchCRM\Utils\DateTimeUtils;
@@ -90,7 +89,7 @@ class EmailLogService
     }
 
     /**
-     * Finds the person (primary or work email) or family behind an address.
+     * Finds the person (primary or work email) behind an address.
      *
      * @return array{personId: ?int, familyId: ?int}
      */
@@ -105,11 +104,6 @@ class EmailLogService
             ?? PersonQuery::create()->filterByWorkEmail($address)->orderById()->findOne();
         if ($person !== null) {
             $link['personId'] = (int) $person->getId();
-        } else {
-            $family = FamilyQuery::create()->filterByEmail($address)->orderById()->findOne();
-            if ($family !== null) {
-                $link['familyId'] = (int) $family->getId();
-            }
         }
         $this->resolved[$key] = $link;
 
