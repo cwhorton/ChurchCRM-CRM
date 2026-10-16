@@ -430,8 +430,8 @@ Minimum coverage per endpoint (see
   hide hydration bugs)
 - **Empty/zero-data path** — e.g. person with no records
 - **401** — no API key / no session
-- **403** — a role-restricted caller (use `limited.user` inline-key pattern when
-  standard seeded users are too privileged)
+- **403** — a role-restricted caller (`cy.makePrivateNoPermAPICall()`, every flag off,
+  when standard seeded users are too privileged)
 - **404** — nonexistent entity ID
 
 Run it before pushing: `npx cypress run --config-file cypress/configs/docker.config.ts --spec "<path>"` —

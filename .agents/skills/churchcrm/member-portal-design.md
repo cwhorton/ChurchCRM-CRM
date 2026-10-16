@@ -134,9 +134,10 @@ lines off), and every name below is greppable.
 10. **Plugins** can inject `<head>`/footer HTML and register routes under `/plugins/*` only; no asset
     serving, no template overrides. Community plugins are installed by an admin-only URL installer
     with verification into `plugins/community/`.
-11. **Cypress**: seeded member persona is user 100 (`lena.black.editself.notes@example.com`,
-    password `changeme`, family 20; the username is truncated to 32 characters at login); user 99
-    is the API-only Edit Self persona; `ui`, `ui-admin`, `api` suites run under separate configs.
+11. **Cypress**: members have no account since the 7.9.0 cutover. The seeded member persona is
+    person 100 (Lena Black, family 20), signed in with `cy.signInAsMember(100)` (emailed code,
+    `cypress/support/member-session.js`); `cy.makeMemberAPICall(99, …)` calls the API in person 99's
+    member session; `ui`, `ui-admin`, `api` suites run under separate configs.
 
 ---
 

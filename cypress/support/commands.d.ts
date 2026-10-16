@@ -257,52 +257,26 @@ declare namespace Cypress {
     ): Chainable<any>;
 
     /**
-     * Make API request as an EditSelf-only user (amanda.black, family 20)
-     * Used for testing family-scope authorization (GHSA-jjcj-h3cm-p7x7)
-     * @param method - HTTP method
-     * @param url - Request URL
-     * @param body - Request body
-     * @param expectedStatus - Expected status code (default: 200)
-     * @param timeoutMs - Optional per-request timeout override
+     * Sign in to the Member Portal as a person (id or email), with the
+     * emailed code (cypress/support/member-session.js). The member rule is
+     * opened to everyone for the spec.
      */
-    makePrivateEditSelfAPICall(
+    signInAsMember(who: number | string): Chainable<any>;
+
+    /** Put the member's session back in the browser, signing in the first time. */
+    useMemberSession(who: number | string): Chainable<any>;
+
+    /** A request in the member's session, asserting the status. */
+    makeMemberAPICall(
+      who: number | string,
       method: string,
       url: string,
       body?: any,
-      expectedStatus?: number | number[],
-      timeoutMs?: number
+      expectedStatus?: number | number[]
     ): Chainable<any>;
 
-    /**
-     * Regression sentinel: EditSelf+Notes user (user 100, Lena Black, family 20).
-     * Post-PR#9016 the user is blocked by AuthMiddleware (403). Once EditSelf
-     * exclusivity is relaxed, avatar/nav/photo should assert 200 (FamilyReadMiddleware)
-     * vs 403 (FamilyMiddleware) for a non-own family.
-     */
-    makePrivateEditSelfPlusNotesAPICall(
-      method: string,
-      url: string,
-      body?: any,
-      expectedStatus?: number | number[],
-      timeoutMs?: number
-    ): Chainable<any>;
-
-    /**
-     * Make API request as limited.user (id=4) — usr_Notes=0, usr_Admin=0,
-     * usr_EditRecords=0, usr_EditSelf=1. An EditSelf-ONLY user, blocked by
-     * AuthMiddleware::isEditSelfExclusive() → always returns 403.
-     * Use ONLY for Notes-gated 403 assertions.
-     *
-     * NOT a zero-permission user — that is noperm.user (id=901, EditSelf=0),
-     * which now passes the gate with read-only access (read-default policy).
-     */
-    makePrivateLimitedAPICall(
-      method: string,
-      url: string,
-      body?: any,
-      expectedStatus?: number | number[],
-      timeoutMs?: number
-    ): Chainable<any>;
+    /** Forget the cached member sessions. */
+    forgetMemberSessions(): Chainable<any>;
 
     /**
      * Make API request as judith.matthews (id=95) — usr_EditRecords=1,
