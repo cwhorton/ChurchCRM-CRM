@@ -195,7 +195,7 @@ describe("Login as User: changes and endings", () => {
                 { event: "login_as_started", reason: null, actorId: ADMIN },
                 { event: "session_ended", reason: "idle", actorId: ADMIN },
             ]);
-            cy.freshAdminFormLogin();
+            cy.freshAdminFormLogin({ visible: true, enabled: true });
             newestSession().should("contain", "Timed out");
         });
     });
@@ -203,7 +203,7 @@ describe("Login as User: changes and endings", () => {
     it("ends with the sign-out reason on Sign out", () => {
         startLoginAsUser();
         cy.request({ url: "/session/end", followRedirect: false }).its("headers.location").should("match", /\/admin\/$/);
-        cy.freshAdminFormLogin();
+        cy.freshAdminFormLogin({ visible: true, enabled: true });
         newestSession().should("contain", "Signed out");
     });
 });
