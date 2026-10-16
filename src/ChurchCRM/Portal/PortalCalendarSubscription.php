@@ -3,6 +3,7 @@
 namespace ChurchCRM\Portal;
 
 use ChurchCRM\dto\ChurchMetaData;
+use ChurchCRM\dto\SystemConfig;
 use ChurchCRM\model\ChurchCRM\Person;
 use ChurchCRM\model\ChurchCRM\PersonSignin;
 use ChurchCRM\model\ChurchCRM\PersonSigninQuery;
@@ -197,20 +198,20 @@ class PortalCalendarSubscription
     }
 
     /**
-     * Design §12: a feed stops when its person may no longer sign in (§4). That
-     * is the blocks for everyone and, unless the person has a staff account
-     * (which signs in without it), the member rule. Not the email rule: the
-     * token is the credential here, and not the `bMemberSignIn` switch, which is
-     * off after the upgrade while the copied feeds keep working.
+     * Design §12: a feed stops when its person may no longer sign in (§4): the
+     * blocks for everyone, and the member rule while member sign-in is on,
+     * except for a person with a staff account, who signs in without it. While
+     * member sign-in is off, as it is after the upgrade, the rule (nothing
+     * ticked at first) is not applied, so the feeds the upgrade copied keep
+     * working. The email rule is not applied: here the token is the credential.
      */
     private static function maySignIn(PersonSignin $state): bool
     {
         $person = $state->getPerson();
-        $method = $person instanceof Person && UserQuery::create()->filterByPersonId($person->getId())->exists()
-            ? SignInMethod::STAFF
-            : SignInMethod::EMAIL_CODE;
+        $memberRuleApplies = SystemConfig::getBooleanValue('bMemberSignIn')
+            && !($person instanceof Person && UserQuery::create()->filterByPersonId($person->getId())->exists());
 
-        return PortalSignInRules::refusalReason($person, $state, $method) === null;
+        return PortalSignInRules::refusalReason($person, $state, $memberRuleApplies ? SignInMethod::EMAIL_CODE : SignInMethod::STAFF) === null;
     }
 
     /**
