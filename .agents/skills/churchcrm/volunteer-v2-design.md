@@ -3383,7 +3383,7 @@ is why that half of the change is not optional.
 - `x-api-key` authenticates Slim MVC pages (`/event`, `/ministries`, `/v2`), so a pure `cy.request()`
   can assert their status codes — but **not** `/people/*` or any legacy root `.php` page: those
   require `Include/PageInit.php`, whose `ensureAuthentication()` runs at file-load time before any
-  middleware, so an API-key request 302s to `/session/begin`. Assertions on the person view or on
+  middleware, so an API-key request 302s to the staff sign-in at `/admin/`. Assertions on the person view or on
   `VolunteerOpportunityEditor.php` must live in a `ui/` or `ui-admin/` spec with a real login
   (learned in #9704).
 - SystemConfig is changed through the **admin** app: `POST /admin/api/system/config/{name}` with
