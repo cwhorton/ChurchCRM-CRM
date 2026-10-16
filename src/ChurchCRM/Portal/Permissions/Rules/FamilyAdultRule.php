@@ -22,6 +22,9 @@ use Propel\Runtime\ActiveQuery\Criteria;
  * Age is counted the way the member rule counts it: from the birthday itself;
  * with only a birth year, from the January after the 18th birthday's year; with
  * no birth year, a head of household or spouse counts as an adult.
+ *
+ * Like `Family::getAdults()`, someone proposed for an existing family counts
+ * only once staff approve them; a family that self-registered keeps its adults.
  */
 final class FamilyAdultRule implements BulkPortalRule
 {
@@ -42,7 +45,7 @@ final class FamilyAdultRule implements BulkPortalRule
     public function grantsFor(Person $person): iterable
     {
         $family = $person->getFamily();
-        if (!$family instanceof Family || !self::isAdult($person)) {
+        if (!$family instanceof Family || !self::isAdult($person, null, $family)) {
             return;
         }
 
@@ -73,9 +76,13 @@ final class FamilyAdultRule implements BulkPortalRule
                 ->filterByFmrId($roleIds, Criteria::IN)
                 ->joinFamily(null, Criteria::INNER_JOIN)
                 ->withColumn('Family.Name', 'FamilyName')
-                ->select(['Id', 'FamId', 'FmrId', 'BirthYear', 'BirthMonth', 'BirthDay', 'FamilyName'])
+                ->withColumn('Family.EnteredBy', 'FamilyEnteredBy')
+                ->select(['Id', 'FamId', 'FmrId', 'BirthYear', 'BirthMonth', 'BirthDay', 'NeedsReview', 'FamilyName', 'FamilyEnteredBy'])
                 ->find();
             foreach ($rows as $row) {
+                if (self::awaitsReview((bool) $row['NeedsReview'], (int) $row['FamilyEnteredBy'])) {
+                    continue;
+                }
                 if (self::isAdultBy((int) $row['FmrId'], (int) $row['BirthYear'], (int) $row['BirthMonth'], (int) $row['BirthDay'], $today)) {
                     foreach (self::grants((int) $row['FamId'], (string) $row['FamilyName']) as $grant) {
                         yield (int) $row['Id'] => $grant;
@@ -85,8 +92,13 @@ final class FamilyAdultRule implements BulkPortalRule
         }
     }
 
-    public static function isAdult(Person $person, ?DateTimeImmutable $today = null): bool
+    public static function isAdult(Person $person, ?DateTimeImmutable $today = null, ?Family $family = null): bool
     {
+        $family ??= $person->getFamily();
+        if ($family instanceof Family && self::awaitsReview((bool) $person->getNeedsReview(), (int) $family->getEnteredBy())) {
+            return false;
+        }
+
         return self::isAdultBy(
             (int) $person->getFmrId(),
             (int) $person->getBirthYear(),
@@ -94,6 +106,12 @@ final class FamilyAdultRule implements BulkPortalRule
             (int) $person->getBirthDay(),
             $today,
         );
+    }
+
+    /** Proposed for an existing family and not yet approved (see `Family::getAdults()`). */
+    private static function awaitsReview(bool $personNeedsReview, int $familyEnteredBy): bool
+    {
+        return $personNeedsReview && $familyEnteredBy !== Person::SELF_REGISTER;
     }
 
     private static function isAdultBy(int $roleId, int $birthYear, int $month, int $day, ?DateTimeImmutable $today = null): bool
