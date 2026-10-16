@@ -54,6 +54,7 @@ Each is a separate file, so a theme can replace one without touching the others:
 | `partials/footer.html.twig` | Church contact details on the leading edge, `church.socialLinks` as icon links on the trailing edge |
 | `partials/flash.html.twig` | The fixed notice container, holding this request's `flash` messages. **A theme that overrides `layout.html.twig` must keep this include** — without it there is no container, and every message the portal raises goes unseen. |
 | `partials/login-as-user-banner.html.twig` | While an administrator uses Login as User: who they are seeing the portal as, whether changes are allowed, and the **Stop** form. **A theme that overrides `layout.html.twig` must keep this include** — Stop is the administrator's only way back to the staff side. |
+| `partials/passkey-offer.html.twig` | The one-time passkey offer, included above the page content when `portal.passkeyOffer` is true. It loads `portal-passkeys.min.js` itself. A theme that overrides `layout.html.twig` should keep the include, or members are never offered a passkey after signing in |
 
 ### What the layout already loads
 
@@ -113,6 +114,13 @@ that overrides one of those pages must keep them if it wants the page to work:
 | `portal-confirm-form`, `portal-confirm-submit`, `portal-confirm-comment`, `portal-confirm-comment-field` | `family/confirm.html.twig` |
 | `portal-add-member-dialog`, `portal-add-member-form`, `portal-add-member-open`, `portal-add-member-submit`, `portal-add-member-cancel` | `family/index.html.twig` |
 | `portal-team`, `portal-team-tabs`, `nav-item-positions` / `-volunteers` / `-schedules` / `-occurrences` | `teams/team.html.twig` |
+
+`portal-passkeys.min.js` binds to data attributes instead:
+
+| Hook | On |
+|---|---|
+| `[data-passkey-add]` with `data-options-url` and `data-add-url`, holding a `csrf_field()`, a `[data-passkey-create]` button and a `[data-passkey-error]` line | `devices/index.html.twig`, and `partials/passkey-offer.html.twig`, which also carries `data-passkey-offer`, a `[data-passkey-dismiss]` button and `hidden` until the script finds the device can make a passkey |
+| `[data-passkey-sign-in]` with `data-options-url`, the button `#portalPasskeySignInButton`, a `[data-passkey-error]` line, and the hidden form `#portalPasskeyForm` (fields `credentialId`, `clientDataJSON`, `authenticatorData`, `signature`, `userHandle`) | `login/request.html.twig` |
 
 A field's inline message is the element with `data-error-for="<field name>"`
 inside the form; a read-only value the bundle refreshes after a save is the
@@ -216,6 +224,7 @@ Facts about this request and this installation.
 | `developerMode` | bool | `true` when the template cache is off |
 | `hasThemeCss` | bool | Whether a `theme.css` is available to link |
 | `hasThemeJs` | bool | Whether a `theme.js` is available to load |
+| `passkeyOffer` | bool | `true` on the first portal page after an email sign-in where the member ticked **This is my own device**, while passkeys can be used. Reading it spends it, as with `flash` |
 | `pluginHead` | HTML | The `<head>` content enabled plugins inject — print it verbatim |
 | `pluginFooter` | HTML | The footer content enabled plugins inject — print it verbatim |
 | `bootstrapJson` | JSON | The `window.CRM` seed the core bundles expect |
@@ -251,12 +260,12 @@ will stop working on your pages.
 | `family/none.html.twig` | All three family URLs, for a member with no family | `pageTitle`, `officeEmail`, `officePhone`, `officePhoneHref` |
 | `email/index.html.twig` | `GET /portal/email-history` | `pageTitle`, `emails`, `page`, `pages`, `total`, `previousUrl`, `nextUrl` |
 | `email/show.html.twig` | `GET /portal/email-history/{id}` | `pageTitle`, `email`, `body`, `hasBody` |
-| `devices/index.html.twig` | `GET /portal/devices`, Sign-in and devices | `pageTitle`, `devices`, `offerRememberDevice` |
-| `login/request.html.twig` | `GET /portal/login`, and the form again when the address is not an email address | `pageTitle`, `email`, `emailError`, `loginUrl`, `staffSignInUrl` |
+| `devices/index.html.twig` | `GET /portal/devices`, Sign-in and devices | `pageTitle`, `devices`, `offerRememberDevice`, `passkeysOn`, `passkeys`, `passkeyAddProblem`, `emailToConfirm` |
+| `login/request.html.twig` | `GET /portal/login`, and the form again when the address is not an email address | `pageTitle`, `email`, `emailError`, `loginUrl`, `staffSignInUrl`, `passkeySignIn` |
 | `login/code.html.twig` | After every email request, whatever the address: the answer and the box for the code | `pageTitle`, `codeError`, `loginUrl`, `staffSignInUrl`, `offerRememberDevice` |
 | `login/confirm.html.twig` | `GET /portal/login/confirm/{token}`, the page an emailed link opens. It posts to `confirmUrl`; opening it changes nothing | `pageTitle`, `firstName`, `churchName`, `confirmUrl`, `loginUrl`, `staffSignInUrl`, `offerRememberDevice` |
 | `login/link-expired.html.twig` | A link that is unknown, expired, used or replaced by a newer email | `pageTitle`, `loginUrl`, `staffSignInUrl` |
-| `login/failed.html.twig` | A right code or link for a person who may no longer sign in. It never says why | `pageTitle`, `loginUrl`, `staffSignInUrl` |
+| `login/failed.html.twig` | A right code or link for a person who may no longer sign in, or a passkey that did not sign anyone in. It never says why | `pageTitle`, `loginUrl`, `staffSignInUrl`, `passkey` (true after a passkey) |
 | `login/unavailable.html.twig` | Every `/portal/login` page while member sign-in is off | `pageTitle`, `staffSignInUrl` |
 | `login/remember-device.html.twig`, `login/staff-link.html.twig` | Included by the sign-in pages: the "This is my own device" box (shown when `offerRememberDevice`; never ticked) and the Staff sign-in link | as their page |
 | `email-change/confirm.html.twig` | `GET/POST /portal/email/confirm/{token}`, the link in an email-change message. **Public:** the default template draws no navigation | `pageTitle`, `state` (`confirm`, `done` or `invalid`), `kind` (`change` when the link went to the new address, `confirm` when it went to the previous one), `email`, `firstName`, `churchName`, `token` |
@@ -572,6 +581,16 @@ Every sign-out is a form that posts with `csrf_field()`:
 `/portal/devices/{id}/sign-out` for one device and
 `/portal/devices/sign-out-everywhere` for all of them, which also ends every
 session, this one included. An override must keep both posts.
+
+The passkeys section shows only while `passkeysOn` (the church's switch). Each
+entry in `passkeys` has `id`, `label` (as for a device), `addedAt` and
+`lastUsedAt` (empty until the first sign-in with it). A passkey is removed by
+posting to `/portal/devices/passkeys/{id}/remove`. `passkeyAddProblem` is null
+when the member may add a passkey now, and otherwise says why not in words for
+them: a passkey can be added only within 15 minutes of an email sign-in, and
+only at the site address in `Config.php` over HTTPS. `emailToConfirm` is the
+member's unconfirmed address when this session began with a passkey; posting
+to `/portal/devices/confirm-email` emails a link to it.
 
 ---
 
