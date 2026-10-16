@@ -4,6 +4,7 @@ use ChurchCRM\dto\ChurchMetaData;
 use ChurchCRM\model\ChurchCRM\PersonSigninRequest;
 use ChurchCRM\Portal\Auth\EmailSignInOutcome;
 use ChurchCRM\Portal\Auth\PortalSessionStore;
+use ChurchCRM\Portal\Auth\RememberedDeviceCookie;
 use ChurchCRM\Portal\PortalSignInPages;
 use ChurchCRM\Portal\PortalTwig;
 use ChurchCRM\Service\EmailSignInService;
@@ -33,13 +34,13 @@ $finishSignIn = static function (Request $request, Response $response, EmailSign
     $rememberDevice = PortalSignInPages::offersRememberDevice() && ($request->getParsedBody()['rememberDevice'] ?? '') === '1';
     $response = PortalSignInPages::withoutBrowserCookie($redirect(PortalSignInPages::landingUrl()));
 
-    return PortalSignInPages::rememberDevice($response, $rememberDevice);
+    return PortalSignInPages::rememberDevice($request, $response, $rememberDevice);
 };
 
+// A remembered device goes on to the portal, which signs it in or sends it back here without its cookie.
 $loginForm = static function (Request $request, Response $response) use ($renderLoginPage, $redirect): Response {
-    // A signed-in member goes on to the portal. A browser holding a staff session
-    // sees the form: signing in here replaces that session (design §6.4).
-    if (PortalSessionStore::load()?->method->replacesStaffSession()) {
+    // A browser holding a staff session sees the form: signing in here replaces it (design §6.4).
+    if (PortalSessionStore::load()?->method->replacesStaffSession() || RememberedDeviceCookie::isPresent($request)) {
         return $redirect(PortalSignInPages::landingUrl());
     }
 

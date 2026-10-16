@@ -19,6 +19,7 @@ use ChurchCRM\Portal\Auth\SignInAudit;
 use ChurchCRM\Portal\Auth\SignInAuditEvent;
 use ChurchCRM\Portal\Auth\SignInReason;
 use ChurchCRM\Service\NotificationService;
+use ChurchCRM\Service\RememberedDeviceService;
 use ChurchCRM\Utils\ChurchCRMReleaseManager;
 use ChurchCRM\Utils\LoggerUtils;
 use ChurchCRM\Utils\RedirectUtils;
@@ -193,6 +194,7 @@ class AuthenticationManager
     /**
      * Signs out whatever this browser holds, staff or portal session (design §7),
      * and returns where to send it: a member goes back to the member sign-in page.
+     * A remembered device is forgotten too (§6.2); the caller drops its cookie.
      */
     public static function signOut(): string
     {
@@ -207,6 +209,7 @@ class AuthenticationManager
                 SignInReason::SIGNED_OUT,
                 $principal->actorUserId,
             );
+            (new RememberedDeviceService())->forgetSessionDevice();
         }
 
         self::endSession(true);

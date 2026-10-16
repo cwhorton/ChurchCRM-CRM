@@ -8,6 +8,7 @@ use ChurchCRM\Authentication\StaffSignInPage;
 use ChurchCRM\dto\SystemURLs;
 use ChurchCRM\model\ChurchCRM\User;
 use ChurchCRM\Portal\Auth\PortalSessionStore;
+use ChurchCRM\Portal\Auth\RememberedDeviceCookie;
 use ChurchCRM\Slim\SlimUtils;
 use ChurchCRM\Utils\LoggerUtils;
 use ChurchCRM\Volunteer\Middleware\VolunteerPortalMemberMiddleware;
@@ -113,6 +114,9 @@ class AuthMiddleware implements MiddlewareInterface
                 // PortalSessionMiddleware validates it on /portal and /api/portal, and
                 // VolunteerPortalMemberMiddleware on the volunteer API the portal pages
                 // call; every other route refuses it below.
+            } elseif ($this->isPortalPath($request) && RememberedDeviceCookie::isPresent($request)) {
+                // A remembered device (§6.2): PortalSessionMiddleware starts its
+                // session, or sends the visitor to /portal/login.
             } elseif (StaffSignInPage::isRequestFor($request)) {
                 // The /admin root is the staff sign-in page (member sign-in design §7):
                 // signed out, or a member session, it shows the sign-in form.
