@@ -27,6 +27,7 @@ use DateTimeInterface;
 use lbuchs\WebAuthn\WebAuthn;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use stdClass;
 use Throwable;
 
@@ -181,7 +182,7 @@ final class PasskeyService
 
         try {
             if (!self::isOwnClientData($clientDataJson, 'webauthn.create') || strlen($attestationObject) > self::MAX_AUTHENTICATOR_BYTES) {
-                throw new \RuntimeException('client data or attestation not accepted');
+                throw new RuntimeException('client data or attestation not accepted');
             }
             $created = self::webAuthn()->processCreate($clientDataJson, $attestationObject, $challenge['challenge'], true, true, false, false);
         } catch (Throwable $e) {
