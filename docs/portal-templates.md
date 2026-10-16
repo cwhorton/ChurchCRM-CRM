@@ -248,9 +248,9 @@ will stop working on your pages.
 | `volunteer/partials/tabs.html.twig` | included by both volunteering pages | `activeTab` |
 | `profile/index.html.twig` | `GET /portal/profile` | `pageTitle`, `profile` |
 | `profile/edit.html.twig` | `GET /portal/profile/edit` | `pageTitle`, `profile` |
-| `profile/password.html.twig` | `GET/POST /portal/profile/password` (every role); also `GET/POST /v2/user/current/changepassword` for a self-service session | `pageTitle`, `formAction`, `minPasswordLength`, `oldPasswordError`, `newPasswordError` |
+| `profile/password.html.twig` | `GET/POST /portal/profile/password` (staff sessions only; a member session gets 404); also `GET/POST /v2/user/current/changepassword` for a self-service session | `pageTitle`, `formAction`, `minPasswordLength`, `oldPasswordError`, `newPasswordError` |
 | `profile/password-changed.html.twig` | Either of those routes, after a successful change | `pageTitle` |
-| `profile/two-factor.html.twig` | `GET /portal/profile/two-factor` (every role); also `GET /v2/user/current/manage2fa` for a self-service session | `pageTitle` |
+| `profile/two-factor.html.twig` | `GET /portal/profile/two-factor` (staff sessions only; a member session gets 404); also `GET /v2/user/current/manage2fa` for a self-service session | `pageTitle` |
 | `family/index.html.twig` | `GET /portal/family` | `pageTitle`, `family`, `members`, `canEdit`, `canConfirm`, `canSeeContacts`, `familyRoles`, `defaultNewMemberRoleId` |
 | `family/edit.html.twig` | `GET /portal/family/edit` | `pageTitle`, `family`, `members`, `canEdit`, `countries` |
 | `family/confirm.html.twig` | `GET /portal/family/confirm` | `pageTitle`, `family`, `members`, `canEdit`, `canConfirm` |
