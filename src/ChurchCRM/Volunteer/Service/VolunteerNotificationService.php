@@ -32,6 +32,7 @@ use ChurchCRM\Volunteer\Email\VolunteerEmailContext;
 use ChurchCRM\Volunteer\Email\VolunteerGapAlertBatchEmail;
 use ChurchCRM\Volunteer\Email\VolunteerGapAlertEmail;
 use ChurchCRM\Volunteer\Email\VolunteerHelpOfferEmail;
+use ChurchCRM\Volunteer\Email\VolunteerPoolAddEmail;
 use ChurchCRM\Volunteer\Email\VolunteerReminderEmail;
 use ChurchCRM\Volunteer\Email\VolunteerSignupConfirmEmail;
 use ChurchCRM\Volunteer\Email\VolunteerSwapProposedEmail;
@@ -82,6 +83,7 @@ class VolunteerNotificationService
     public const TYPE_SWAP_PROPOSED = VolunteerNotification::TYPE_SWAP_PROPOSED;
     public const TYPE_SWAP_RESOLVED = VolunteerNotification::TYPE_SWAP_RESOLVED;
     public const TYPE_HELP_OFFER = VolunteerNotification::TYPE_HELP_OFFER;
+    public const TYPE_POOL_ADD = VolunteerNotification::TYPE_POOL_ADD;
 
     /**
      * Deliveries attempted before a row is given up on (§2.14).
@@ -323,6 +325,27 @@ class VolunteerNotificationService
         );
     }
 
+    /**
+     * `pool_add:{ministryId}:{personId}:{Y-m-d}:{recipientPersonId}` (#10531): one message
+     * per coordinator for each person a team leader adds, and again on a later day if
+     * they are removed and added back.
+     */
+    public function poolAddKey(
+        int $ministryId,
+        int $personId,
+        int $recipientPersonId,
+        ?\DateTimeInterface $day = null
+    ): string {
+        return sprintf(
+            '%s:%d:%d:%s:%d',
+            self::TYPE_POOL_ADD,
+            $ministryId,
+            $personId,
+            ($day ?? DateTimeUtils::getToday())->format('Y-m-d'),
+            $recipientPersonId
+        );
+    }
+
     // ── Convenience enqueuers, one per §3.6 trigger this issue owns ────────
 
     public function enqueueAssignment(VolunteerAssignment $assignment): VolunteerNotification
@@ -496,6 +519,43 @@ class VolunteerNotificationService
                     'ministryId' => $ministryId,
                     'personId' => $offeringPersonId,
                     'joinedPool' => $joinedPool,
+                ]
+            );
+        }
+
+        return $rows;
+    }
+
+    /**
+     * A team leader added somebody to the ministry's volunteer pool (#10531). Ministry
+     * scoped like `help_offer`: who was added, by whom, and from which team ride in
+     * `vntf_Context`.
+     *
+     * @param int[] $recipientPersonIds
+     *
+     * @return VolunteerNotification[]
+     */
+    public function enqueuePoolAdd(
+        int $ministryId,
+        int $teamId,
+        int $addedPersonId,
+        int $addedByPersonId,
+        array $recipientPersonIds
+    ): array {
+        $rows = [];
+        foreach ($recipientPersonIds as $personId) {
+            $rows[] = $this->enqueue(
+                self::TYPE_POOL_ADD,
+                (int) $personId,
+                null,
+                null,
+                DateTimeUtils::getToday(),
+                $this->poolAddKey($ministryId, $addedPersonId, (int) $personId, DateTimeUtils::getToday()),
+                [
+                    'ministryId' => $ministryId,
+                    'teamId' => $teamId,
+                    'personId' => $addedPersonId,
+                    'addedBy' => $addedByPersonId,
                 ]
             );
         }
@@ -1245,6 +1305,8 @@ class VolunteerNotificationService
                 // Reply and reach Ann. The message goes TO the coordinator, so
                 // coordinatorPersonId() would point it back at the recipient.
                 self::TYPE_HELP_OFFER => (int) ($this->rowContext($row)['personId'] ?? 0) ?: null,
+                // #10531: replies reach the team leader who added the person.
+                self::TYPE_POOL_ADD => (int) ($this->rowContext($row)['addedBy'] ?? 0) ?: null,
                 default => $this->coordinatorPersonId($row),
             };
 
@@ -1319,9 +1381,18 @@ class VolunteerNotificationService
         // rather than being forced through the occurrence chain below, which would
         // return null and silently skip the row.
         if ($row->getType() === self::TYPE_HELP_OFFER) {
-            $ministry = VolunteerMinistryQuery::create()->findPk($this->helpOfferMinistryId($row));
+            $ministry = VolunteerMinistryQuery::create()->findPk($this->contextMinistryId($row));
 
             return $ministry === null ? null : new VolunteerEmailContext((string) $ministry->getName());
+        }
+
+        if ($row->getType() === self::TYPE_POOL_ADD) {
+            $ministry = VolunteerMinistryQuery::create()->findPk($this->contextMinistryId($row));
+            $team = VolunteerTeamQuery::create()->findPk((int) ($this->rowContext($row)['teamId'] ?? 0));
+
+            return $ministry === null
+                ? null
+                : new VolunteerEmailContext((string) $ministry->getName(), $team === null ? null : (string) $team->getName());
         }
 
         $occurrence = $this->occurrenceFor($row);
@@ -1443,8 +1514,25 @@ class VolunteerNotificationService
                     $recipientName,
                     $context,
                     $this->personName($offeringPersonId),
-                    $this->helpOfferMinistryId($row),
+                    $this->contextMinistryId($row),
                     (bool) ($context_['joinedPool'] ?? false)
+                );
+
+            case self::TYPE_POOL_ADD:
+                $poolAdd = $this->rowContext($row);
+                $addedPersonId = (int) ($poolAdd['personId'] ?? 0);
+                $addedByPersonId = (int) ($poolAdd['addedBy'] ?? 0);
+                if ($addedPersonId <= 0 || $addedByPersonId <= 0) {
+                    return null;
+                }
+
+                return new VolunteerPoolAddEmail(
+                    $to,
+                    $recipientName,
+                    $context,
+                    $this->personName($addedByPersonId),
+                    $this->personName($addedPersonId),
+                    $this->contextMinistryId($row)
                 );
 
             case self::TYPE_GAP_ALERT:
@@ -1522,7 +1610,7 @@ class VolunteerNotificationService
         return is_array($decoded) ? $decoded : [];
     }
 
-    private function helpOfferMinistryId(VolunteerNotification $row): int
+    private function contextMinistryId(VolunteerNotification $row): int
     {
         return (int) ($this->rowContext($row)['ministryId'] ?? 0);
     }
