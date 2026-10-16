@@ -5,6 +5,7 @@ import {
     askForEmail,
     auditSince,
     db,
+    expectAnswerScreen,
     lastAuditId,
     mailTo,
     postCode,
@@ -49,6 +50,14 @@ const signInWithLink = () => {
 
 const wrongCode = (code) => String((Number(code) + 1) % 1000000).padStart(6, "0");
 
+const auditOnceDetailed = (startId, waited = 0) =>
+    auditSince(startId).then((rows) => {
+        if (rows[0]?.psa_Detail || waited >= 10000) {
+            return rows;
+        }
+        return cy.wait(200, { log: false }).then(() => auditOnceDetailed(startId, waited + 200));
+    });
+
 describe("Member Portal sign-in by email", () => {
     const saved = {};
 
@@ -60,6 +69,10 @@ describe("Member Portal sign-in by email", () => {
     beforeEach(() => {
         cy.clearCookies();
         resetEmailSignIn([member.personId]);
+    });
+
+    afterEach(() => {
+        cy.task("mail:refuseRecipients", { refuse: false });
     });
 
     after(() => {
@@ -87,6 +100,20 @@ describe("Member Portal sign-in by email", () => {
                     expect(JSON.stringify(rows)).to.not.include(token).and.not.include(code);
                 });
             });
+        });
+    });
+
+    it("answers the same when the email can't be sent, and marks the request's audit row", () => {
+        lastAuditId().then((startId) => {
+            cy.task("mail:refuseRecipients", { refuse: true }).its("ok").should("eq", true);
+            askForEmail(member.email).then(expectAnswerScreen);
+
+            auditOnceDetailed(startId).then((rows) => {
+                expect(rows.map((row) => row.psa_Event)).to.deep.equal(["email_requested"]);
+                expect(rows[0].psa_Detail).to.eq("send_failed");
+            });
+            requestsFor(member.personId).should("have.length", 1);
+            mailTo(member.email).should("have.length", 0);
         });
     });
 
