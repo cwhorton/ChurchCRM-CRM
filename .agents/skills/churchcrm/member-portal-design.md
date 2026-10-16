@@ -427,11 +427,11 @@ template names in an HTML comment at the top of each page), section switches
 `POST /admin/api/system/config/{name}`; theme changes go through `POST /admin/api/member-portal/theme`
 so activation can refuse.
 
-**Statistics** — members who signed in during the last 24 hours, 7 days and 30 days (from
-`usr_LastLogin`, self-service accounts only); members active in the last 15 minutes (from a new
-`usr_LastPortalActivity` stamped by `PortalAccessMiddleware` at most once per five minutes per
-session — cheap, and it makes "online now" honest); total self-service accounts; accounts that
-have never signed in; the ten most recent sign-ins. Page-view counting is not in the first version.
+**Statistics** — members who signed in during the last 24 hours, 7 days and 30 days, and members
+active in the last 15 minutes, from `person_signin_psi` (`psi_LastSignIn`, `psi_LastActivity`);
+everyone who may sign in; those who never have; the ten most recent sign-ins. Since the member
+sign-in work (docs/member-sign-in-design.md §11.2) nothing writes `usr_LastPortalActivity`.
+Page-view counting is not in the first version.
 
 **Themes** — the discovered folders with display name, author (from `theme.json` when present),
 number of overridden templates, last validation result, and the note that themes are church-

@@ -306,17 +306,17 @@ Each row can be checked or activated from its action menu.
 
 ### Statistics
 
-How much the portal is being used, counting **self-service accounts only** —
-people whose login reaches the portal and nothing else:
+How much the portal is being used, read from each person's sign-in record
+(`person_signin_psi`). Staff who open the portal from their staff sign-in count
+too.
 
 | Number | Where it comes from |
 |---|---|
-| Active now | `usr_LastPortalActivity` within the last 15 minutes |
-| Last 24 hours / 7 days / 30 days | `usr_LastLogin` |
-| Self-service accounts | every account with Edit Self and no Admin flag |
-| Never signed in | `usr_LoginCount` is zero |
-| Ten most recent sign-ins | newest `usr_LastLogin` first, with the member's name and when they were last seen in the portal |
+| Active now | `psi_LastActivity` within the last 15 minutes |
+| Last 24 hours / 7 days / 30 days | `psi_LastSignIn` |
+| May sign in | the sign-in rules on the Sign-in tab, and a personal email nobody else who may sign in uses |
+| Never signed in | may sign in, and has no `psi_LastSignIn` |
+| Ten most recent sign-ins | newest `psi_LastSignIn` first, with how they signed in and when they were last seen in the portal |
 
-`usr_LastPortalActivity` is stamped when a member opens a portal page, at most
-once every five minutes, so "active now" is honest without costing a write per
-page view.
+`psi_LastActivity` is written when a member opens a portal page, at most once a
+minute, so "active now" is honest without costing a write per page view.
