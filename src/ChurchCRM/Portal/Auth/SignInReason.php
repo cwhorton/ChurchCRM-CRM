@@ -35,6 +35,7 @@ enum SignInReason: string
     case TOO_MANY_CODES = 'too_many_codes';
     case DEVICE_REMOVED = 'device_removed';
     case DEVICE_EXPIRED = 'device_expired';
+    case STAFF_ACCOUNT = 'staff_account';
 
     /** For staff screens only; a person signing in never sees a reason (D3, A6). */
     public function label(): string
@@ -65,6 +66,7 @@ enum SignInReason: string
             self::TOO_MANY_CODES => gettext('Too many wrong codes'),
             self::DEVICE_REMOVED => gettext('Their remembered device was signed out'),
             self::DEVICE_EXPIRED => gettext('Their remembered device had expired'),
+            self::STAFF_ACCOUNT => gettext('They have a staff account'),
         };
     }
 }
