@@ -24,9 +24,6 @@ const WARNING_THEME = "cypressadminwarning";
 const WARNING_DIR = `src/Include/themes/${WARNING_THEME}`;
 const HEADER_PURPLE = "rgb(75, 0, 130)";
 
-const MEMBER_USER = "lena.black.editself.notes@example.com";
-const MEMBER_PASSWORD = "changeme";
-
 const adminKey = () => Cypress.testEnv("admin.api.key");
 
 /** Stashed in `before` and restored in `after` — see the comment there. */
@@ -57,11 +54,8 @@ const activateTheme = (name) =>
     });
 
 const loginAsMember = () => {
-    cy.clearCookies();
-    cy.visit("/session/begin");
-    cy.get("input[name=User]").type(MEMBER_USER);
-    cy.get("input[name=Password]").type(`${MEMBER_PASSWORD}{enter}`);
-    cy.url({ timeout: 10000 }).should("include", "/portal");
+    cy.signInAsMember(100);
+    cy.visit("/portal/");
 };
 
 // Tabler's own white-on-success pairing measures 2.7:1; the unstyled grey badge text measured 1.0-1.8:1.

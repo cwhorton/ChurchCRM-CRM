@@ -22,6 +22,7 @@ import "./ui-commands";
 import "./api-commands";
 import "./church-time-zone";
 import "./sign-in-throttle";
+import "./member-session";
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')

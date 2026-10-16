@@ -71,14 +71,12 @@ final class SignInEmailPolicy
 
     /**
      * A person with a staff account or given portal grants, whose email only
-     * an administrator may change or confirm. Self-service accounts are not
-     * staff accounts: the release-day cutover removes them.
+     * an administrator may change or confirm.
      */
     public function needsAdministrator(Person $person): bool
     {
         $personId = (int) $person->getId();
-        $user = UserQuery::create()->findPk($personId);
-        if ($user instanceof User && !$user->isEditSelfExclusive()) {
+        if (UserQuery::create()->filterByPersonId($personId)->exists()) {
             return true;
         }
 
