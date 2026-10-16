@@ -53,6 +53,7 @@ Each is a separate file, so a theme can replace one without touching the others:
 | `partials/nav.html.twig` | The `nav` entries, and the toggle target `#portal-nav` |
 | `partials/footer.html.twig` | Church contact details on the leading edge, `church.socialLinks` as icon links on the trailing edge |
 | `partials/flash.html.twig` | The fixed notice container, holding this request's `flash` messages. **A theme that overrides `layout.html.twig` must keep this include** — without it there is no container, and every message the portal raises goes unseen. |
+| `partials/login-as-user-banner.html.twig` | While an administrator uses Login as User: who they are seeing the portal as, whether changes are allowed, and the **Stop** form. **A theme that overrides `layout.html.twig` must keep this include** — Stop is the administrator's only way back to the staff side. |
 | `partials/passkey-offer.html.twig` | The one-time passkey offer, included above the page content when `portal.passkeyOffer` is true. It loads `portal-passkeys.min.js` itself. A theme that overrides `layout.html.twig` should keep the include, or members are never offered a passkey after signing in |
 
 ### What the layout already loads
@@ -219,6 +220,7 @@ Facts about this request and this installation.
 | `locale` | string | e.g. `en_US` |
 | `isRTL` | bool | Right-to-left locale |
 | `colorMode` | string | `auto`, `light` or `dark` — the member's own choice |
+| `loginAsUser` | object or null | Set only during Login as User: `personName`, `actorName`, `allowsChanges` (bool) and `stopUrl`, which takes a POST with `csrf_field()` |
 | `developerMode` | bool | `true` when the template cache is off |
 | `hasThemeCss` | bool | Whether a `theme.css` is available to link |
 | `hasThemeJs` | bool | Whether a `theme.js` is available to load |

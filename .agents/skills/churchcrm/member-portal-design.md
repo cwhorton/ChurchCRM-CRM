@@ -402,6 +402,11 @@ moved.
   `nonce="{{ nonce() }}"`.
 - Themes are not sanctioned or verified by ChurchCRM, unlike community plugins; the admin page
   says "Themes are provided by your church, not by ChurchCRM" next to the list.
+- Login as User (`ChurchCRM\Portal\Auth\LoginAsUser`, member sign-in design §6.5) sets the
+  administrator's staff session aside while an ASSISTED principal runs, so portal code never
+  sees a staff user then. `LoginAsUserMiddleware` refuses (unless `bLoginAsUserCanWrite`) and
+  records every non-GET request; a new write path needs nothing more. A theme overriding
+  `layout.html.twig` must keep `partials/login-as-user-banner.html.twig`: Stop is the only way back.
 
 ### 3.8 Church-supplied modules, one folder family
 

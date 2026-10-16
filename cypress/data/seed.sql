@@ -2839,6 +2839,42 @@ CREATE TABLE `portal_signin_audit_psa` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for tables `login_as_user_session_las` and `login_as_user_action_laa`
+-- Member sign-in row 12 (#10463); mirrors src/mysql/install/Install.sql
+--
+
+DROP TABLE IF EXISTS `login_as_user_action_laa`;
+DROP TABLE IF EXISTS `login_as_user_session_las`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `login_as_user_session_las` (
+  `las_ID`           int(11)               NOT NULL AUTO_INCREMENT,
+  `las_Actor_usr_ID` mediumint(9) unsigned NOT NULL,
+  `las_per_ID`       mediumint(9) unsigned NOT NULL,
+  `las_Started`      datetime              NOT NULL,
+  `las_Ended`        datetime                       DEFAULT NULL,
+  `las_EndReason`    varchar(16)                    DEFAULT NULL,
+  PRIMARY KEY (`las_ID`),
+  KEY `las_person_started_idx` (`las_per_ID`, `las_Started`),
+  KEY `las_actor_started_idx`  (`las_Actor_usr_ID`, `las_Started`),
+  CONSTRAINT `fk_las_person` FOREIGN KEY (`las_per_ID`)
+      REFERENCES `person_per` (`per_ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `login_as_user_action_laa` (
+  `laa_ID`     int(11)              NOT NULL AUTO_INCREMENT,
+  `laa_las_ID` int(11)              NOT NULL,
+  `laa_Time`   datetime             NOT NULL,
+  `laa_Method` varchar(10)          NOT NULL,
+  `laa_Path`   varchar(255)         NOT NULL,
+  `laa_Status` smallint(5) unsigned          DEFAULT NULL,
+  PRIMARY KEY (`laa_ID`),
+  KEY `laa_session_time_idx` (`laa_las_ID`, `laa_Time`),
+  CONSTRAINT `fk_laa_session` FOREIGN KEY (`laa_las_ID`)
+      REFERENCES `login_as_user_session_las` (`las_ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET AUTOCOMMIT=@OLD_AUTOCOMMIT */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

@@ -33,6 +33,9 @@ final class SignInAudit
         ?string $email = null,
         ?string $detail = null,
     ): void {
+        // During Login as User every row names the administrator too (§6.5, #10511 B1).
+        $actorUserId ??= PortalSessionStore::load()?->actorUserId;
+
         try {
             (new PortalSigninAudit())
                 ->setTime(new DateTimeImmutable('now', DateTimeUtils::getConfiguredTimezone()))
