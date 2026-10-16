@@ -80,7 +80,7 @@ final class FamilyAdultRule implements BulkPortalRule
                 ->select(['Id', 'FamId', 'FmrId', 'BirthYear', 'BirthMonth', 'BirthDay', 'NeedsReview', 'FamilyName', 'FamilyEnteredBy'])
                 ->find();
             foreach ($rows as $row) {
-                if (self::awaitsReview((bool) $row['NeedsReview'], (int) $row['FamilyEnteredBy'])) {
+                if (Family::proposedMemberAwaitsReview((bool) $row['NeedsReview'], $row['FamilyEnteredBy'] === null ? null : (int) $row['FamilyEnteredBy'])) {
                     continue;
                 }
                 if (self::isAdultBy((int) $row['FmrId'], (int) $row['BirthYear'], (int) $row['BirthMonth'], (int) $row['BirthDay'], $today)) {
@@ -95,7 +95,7 @@ final class FamilyAdultRule implements BulkPortalRule
     public static function isAdult(Person $person, ?DateTimeImmutable $today = null, ?Family $family = null): bool
     {
         $family ??= $person->getFamily();
-        if ($family instanceof Family && self::awaitsReview((bool) $person->getNeedsReview(), (int) $family->getEnteredBy())) {
+        if ($family instanceof Family && Family::proposedMemberAwaitsReview((bool) $person->getNeedsReview(), $family->getEnteredBy())) {
             return false;
         }
 
@@ -106,12 +106,6 @@ final class FamilyAdultRule implements BulkPortalRule
             (int) $person->getBirthDay(),
             $today,
         );
-    }
-
-    /** Proposed for an existing family and not yet approved (see `Family::getAdults()`). */
-    private static function awaitsReview(bool $personNeedsReview, int $familyEnteredBy): bool
-    {
-        return $personNeedsReview && $familyEnteredBy !== Person::SELF_REGISTER;
     }
 
     private static function isAdultBy(int $roleId, int $birthYear, int $month, int $day, ?DateTimeImmutable $today = null): bool
