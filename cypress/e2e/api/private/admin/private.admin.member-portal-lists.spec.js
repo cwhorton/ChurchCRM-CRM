@@ -254,6 +254,18 @@ describe("Admin → Member Portal lists, audit and statistics", () => {
             expect(JSON.stringify(body.rows)).to.not.match(/[0-9a-f]{64}/);
         });
 
+        db(
+            `INSERT INTO portal_signin_audit_psa (psa_Time, psa_per_ID, psa_Event, psa_Method, psa_Reason, psa_Email, psa_Detail)
+             VALUES (NOW() - INTERVAL 401 DAY, NULL, 'refused', 'email_code', 'shared_email', ?, 'matched:6,7'),
+                    (NOW() - INTERVAL 402 DAY, 92, 'email_requested', 'email_code', NULL, ?, 'send_failed')`,
+            [`${MARK}-shared@example.com`, `${MARK}-send@example.com`],
+        );
+        audit({ to: day(-300), length: "100" }).then((body) => {
+            const byEmail = Object.fromEntries(body.rows.map((row) => [row.email, row]));
+            expect(byEmail[`${MARK}-shared@example.com`].summary).to.eq("Matches: Constance Hart, Marion Hart");
+            expect(byEmail[`${MARK}-send@example.com`].summary).to.eq("The email could not be sent.");
+        });
+
         cy.makePrivateAdminAPICall("GET", "/admin/api/member-portal/audit?from=2026-02-30", null, 400);
         cy.makePrivateAdminAPICall("GET", "/admin/api/member-portal/audit?from=2026-05-02&to=2026-05-01", null, 400);
         cy.makePrivateAdminAPICall("GET", "/admin/api/member-portal/audit?event=nope", null, 400);

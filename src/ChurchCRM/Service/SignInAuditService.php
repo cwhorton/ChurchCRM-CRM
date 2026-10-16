@@ -69,7 +69,7 @@ final class SignInAuditService
 
         $peopleIds = [];
         foreach ($entries as $entry) {
-            foreach ([$entry->getPersonId(), $entry->getActorUserId()] as $id) {
+            foreach ([$entry->getPersonId(), $entry->getActorUserId(), ...self::matchedPersonIds((string) $entry->getDetail())] as $id) {
                 if ($id !== null) {
                     $peopleIds[(int) $id] = true;
                 }
@@ -141,7 +141,7 @@ final class SignInAuditService
             'actorName' => $actorId === null ? null : ($names[$actorId] ?? null),
             'email' => $entry->getEmail(),
             'detail' => $entry->getDetail(),
-            'summary' => self::summary((string) $entry->getEvent(), MemberSignInListService::parseDetail((string) $entry->getDetail()), $scopeNames),
+            'summary' => self::summary((string) $entry->getEvent(), (string) $entry->getDetail(), $names, $scopeNames),
         ];
     }
 
@@ -168,11 +168,23 @@ final class SignInAuditService
     /**
      * The row's detail in plain words, where this page knows its shape.
      *
-     * @param array<string, string> $detail
+     * @param array<int, string>    $names
      * @param array<string, string> $scopeNames
      */
-    private static function summary(string $event, array $detail, array $scopeNames): ?string
+    private static function summary(string $event, string $rawDetail, array $names, array $scopeNames): ?string
     {
+        if ($rawDetail === 'send_failed') {
+            return gettext('The email could not be sent.');
+        }
+        $matched = self::matchedPersonIds($rawDetail);
+        if ($matched !== []) {
+            return sprintf(
+                gettext('Matches: %s'),
+                implode(', ', array_map(static fn (int $id): string => $names[$id] ?? ('#' . $id), $matched)),
+            );
+        }
+
+        $detail = MemberSignInListService::parseDetail($rawDetail);
         $scope = self::detailScope($event, $detail);
         $scopeName = $scope === null ? null : ($scopeNames[$scope->key()] ?? null);
 
@@ -194,6 +206,20 @@ final class SignInAuditService
         }
 
         return implode(' · ', $parts);
+    }
+
+    /**
+     * The people a refused address matched, from the `matched:1,2` detail.
+     *
+     * @return int[]
+     */
+    private static function matchedPersonIds(string $detail): array
+    {
+        if (!str_starts_with($detail, 'matched:')) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map('intval', explode(',', substr($detail, strlen('matched:')))), static fn (int $id): bool => $id > 0));
     }
 
     private static function day(?string $value): ?DateTimeImmutable
