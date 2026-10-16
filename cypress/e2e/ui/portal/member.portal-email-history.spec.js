@@ -9,7 +9,8 @@
  * What is under test:
  *   - "Email History" is the first item of the account menu, above
  *     "Sign out"
- *   - the page lists the member's emails newest first
+ *   - the page lists the member's emails newest first, only mail that was
+ *     sent, and shows no delivery status (#10356)
  *   - Previous / Next page through them and "Page X of Y" follows
  *   - the detail page shows the subject, the metadata and the body in a
  *     sandboxed iframe — stored HTML is never injected into the portal DOM
@@ -36,11 +37,11 @@ describe("Member Portal — Email History", () => {
         // Four composer messages, oldest first, so "newest first" is a real
         // assertion and one small page is not the whole history.
         for (let n = 1; n <= SEEDED; n += 1) {
-            cy.makePrivateAdminAPICall("POST", "/api/email/send", {
+            cy.sendComposerEmailNow({
                 personIds: [LENA_PERSON_ID],
                 subject: `${tag} message ${n}`,
                 body: `<p>Body of message ${n}</p>`,
-            }).then((resp) => expect(resp.body.counts.sent).to.eq(1));
+            }).then((result) => expect(result.progress.sent).to.eq(1));
         }
     });
 
@@ -96,12 +97,20 @@ describe("Member Portal — Email History", () => {
                 expect(mine[1]).to.eq(`${tag} message ${SEEDED - 1}`);
             });
 
-            // Type and status are on the row, and a sent message reads "Sent".
             cy.get("[data-email-row]").first().should("contain.text", "Member Portal sign-in code");
             cy.contains("[data-email-row]", `${tag} message ${SEEDED}`).within(() => {
                 cy.get("[data-email-type]").should("contain.text", "Message");
-                cy.get("[data-email-status]").should("contain.text", "Sent");
             });
+        });
+
+        it("Shows only mail that was sent, with no status", () => {
+            cy.visit("/portal/email-history?limit=100");
+
+            cy.get("#portal-email-table thead").should("not.contain.text", "Status");
+            cy.get("[data-email-status]").should("not.exist");
+            cy.get("#portal-email-table").should("contain.text", `${tag} message 1`);
+            cy.get("#portal-email-table").should("not.contain.text", "Seeded failed message for Lena");
+            cy.get("#portal-email-table").should("not.contain.text", "Seeded skipped birthday greeting for Lena");
         });
 
         it("Pages with Previous and Next", () => {
@@ -135,6 +144,7 @@ describe("Member Portal — Email History", () => {
 
             cy.url().should("match", /\/portal\/email-history\/\d+$/);
             cy.get("#portal-email-detail").should("contain.text", `${tag} message ${SEEDED}`);
+            cy.get("[data-field='status']").should("not.exist");
             cy.get("#portal-email-body")
                 .should("exist")
                 .and("have.attr", "sandbox")
@@ -167,6 +177,15 @@ describe("Member Portal — Email History", () => {
             cy.request({ url: "/portal/email-history/99999999", failOnStatusCode: false })
                 .its("status")
                 .should("eq", 404);
+        });
+
+        it("Refuses this member's own failed and skipped mail the same way", () => {
+            // Seeded rows 8 (failed) and 9 (skipped) are addressed to Lena.
+            for (const id of [8, 9]) {
+                cy.request({ url: `/portal/email-history/${id}`, failOnStatusCode: false })
+                    .its("status")
+                    .should("eq", 404);
+            }
         });
     });
 

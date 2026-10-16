@@ -70,7 +70,7 @@ class Family extends BaseFamily implements PhotoInterface
             $address[] = $this->getZip();
         }
         if (!empty($this->getCountry())) {
-            $address[] = $this->getCountry();
+            $address[] = Countries::toName($this->getCountry());
         }
 
         return implode(' ', $address);
@@ -191,7 +191,7 @@ class Family extends BaseFamily implements PhotoInterface
 
         $country = trim((string) ($parts['Country'] ?? ''));
         if ($country !== '' && Countries::isForeign($country)) {
-            $lines[] = $country;
+            $lines[] = Countries::toName($country);
         }
 
         return implode($separator, $lines);
@@ -229,7 +229,7 @@ class Family extends BaseFamily implements PhotoInterface
             $address[] = $parts['Zip'];
         }
         if ($parts['Country'] !== '') {
-            $address[] = $parts['Country'];
+            $address[] = Countries::toName($parts['Country']);
         }
 
         return implode(' ', $address);
@@ -477,9 +477,21 @@ class Family extends BaseFamily implements PhotoInterface
         return $this->getPeopleByRole('sDirRoleSpouse');
     }
 
+    /**
+     * Heads and spouses. Someone proposed for an existing family counts once
+     * staff approve them on Self Registrations; a family that self-registered
+     * is approved as a whole and keeps its adults.
+     *
+     * @return Person[]
+     */
     public function getAdults(): array
     {
-        return array_merge($this->getHeadPeople(), $this->getSpousePeople());
+        $adults = array_merge($this->getHeadPeople(), $this->getSpousePeople());
+        if ($this->getEnteredBy() === Person::SELF_REGISTER) {
+            return $adults;
+        }
+
+        return array_values(array_filter($adults, fn (Person $person): bool => !$person->getNeedsReview()));
     }
 
     public function getChildPeople(): array

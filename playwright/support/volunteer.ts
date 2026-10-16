@@ -314,14 +314,13 @@ export async function seedVolunteerFixture(browser: Browser): Promise<VolunteerS
   }
 }
 
-/** Removes the ministry and its events, puts the sign-in settings back, and turns V2 back off. */
+/** Removes the ministry and its events and puts the sign-in settings back. V2 stays on: a new installation starts there (#10561). */
 export async function removeVolunteerSeed(browser: Browser): Promise<void> {
   const context = await browser.newContext({ baseURL: BASE_URL, storageState: STORAGE_STATE_PATH });
   const page = await context.newPage();
   try {
     await setVolunteerVersion(page, 'v2');
     await deleteHospitality(page);
-    await setVolunteerVersion(page, 'v1');
     await restoreMemberSignIn?.();
   } finally {
     seed = null;
