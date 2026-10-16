@@ -278,7 +278,7 @@ describe("Member Portal sign-in by email", () => {
             "Member sign-in isn't available yet. Please contact the church office.",
         );
         cy.get("#portalSignInEmail").should("not.exist");
-        cy.get("#portalStaffSignIn").should("have.attr", "href").and("match", /\/session\/begin$/);
+        cy.get("#portalStaffSignIn").should("have.attr", "href").and("match", /\/admin\/$/);
         cy.get("#portal-account-toggle").should("not.exist");
         setConfig("bMemberSignIn", "1");
     });
@@ -286,7 +286,7 @@ describe("Member Portal sign-in by email", () => {
     it("shows the email form with a Staff sign-in link and no portal menu", () => {
         cy.visit("/portal/login");
         cy.get("#portalSignInEmail").should("be.visible");
-        cy.get("#portalStaffSignIn").should("have.attr", "href").and("match", /\/session\/begin$/);
+        cy.get("#portalStaffSignIn").should("have.attr", "href").and("match", /\/admin\/$/);
         cy.get("#portal-account-toggle").should("not.exist");
         cy.get("#portal-nav").should("not.exist");
 
