@@ -1,6 +1,14 @@
 /// <reference types="cypress" />
 
-import { askForEmail, postCode, resetEmailSignIn, restoreSettings, signInEmail, useMemberSignIn } from "../../../../support/member-sign-in";
+import {
+    askForEmail,
+    postCode,
+    resetEmailSignIn,
+    restoreSettings,
+    signInEmail,
+    useMemberSignIn,
+    waitForMail,
+} from "../../../../support/member-sign-in";
 
 /**
  * Member sign-in row 10 (#10463): the sign-in email is a credential
@@ -120,12 +128,21 @@ const signInByEmail = (address) => {
     return signInEmail(address).then(({ code }) => postCode(code));
 };
 
-/** Whether /portal/login emails a sign-in code to the address. */
+/** Whether /portal/login emails a sign-in code to the address. The email follows the answer, once the request is audited. */
 const signInCodeSentTo = (address) => {
     cy.clearCookies();
     resetEmailSignIn();
-    askForEmail(address);
-    return mailTo(address).then((messages) => messages.some((m) => (m.Subject || "").includes("Your Member Portal sign-in code")));
+    return lastAuditId().then((startId) => {
+        askForEmail(address);
+        return db("SELECT COUNT(*) AS n FROM portal_signin_audit_psa WHERE psa_ID > ? AND psa_Event = 'email_requested' AND psa_Email = ?", [
+            startId,
+            address,
+        ]).then((rows) =>
+            Number(rows[0].n) === 0
+                ? false
+                : waitForMail(address).then((messages) => messages.some((m) => (m.Subject || "").includes("Your Member Portal sign-in code"))),
+        );
+    });
 };
 
 const markFamilyEmailMoved = (person, familyId) => {
