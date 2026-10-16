@@ -34,6 +34,7 @@ final class EveryoneRule implements BulkPortalRule
     {
         return [
             CorePortalCapabilities::PROFILE_EDIT,
+            CorePortalCapabilities::DEVICES_MANAGE,
             CorePortalCapabilities::FAMILY_VIEW,
             CorePortalCapabilities::CALENDAR_VIEW,
             CorePortalCapabilities::VOLUNTEER_USE,
@@ -58,7 +59,10 @@ final class EveryoneRule implements BulkPortalRule
     private static function grants(int $familyId): array
     {
         $label = gettext('Everyone');
-        $grants = [new PortalRuleGrant(CorePortalCapabilities::PROFILE_EDIT, null, $label)];
+        $grants = [
+            new PortalRuleGrant(CorePortalCapabilities::PROFILE_EDIT, null, $label),
+            new PortalRuleGrant(CorePortalCapabilities::DEVICES_MANAGE, null, $label),
+        ];
         if ($familyId > 0) {
             $grants[] = new PortalRuleGrant(CorePortalCapabilities::FAMILY_VIEW, PortalScope::family($familyId), $label);
         }
