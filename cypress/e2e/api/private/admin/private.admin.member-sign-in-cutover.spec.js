@@ -215,4 +215,8 @@ describe("7.9.0 upgrade: the release-day cutover", () => {
         });
     });
 
+    it("opens the portal in the language the removed account had chosen", () => {
+        cy.signInAsMember(per.selfService);
+        cy.request("/portal/").its("body").should("include", '<html lang="fr-FR"');
+    });
 });

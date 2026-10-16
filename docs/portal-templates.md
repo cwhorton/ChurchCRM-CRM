@@ -217,7 +217,7 @@ Facts about this request and this installation.
 |---|---|---|
 | `rootPath` | string | The install's root path — `''` at a domain root, `/churchcrm` in a subdirectory |
 | `themeName` | string | The active theme's folder name |
-| `locale` | string | e.g. `en_US` |
+| `locale` | string | The page's language, e.g. `en_US`: the member's own (`profile.language`) or the church's; a staff session's own setting |
 | `isRTL` | bool | Right-to-left locale |
 | `colorMode` | string | `auto`, `light` or `dark` — the member's own choice |
 | `loginAsUser` | object or null | Set only during Login as User: `personName`, `actorName`, `allowsChanges` (bool) and `stopUrl`, which takes a POST with `csrf_field()` |
@@ -247,7 +247,7 @@ will stop working on your pages.
 | `volunteer/opportunities.html.twig` | `GET /portal/volunteer/opportunities` | `pageTitle`, `activeTab` |
 | `volunteer/partials/tabs.html.twig` | included by both volunteering pages | `activeTab` |
 | `profile/index.html.twig` | `GET /portal/profile` | `pageTitle`, `profile` |
-| `profile/edit.html.twig` | `GET /portal/profile/edit` | `pageTitle`, `profile` |
+| `profile/edit.html.twig` | `GET /portal/profile/edit` | `pageTitle`, `profile`, `languages` |
 | `profile/password.html.twig` | `GET/POST /portal/profile/password` (staff sessions only; a member session gets 404); also `GET/POST /v2/user/current/changepassword` for a self-service session | `pageTitle`, `formAction`, `minPasswordLength`, `oldPasswordError`, `newPasswordError` |
 | `profile/password-changed.html.twig` | Either of those routes, after a successful change | `pageTitle` |
 | `profile/two-factor.html.twig` | `GET /portal/profile/two-factor` (staff sessions only; a member session gets 404); also `GET /v2/user/current/manage2fa` for a self-service session | `pageTitle` |
@@ -303,6 +303,11 @@ The signed-in member's own person record, as `GET /api/portal/me` returns it.
 | `photoUrl` | string | `/api/portal/me/photo`, cache-busted; **empty when no photo has been uploaded** — render initials instead |
 | `hasPhoto` | bool | Whether a photo has been uploaded |
 | `canEditBirthday` | bool | Mirrors `bPortalAllowBirthdayEdit`; when false the birthday is neither shown nor accepted |
+| `language` | string | The language the member chose for the portal and its emails, e.g. `fr_FR`; empty for the church's language |
+
+### `languages`
+
+The Language field on `profile/edit.html.twig`: `{selected, churchName, choices}`. `choices` lists `{locale, name}` by each language's own name; `churchName` names the church's language for the "Church default" option. It is `null` in a staff session, which keeps the staff account's own setting, so render no field then. The field posts as `language` (empty for the church's language), and the page reloads in the new language.
 
 ### `family`
 
