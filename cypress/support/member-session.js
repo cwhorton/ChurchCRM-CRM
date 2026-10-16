@@ -3,7 +3,7 @@
 // does: an emailed code (design §6.1), read from Mailpit. The member rule is
 // opened to everyone for the spec and put back to the seed's settings after it.
 
-import { askForEmail, db, mailTo, postCode, setConfig } from "./member-sign-in";
+import { askForEmail, db, mailTo, postCode, setConfig, waitForMail } from "./member-sign-in";
 
 const RULE_KEYS = ["bMemberSignIn", "sMemberSignInFamilyRoles", "sMemberSignInClassifications", "iMemberSignInMinAge"];
 const BUCKETS = ["portal-signin.address", "portal-signin.ip", "portal-signin.person"];
@@ -58,7 +58,7 @@ Cypress.Commands.add("signInAsMember", (who) => {
         .then((before) => {
             const known = new Set(before.map((message) => message.ID));
             askForEmail(email);
-            return mailTo(email).then((messages) => messages.filter((message) => !known.has(message.ID)));
+            return waitForMail(email, before.length + 1).then((messages) => messages.filter((message) => !known.has(message.ID)));
         })
         .then((fresh) => {
             expect(fresh, `a new sign-in email to ${email}`).to.not.be.empty;

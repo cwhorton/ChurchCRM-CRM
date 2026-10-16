@@ -14,6 +14,7 @@ import {
     setConfig,
     signInEmail,
     useMemberSignIn,
+    waitForMail,
 } from "../../../support/member-sign-in";
 
 /**
@@ -69,7 +70,7 @@ describe("Member Portal sign-in by email", () => {
         lastAuditId().then((startId) => {
             askInBrowser();
 
-            mailTo(member.email).should("have.length", 1);
+            waitForMail(member.email).should("have.length", 1);
             signInEmail(member.email).then(({ code, link }) => {
                 const token = link.split("/").pop();
                 requestsFor(member.personId).then((rows) => {
