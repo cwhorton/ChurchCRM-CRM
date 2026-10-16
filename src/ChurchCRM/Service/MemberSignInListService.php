@@ -7,9 +7,11 @@ use ChurchCRM\model\ChurchCRM\Note;
 use ChurchCRM\model\ChurchCRM\NoteQuery;
 use ChurchCRM\model\ChurchCRM\Person;
 use ChurchCRM\model\ChurchCRM\PersonQuery;
+use ChurchCRM\model\ChurchCRM\PersonSigninQuery;
 use ChurchCRM\model\ChurchCRM\PortalSigninAuditQuery;
 use ChurchCRM\Portal\Auth\MemberSignInRule;
 use ChurchCRM\Portal\Auth\SignInAuditEvent;
+use ChurchCRM\Portal\Auth\SignInEmailPolicy;
 use ChurchCRM\Portal\Auth\SignInMethod;
 use ChurchCRM\Portal\Auth\SignInReason;
 use ChurchCRM\Portal\PortalSelfService;
@@ -65,7 +67,10 @@ final class MemberSignInListService
     /** @var string[]|null */
     private ?array $sharedEmails = null;
 
-    public function __construct(?MemberSignInRule $rule = null)
+    /**
+     * @param bool $byAdministrator whether the reader is an administrator, for who may confirm an unconfirmed address (§9)
+     */
+    public function __construct(?MemberSignInRule $rule = null, private readonly bool $byAdministrator = true)
     {
         $this->rule = $rule ?? MemberSignInRule::fromSettings();
     }
@@ -136,17 +141,6 @@ final class MemberSignInListService
             self::FAMILIES_CONFIRMED => $this->familiesConfirmedPage($start, $length, $search),
             self::FAMILY_EMAILS_NOT_MOVED => $this->familyEmailsNotMovedPage($start, $length, $search),
             default => throw new InvalidArgumentException(gettext('There is no such list.')),
-        };
-    }
-
-    public static function unconfirmedSourceLabel(?string $source): string
-    {
-        return match ($source) {
-            'family_email' => gettext('Moved from the family email'),
-            'staff' => gettext('Changed by staff after the person signed in'),
-            'import' => gettext('Changed by an import after the person signed in'),
-            'api' => gettext('Changed through the API after the person signed in'),
-            default => gettext('Changed after the person signed in'),
         };
     }
 
@@ -314,6 +308,7 @@ final class MemberSignInListService
         $shared = array_flip($this->sharedEmails());
 
         $sharedOnPage = [];
+        $unconfirmedOnPage = [];
         foreach ($page['rows'] as &$row) {
             $email = MemberSignInRule::normalizeEmail((string) $row['email']);
             $reason = match (true) {
@@ -324,11 +319,20 @@ final class MemberSignInListService
             $row['problem'] = $reason->value;
             $row['problemLabel'] = $reason->label();
             $row['sharedWith'] = [];
+            $row['canConfirmEmail'] = false;
+            $row['confirmEmailRefusal'] = null;
+            if ($reason === SignInReason::EMAIL_UNCONFIRMED) {
+                $unconfirmedOnPage[] = $row['personId'];
+            }
             if ($reason === SignInReason::SHARED_EMAIL) {
                 $sharedOnPage[$email] = true;
             }
         }
         unset($row);
+
+        if ($unconfirmedOnPage !== []) {
+            $this->addConfirmRefusals($page['rows'], $unconfirmedOnPage);
+        }
 
         if ($sharedOnPage !== []) {
             $holders = [];
@@ -356,6 +360,37 @@ final class MemberSignInListService
     }
 
     /**
+     * Whether staff with this page may confirm each unconfirmed address here,
+     * by the rules of member sign-in design §9.
+     *
+     * @param list<array<string, mixed>> $rows
+     * @param int[]                       $personIds
+     */
+    private function addConfirmRefusals(array &$rows, array $personIds): void
+    {
+        $people = [];
+        foreach (PersonQuery::create()->filterById($personIds, Criteria::IN)->find() as $person) {
+            $people[(int) $person->getId()] = $person;
+        }
+        $states = [];
+        foreach (PersonSigninQuery::create()->filterByPersonId($personIds, Criteria::IN)->find() as $state) {
+            $states[(int) $state->getPersonId()] = $state;
+        }
+        $policy = new SignInEmailPolicy();
+
+        foreach ($rows as &$row) {
+            $person = $people[$row['personId']] ?? null;
+            if ($row['problem'] !== SignInReason::EMAIL_UNCONFIRMED->value || !$person instanceof Person) {
+                continue;
+            }
+            $refusal = $policy->confirmRefusal($person, $states[$row['personId']] ?? null, $this->byAdministrator);
+            $row['canConfirmEmail'] = $refusal === null;
+            $row['confirmEmailRefusal'] = $refusal;
+        }
+        unset($row);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function personRow(Person $person): array
@@ -378,7 +413,7 @@ final class MemberSignInListService
             'lastActivityDisplay' => self::display($person->getVirtualColumn('SignInActivity')),
             'unconfirmedEmail' => $unconfirmedEmail === '' ? null : $unconfirmedEmail,
             'unconfirmedSource' => $unconfirmedSource,
-            'unconfirmedSourceLabel' => $unconfirmedEmail === '' ? null : self::unconfirmedSourceLabel($unconfirmedSource),
+            'unconfirmedSourceLabel' => $unconfirmedEmail === '' ? null : SignInEmailPolicy::sourceLabel($unconfirmedSource),
             'unconfirmedAt' => $unconfirmedEmail === '' ? null : self::moment($person->getVirtualColumn('SignInUnconfirmedAt')),
         ];
     }

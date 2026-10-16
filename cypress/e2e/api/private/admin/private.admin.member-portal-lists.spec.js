@@ -104,6 +104,8 @@ describe("Admin → Member Portal lists, audit and statistics", () => {
             expect(byId[14].unconfirmedSource).to.eq("family_email");
             expect(byId[14].unconfirmedSourceLabel).to.eq("Moved from the family email");
             expect(byId[14].problemLabel).to.eq("Their email is not confirmed yet");
+            expect(byId[14].canConfirmEmail).to.eq(true);
+            expect(byId[2].canConfirmEmail).to.eq(false);
         });
         list("email-attention", { problem: "shared_email" }).then((body) => {
             expect(ids(body).sort()).to.deep.eq([6, 7]);

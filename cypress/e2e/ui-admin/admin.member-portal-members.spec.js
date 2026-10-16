@@ -38,7 +38,11 @@ const portalNavLabels = () =>
         return [...doc.querySelectorAll(".portal-nav-link")].map((link) => link.textContent.trim());
     });
 
-const confirmDialog = () => cy.get(".bootbox .modal-footer .btn-danger, .bootbox .bootbox-accept").filter(":visible").first().click();
+// Bootstrap ignores a hide while the modal is still opening; bootbox focuses its button once it is open.
+const confirmDialog = () => {
+    cy.get(".bootbox .bootbox-accept").should("have.focus").click();
+    cy.get(".bootbox").should("not.exist");
+};
 
 const noHorizontalScroll = () =>
     cy.document().then((doc) => {
@@ -61,6 +65,7 @@ const cleanupRows = () => {
     db("DELETE FROM family_email_move_fem WHERE fem_Email LIKE ?", [`${MARK}%`]);
     db("DELETE FROM portal_grant_pgr WHERE pgr_per_ID = ?", [PORTAL_PERSON]);
     db("DELETE FROM person_device_pdv WHERE pdv_Label LIKE ?", [`${MARK}%`]);
+    db("DELETE FROM person_signin_psi WHERE psi_per_ID = 14");
 };
 
 describe("Admin → Member Portal members, audit, permissions and the person card", () => {
@@ -131,6 +136,30 @@ describe("Admin → Member Portal members, audit, permissions and the person car
         cy.get('[data-move-count="noted"]').should("have.text", "1");
         cy.get("#memberListTable").should("contain.text", "Stewart").and("contain.text", "both have their own email");
         cy.get("#memberListTable a[href$='/people/family/7']").should("exist");
+    });
+
+    it("confirms an unconfirmed moved address from the Email needs attention list", () => {
+        db(
+            `INSERT INTO person_signin_psi (psi_per_ID, psi_UnconfirmedEmail, psi_UnconfirmedSource, psi_UnconfirmedAt)
+             VALUES (14, 'nathan.lewis@example.com', 'family_email', NOW())
+             ON DUPLICATE KEY UPDATE psi_UnconfirmedEmail = VALUES(psi_UnconfirmedEmail), psi_UnconfirmedSource = VALUES(psi_UnconfirmedSource), psi_UnconfirmedAt = VALUES(psi_UnconfirmedAt)`,
+        );
+        cy.freshAdminFormLogin();
+        cy.visit("/admin/member-portal#portal-members");
+        cy.get("#memberList-email-attention").click();
+        cy.get('#memberListProblems [data-problem="email_unconfirmed"]').click();
+        cy.get("#memberListTable tbody tr").should("have.length", 1).and("contain.text", "Nathan Lewis").and("contain.text", "Moved from the family email");
+        cy.get("#memberListTable .member-list-confirm-email").click();
+        confirmDialog();
+        cy.get("#memberListTable").should("not.contain.text", "Nathan Lewis");
+        cy.get('[data-problem-count="email_unconfirmed"]').should("have.text", "0");
+
+        cy.visit("/admin/member-portal#portal-audit");
+        cy.get("#portalAuditEvent").select("email_confirmed");
+        cy.get("#portalAuditTable tbody tr").first().should("contain.text", "Nathan Lewis").and("contain.text", "Church Admin");
+        db("SELECT psi_UnconfirmedEmail AS email FROM person_signin_psi WHERE psi_per_ID = 14").then(([row]) => {
+            expect(row.email).to.be.null;
+        });
     });
 
     it("lists a family a member confirmed in the portal, with who confirmed, and audits it", () => {

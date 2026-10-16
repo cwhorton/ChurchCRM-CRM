@@ -1,5 +1,6 @@
 <?php
 
+use ChurchCRM\Authentication\AuthenticationManager;
 use ChurchCRM\Service\MemberSignInListService;
 use ChurchCRM\Service\PortalGrantService;
 use ChurchCRM\Service\PortalPermissionsService;
@@ -68,7 +69,7 @@ function getMemberPortalListSummaryAPI(Request $request, Response $response): Re
  *     path="/admin/api/member-portal/lists/{list}",
  *     operationId="getMemberPortalList",
  *     summary="One page of a Member Portal list (Admin role required)",
- *     description="may-sign-in: the blocks, the member rule and the email rule all let them in. signed-in-recently: a portal sign-in in the last 30 days. never-signed-in: may sign in but never has. email-attention: the member rule lets them in but their email does not (no_email, shared_email or email_unconfirmed). families-confirmed: a member confirmed the family's details in the last 30 days. family-emails-not-moved: the 7.9.0 upgrade could not give the family email to a person.",
+ *     description="may-sign-in: the blocks, the member rule and the email rule all let them in. signed-in-recently: a portal sign-in in the last 30 days. never-signed-in: may sign in but never has. email-attention: the member rule lets them in but their email does not (no_email, shared_email or email_unconfirmed); an unconfirmed row says whether the caller may confirm it (canConfirmEmail, confirmEmailRefusal) through POST /api/person/{id}/sign-in/confirm-email. families-confirmed: a member confirmed the family's details in the last 30 days. family-emails-not-moved: the 7.9.0 upgrade could not give the family email to a person.",
  *     tags={"Admin"},
  *     security={{"ApiKeyAuth":{}}},
  *     @OA\Parameter(name="list", in="path", required=true, @OA\Schema(type="string", enum={"may-sign-in", "signed-in-recently", "never-signed-in", "email-attention", "families-confirmed", "family-emails-not-moved"})),
@@ -93,7 +94,8 @@ function getMemberPortalListAPI(Request $request, Response $response, array $arg
     $problem = $request->getQueryParams()['problem'] ?? '';
 
     try {
-        $page = (new MemberSignInListService())->page((string) $args['list'], $start, $length, $search, is_string($problem) ? $problem : '');
+        $lists = new MemberSignInListService(null, AuthenticationManager::getCurrentUser()->isAdmin());
+        $page = $lists->page((string) $args['list'], $start, $length, $search, is_string($problem) ? $problem : '');
     } catch (InvalidArgumentException $e) {
         return SlimUtils::renderErrorJSON($response, $e->getMessage(), [], 400, null, $request);
     }

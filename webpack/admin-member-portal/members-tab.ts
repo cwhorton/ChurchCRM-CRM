@@ -35,6 +35,8 @@ interface PersonRow {
   unconfirmedSource: string | null;
   unconfirmedSourceLabel: string | null;
   unconfirmedAt: string | null;
+  canConfirmEmail?: boolean;
+  confirmEmailRefusal?: string | null;
 }
 
 interface ConfirmationRow {
@@ -115,21 +117,44 @@ function problemCell(row: PersonRow): string {
 }
 
 /**
- * What staff can do about the row. An unconfirmed address is confirmed on the
- * person's page, after checking who the person is (§9); the cell carries the
- * person and the address so a Confirm button can be added here.
+ * What staff can do about the row. An unconfirmed address is confirmed here,
+ * after checking who the person is, when §9 lets the reader; the rest are
+ * fixed on the person's record.
  */
 export function attentionFixCell(row: PersonRow): string {
-  const attributes = `data-cy="attention-fix" data-person-id="${row.personId}" data-problem="${escapeAttribute(row.problem ?? "")}" data-email="${escapeAttribute(row.unconfirmedEmail ?? "")}"`;
-  const href = `${root()}/people/view/${row.personId}`;
-  const label =
-    row.problem === "email_unconfirmed"
-      ? t("Check and confirm")
-      : row.problem === "shared_email"
-        ? t("Give each person their own email")
-        : t("Add an email");
-  const target = row.problem === "email_unconfirmed" ? href : `${root()}/PersonEditor.php?PersonID=${row.personId}`;
-  return `<div ${attributes}><a class="btn btn-sm btn-outline-primary" href="${escapeAttribute(target)}">${escapeHtml(label)}</a></div>`;
+  const attributes = `data-cy="attention-fix" data-person-id="${row.personId}" data-problem="${escapeAttribute(row.problem ?? "")}"`;
+  if (row.problem === "email_unconfirmed") {
+    if (row.canConfirmEmail) {
+      return `<div ${attributes}><button type="button" class="btn btn-sm btn-outline-primary member-list-confirm-email"
+        data-person-id="${row.personId}" data-email="${escapeAttribute(row.unconfirmedEmail ?? "")}">
+        <i class="fa-solid fa-check me-1"></i>${escapeHtml(t("Confirm Email Address"))}</button></div>`;
+    }
+    return `<div ${attributes}>${muted(row.confirmEmailRefusal ?? "")}</div>`;
+  }
+  const label = row.problem === "shared_email" ? t("Give each person their own email") : t("Add an email");
+  const href = `${root()}/PersonEditor.php?PersonID=${row.personId}`;
+  return `<div ${attributes}><a class="btn btn-sm btn-outline-primary" href="${escapeAttribute(href)}">${escapeHtml(label)}</a></div>`;
+}
+
+async function confirmEmail(button: HTMLButtonElement): Promise<void> {
+  const config = window.CRM?.memberPortalAdmin as { csrfToken?: string } | undefined;
+  button.disabled = true;
+  const response = await fetch(`${root()}/api/person/${button.dataset.personId}/sign-in/confirm-email`, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "content-type": "application/json", "X-CSRF-Token": config?.csrfToken ?? "" },
+    body: JSON.stringify({ email: button.dataset.email ?? "" }),
+  });
+  button.disabled = false;
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as { message?: string } | null;
+    const message = body?.message || t("The email could not be confirmed.");
+    window.CRM?.notify?.(message, { type: "danger" });
+    return;
+  }
+  window.CRM?.notify?.(t("The email is confirmed. It can now be used to sign in."), { type: "success" });
+  table?.draw(false);
+  void loadSummary();
 }
 
 const LISTS: Record<string, { description: () => string; columns: () => ServerColumn<AnyRow>[] }> = {
@@ -313,6 +338,25 @@ export function wireMembersTab(): void {
       other.classList.toggle("active", other === button);
     }
     table?.draw();
+  });
+
+  document.getElementById(TABLE_ID)?.addEventListener("click", (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>(".member-list-confirm-email");
+    if (!button) {
+      return;
+    }
+    window.bootbox?.confirm({
+      title: t("Confirm Email Address"),
+      message: t(
+        "Confirm this email only after checking, in person or by phone, that it is this person's own address. Once confirmed, it can be used to sign in to the Member Portal.",
+      ),
+      buttons: { confirm: { label: t("Confirm Email Address"), className: "btn-primary" } },
+      callback: (confirmed: boolean) => {
+        if (confirmed) {
+          void confirmEmail(button);
+        }
+      },
+    });
   });
 
   onTabShown("portal-members-tab", () => {
