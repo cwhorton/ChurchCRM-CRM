@@ -211,7 +211,7 @@ describe("Admin → Member Portal permissions and given grants", () => {
         cy.makePrivateAdminAPICall("GET", "/admin/api/member-portal/grant-scopes/event", null, 400);
     });
 
-    it("removes one remembered device or passkey of a person, and audits it", () => {
+    it("signs out one remembered device or removes a passkey of a person, and audits it", () => {
         db(
             `INSERT INTO person_device_pdv (pdv_per_ID, pdv_TokenHash, pdv_Kind, pdv_Label, pdv_CreatedAt, pdv_ExpiresAt)
              VALUES (?, SHA2('row09-device-a', 256), 'browser', 'row09 laptop', NOW(), NOW() + INTERVAL 20 DAY),
@@ -226,8 +226,11 @@ describe("Admin → Member Portal permissions and given grants", () => {
         db("SELECT pdv_ID AS id FROM person_device_pdv WHERE pdv_Label = 'row09 laptop'").then(([device]) => {
             cy.makePrivateAdminAPICall("POST", `/admin/api/person/${CHILD}/sign-in/devices/${device.id}/remove`, null, 404);
             cy.makePrivateAdminAPICall("POST", `/admin/api/person/${OTHER}/sign-in/devices/${device.id}/remove`, null, 200);
-            db("SELECT pdv_Label AS label FROM person_device_pdv WHERE pdv_per_ID = ?", [OTHER]).then((rows) => {
-                expect(rows.map((row) => row.label)).to.deep.eq(["row09 phone"]);
+            cy.makePrivateAdminAPICall("POST", `/admin/api/person/${OTHER}/sign-in/devices/${device.id}/remove`, null, 404);
+            db("SELECT pdv_Label AS label, pdv_RevokedAt AS revokedAt FROM person_device_pdv WHERE pdv_per_ID = ? AND pdv_Label LIKE 'row09 %' ORDER BY pdv_ID", [OTHER]).then((rows) => {
+                expect(rows.map((row) => row.label)).to.deep.eq(["row09 laptop", "row09 phone"]);
+                expect(rows[0].revokedAt, "signed out, kept for the member's list").to.not.be.null;
+                expect(rows[1].revokedAt).to.be.null;
             });
         });
         db("SELECT ppk_ID AS id FROM person_passkey_ppk WHERE ppk_Label = 'row09 passkey'").then(([passkey]) => {
@@ -237,6 +240,8 @@ describe("Admin → Member Portal permissions and given grants", () => {
         cy.makePrivateAdminAPICall("GET", `/admin/api/member-portal/audit?personId=${OTHER}&length=2`, null, 200).then(({ body }) => {
             expect(body.rows.map((row) => row.event)).to.deep.eq(["passkey_removed", "device_removed"]);
             expect(body.rows.every((row) => row.actorId === 1)).to.eq(true);
+            expect(body.rows[1].reason).to.eq("signed_out");
+            expect(body.rows[1].detail).to.eq("row09 laptop");
         });
     });
 

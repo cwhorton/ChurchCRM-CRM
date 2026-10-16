@@ -260,7 +260,7 @@ describe("Admin → Member Portal members, audit, permissions and the person car
         portalNavLabels().should("not.include", "My Teams");
     });
 
-    it("lists a person's remembered devices and lets an administrator forget one", () => {
+    it("lists a person's remembered devices and lets an administrator sign one out", () => {
         db(
             `INSERT INTO person_device_pdv (pdv_per_ID, pdv_TokenHash, pdv_Kind, pdv_Label, pdv_CreatedAt, pdv_LastUsedAt, pdv_ExpiresAt, pdv_RevokedAt) VALUES
              (?, SHA2('${MARK}-a', 256), 'browser', '${MARK} laptop', NOW(), NOW(), NOW() + INTERVAL 20 DAY, NULL),
@@ -277,7 +277,7 @@ describe("Admin → Member Portal members, audit, permissions and the person car
         cy.get("#portal-signin-devices").should("contain.text", "0");
     });
 
-    it("shows Edit Records staff the permissions and devices without the controls", () => {
+    it("shows Edit Records staff only the sign-in status and the counts", () => {
         cy.makePrivateAdminAPICall("POST", `/admin/api/person/${PORTAL_PERSON}/sign-in/grants`, {
             capability: "portal.calendar.view",
             reason: "Hidden from Edit Records",
@@ -289,11 +289,11 @@ describe("Admin → Member Portal members, audit, permissions and the person car
         );
         cy.setupStandardSession({ forceLogin: true });
         cy.visit(`/people/view/${PORTAL_PERSON}`);
-        cy.get("#portal-signin-permissions").should("contain.text", "Everyone").and("contain.text", "Given by Church Admin");
-        cy.get("#portal-signin-device-list").should("contain.text", `${MARK} tablet`);
-        cy.get("#portal-signin-card").should("not.contain.text", "Hidden from Edit Records");
-        cy.get(".portal-signin-remove-grant, .portal-signin-remove-device, .portal-signin-remove-passkey").should("not.exist");
-        cy.get("#portal-grant-add").should("not.exist");
+        cy.get("#portal-signin-status").should("exist");
+        cy.get("#portal-signin-devices").should("contain.text", "1");
+        cy.get("#portal-signin-passkeys").should("contain.text", "0");
+        cy.get("#portal-signin-access").should("not.exist");
+        cy.get("#portal-signin-card").should("not.contain.text", `${MARK} tablet`).and("not.contain.text", "Hidden from Edit Records");
         cy.get("#portal-grant-modal").should("not.exist");
     });
 

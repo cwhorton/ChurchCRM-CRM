@@ -1,7 +1,7 @@
 /**
  * The person page's portal devices, passkeys and permissions
  * (src/people/views/partials/portal-signin-access.php), for administrators:
- * remove a remembered device, a passkey or a given permission, and give one.
+ * sign out a remembered device, remove a passkey or a given permission, and give one.
  * Each posts to /admin/api/person/{id}/sign-in/* and reloads the page.
  */
 
@@ -46,9 +46,10 @@ const REMOVALS: Array<{
     selector: ".portal-signin-remove-device",
     data: "deviceId",
     path: (id) => `devices/${id}/remove`,
-    title: "Forget this device",
-    message: "This device will no longer keep the person signed in. They can sign in again by email.",
-    done: "The device was forgotten.",
+    title: "Sign out this device",
+    message:
+      "This device will no longer keep the person signed in, and a session open on it ends. They can sign in again by email.",
+    done: "The device is signed out.",
   },
   {
     selector: ".portal-signin-remove-passkey",

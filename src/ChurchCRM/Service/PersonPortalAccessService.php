@@ -3,8 +3,6 @@
 namespace ChurchCRM\Service;
 
 use ChurchCRM\model\ChurchCRM\Person;
-use ChurchCRM\model\ChurchCRM\PersonDevice;
-use ChurchCRM\model\ChurchCRM\PersonDeviceQuery;
 use ChurchCRM\model\ChurchCRM\PersonPasskey;
 use ChurchCRM\model\ChurchCRM\PersonPasskeyQuery;
 use ChurchCRM\model\ChurchCRM\User;
@@ -14,7 +12,6 @@ use ChurchCRM\Portal\Permissions\EffectiveGrant;
 use ChurchCRM\Portal\Permissions\PortalAuthorizationService;
 use ChurchCRM\Portal\Permissions\PortalCapabilityRegistry;
 use ChurchCRM\Utils\DateTimeUtils;
-use DateTimeImmutable;
 use DateTimeInterface;
 use DomainException;
 use Propel\Runtime\ActiveQuery\Criteria;
@@ -28,26 +25,20 @@ use Propel\Runtime\ActiveQuery\Criteria;
 final class PersonPortalAccessService
 {
     /**
-     * A given grant's reason is included for administrators only.
+     * For administrators only (§11.3): staff with Edit Records see the counts
+     * on the card, not these lists.
      *
      * @return array{devices: list<array<string, mixed>>, passkeys: list<array<string, mixed>>, permissions: list<array<string, mixed>>, notInEffect: list<array<string, mixed>>}
      */
-    public function forPerson(Person $person, bool $forAdministrator): array
+    public function forPerson(Person $person): array
     {
         $personId = (int) $person->getId();
         $stored = (new PortalGrantService())->storedGrantsFor($personId);
-        $reasons = [];
-        foreach ($stored as &$grant) {
-            $reasons[$grant['grantId']] = $grant['reason'];
-            if (!$forAdministrator) {
-                $grant['reason'] = null;
-            }
-        }
-        unset($grant);
+        $reasons = array_column($stored, 'reason', 'grantId');
 
         $permissions = $this->permissions($personId);
         foreach ($permissions as &$permission) {
-            $permission['reason'] = $forAdministrator && $permission['grantId'] !== null ? ($reasons[$permission['grantId']] ?? null) : null;
+            $permission['reason'] = $permission['grantId'] === null ? null : ($reasons[$permission['grantId']] ?? null);
         }
         unset($permission);
 
@@ -60,23 +51,16 @@ final class PersonPortalAccessService
     }
 
     /**
-     * @throws DomainException 404 when the person has no such remembered device
+     * Signs the device out, the way the member does on their Sign-in and
+     * devices page, so a session kept on it ends on its next request.
+     *
+     * @throws DomainException 404 when the person has no such device still signed in
      */
     public function removeDevice(Person $person, User $actor, int $deviceId): void
     {
-        $personId = (int) $person->getId();
-        $device = PersonDeviceQuery::create()->filterByPersonId($personId)->findPk($deviceId);
-        if (!$device instanceof PersonDevice) {
+        if (!(new RememberedDeviceService())->signOutDevice((int) $person->getId(), $deviceId, $actor)) {
             throw new DomainException(gettext('This person has no such remembered device.'), 404);
         }
-        $device->delete();
-
-        SignInAudit::record(
-            SignInAuditEvent::DEVICE_REMOVED,
-            $personId,
-            actorUserId: (int) $actor->getId(),
-            detail: sprintf('device=%d; kind=%s', $deviceId, (string) $device->getKind()),
-        );
     }
 
     /**
@@ -100,16 +84,11 @@ final class PersonPortalAccessService
     }
 
     /**
-     * Remembered devices that can still sign in: not revoked and not expired.
-     *
      * @return list<array<string, mixed>>
      */
     private function devices(int $personId): array
     {
-        $devices = PersonDeviceQuery::create()
-            ->filterByPersonId($personId)
-            ->filterByRevokedAt(null, Criteria::ISNULL)
-            ->filterByExpiresAt(self::now()->format('Y-m-d H:i:s'), Criteria::GREATER_THAN)
+        $devices = RememberedDeviceService::liveDevicesQuery($personId)
             ->orderByLastUsedAt(Criteria::DESC)
             ->orderByCreatedAt(Criteria::DESC)
             ->find();
@@ -119,11 +98,8 @@ final class PersonPortalAccessService
             $rows[] = [
                 'id' => (int) $device->getId(),
                 'label' => trim((string) $device->getLabel()) !== '' ? (string) $device->getLabel() : gettext('Unnamed device'),
-                'kind' => (string) $device->getKind(),
-                'kindLabel' => $device->getKind() === 'app' ? gettext('App') : gettext('Browser'),
                 'createdAt' => self::display($device->getCreatedAt()),
                 'lastUsedAt' => self::display($device->getLastUsedAt()),
-                'expiresAt' => self::display($device->getExpiresAt()),
             ];
         }
 
@@ -179,10 +155,5 @@ final class PersonPortalAccessService
     private static function display(mixed $value): ?string
     {
         return $value instanceof DateTimeInterface ? DateTimeUtils::formatDate($value, true) : null;
-    }
-
-    private static function now(): DateTimeImmutable
-    {
-        return new DateTimeImmutable('now', DateTimeUtils::getConfiguredTimezone());
     }
 }

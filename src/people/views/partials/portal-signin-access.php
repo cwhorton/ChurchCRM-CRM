@@ -4,12 +4,12 @@ use ChurchCRM\Portal\Permissions\EffectiveGrant;
 use ChurchCRM\Utils\InputUtils;
 
 /*
- * The "Portal sign-in" card's devices, passkeys and portal permissions (member
- * sign-in design §11.3, §8.6). Staff with Edit Records see them; administrators
- * can remove a device, a passkey or a permission they gave, and give one.
+ * The "Portal sign-in" card's devices, passkeys and portal permissions, for
+ * administrators only (member sign-in design §11.3, §8.6): sign out a device,
+ * remove a passkey or a permission an administrator gave, and give one.
  *
  * Variables: $portalAccess (PersonPortalAccessService::forPerson()),
- * $portalGrantChoices, $portalSignInCanManage.
+ * $portalGrantChoices.
  * Behaviour: webpack/people/person-portal-access.ts.
  */
 
@@ -39,15 +39,12 @@ $removeButton = static function (string $class, string $dataName, int $id, strin
                     <div class="flex-fill text-break">
                         <div><?= InputUtils::escapeHTML($device['label']) ?></div>
                         <div class="small text-secondary">
-                            <?= InputUtils::escapeHTML($device['kindLabel']) ?>
-                            &middot; <?= $device['lastUsedAt'] !== null
+                            <?= $device['lastUsedAt'] !== null
                                 ? InputUtils::escapeHTML(sprintf(gettext('Last used %s'), $device['lastUsedAt']))
                                 : InputUtils::escapeHTML(sprintf(gettext('Added %s'), (string) $device['createdAt'])) ?>
                         </div>
                     </div>
-                    <?php if ($portalSignInCanManage) : ?>
-                        <?= $removeButton('portal-signin-remove-device', 'device-id', (int) $device['id'], gettext('Forget this device')) ?>
-                    <?php endif; ?>
+                        <?= $removeButton('portal-signin-remove-device', 'device-id', (int) $device['id'], gettext('Sign out this device')) ?>
                 </li>
             <?php endforeach; ?>
             <?php foreach ($portalAccess['passkeys'] as $passkey) : ?>
@@ -62,9 +59,7 @@ $removeButton = static function (string $class, string $dataName, int $id, strin
                                 : InputUtils::escapeHTML(sprintf(gettext('Added %s'), (string) $passkey['createdAt'])) ?>
                         </div>
                     </div>
-                    <?php if ($portalSignInCanManage) : ?>
                         <?= $removeButton('portal-signin-remove-passkey', 'passkey-id', (int) $passkey['id'], gettext('Remove this passkey')) ?>
-                    <?php endif; ?>
                 </li>
             <?php endforeach; ?>
         </ul>
@@ -93,7 +88,7 @@ $removeButton = static function (string $class, string $dataName, int $id, strin
                         <div class="small text-secondary fst-italic"><?= InputUtils::escapeHTML($group['reason']) ?></div>
                     <?php endif; ?>
                 </div>
-                <?php if ($portalSignInCanManage && $group['grantId'] !== null) : ?>
+                <?php if ($group['grantId'] !== null) : ?>
                     <?= $removeButton('portal-signin-remove-grant', 'grant-id', (int) $group['grantId'], gettext('Remove this permission')) ?>
                 <?php endif; ?>
             </li>
@@ -119,80 +114,74 @@ $removeButton = static function (string $class, string $dataName, int $id, strin
                                 : gettext('Its plugin is not installed') ?>
                         </div>
                     </div>
-                    <?php if ($portalSignInCanManage) : ?>
                         <?= $removeButton('portal-signin-remove-grant', 'grant-id', (int) $grant['grantId'], gettext('Remove this permission')) ?>
-                    <?php endif; ?>
                 </li>
             <?php endforeach; ?>
         </ul>
     <?php endif; ?>
 
-    <?php if ($portalSignInCanManage) : ?>
-        <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="portal-grant-add"
-                data-bs-toggle="modal" data-bs-target="#portal-grant-modal">
-            <i class="fa-solid fa-plus me-1"></i><?= gettext('Give a permission') ?>
-        </button>
-    <?php endif; ?>
+    <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="portal-grant-add"
+            data-bs-toggle="modal" data-bs-target="#portal-grant-modal">
+        <i class="fa-solid fa-plus me-1"></i><?= gettext('Give a permission') ?>
+    </button>
 </div>
 
-<?php if ($portalSignInCanManage) : ?>
-    <div class="modal fade" id="portal-grant-modal" tabindex="-1" aria-labelledby="portal-grant-title" aria-hidden="true">
-        <div class="modal-dialog">
-            <form class="modal-content" id="portal-grant-form" novalidate autocomplete="off">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="portal-grant-title"><?= gettext('Give a portal permission') ?></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= gettext('Close') ?>"></button>
+<div class="modal fade" id="portal-grant-modal" tabindex="-1" aria-labelledby="portal-grant-title" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="portal-grant-form" novalidate autocomplete="off">
+            <div class="modal-header">
+                <h5 class="modal-title" id="portal-grant-title"><?= gettext('Give a portal permission') ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= gettext('Close') ?>"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label required" for="portal-grant-capability"><?= gettext('Permission') ?></label>
+                    <select class="form-select" id="portal-grant-capability" name="capability" required>
+                        <option value=""><?= gettext('Choose a permission') ?></option>
+                        <?php
+                        $byOwner = [];
+                        foreach ($portalGrantChoices as $choice) {
+                            $byOwner[$choice['ownerName']][] = $choice;
+                        }
+                        foreach ($byOwner as $ownerName => $choices) : ?>
+                            <optgroup label="<?= InputUtils::escapeAttribute($ownerName) ?>">
+                                <?php foreach ($choices as $choice) : ?>
+                                    <option value="<?= InputUtils::escapeAttribute($choice['key']) ?>"
+                                            data-scope-type="<?= InputUtils::escapeAttribute($choice['scopeType']) ?>"
+                                            data-scope-label="<?= InputUtils::escapeAttribute($choice['scopeFieldLabel']) ?>"
+                                            data-description="<?= InputUtils::escapeAttribute($choice['description']) ?>"
+                                            data-status="<?= InputUtils::escapeAttribute((string) $choice['statusLabel']) ?>">
+                                        <?= InputUtils::escapeHTML($choice['label']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </optgroup>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="form-hint" id="portal-grant-capability-hint"></div>
                 </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label required" for="portal-grant-capability"><?= gettext('Permission') ?></label>
-                        <select class="form-select" id="portal-grant-capability" name="capability" required>
-                            <option value=""><?= gettext('Choose a permission') ?></option>
-                            <?php
-                            $byOwner = [];
-                            foreach ($portalGrantChoices as $choice) {
-                                $byOwner[$choice['ownerName']][] = $choice;
-                            }
-                            foreach ($byOwner as $ownerName => $choices) : ?>
-                                <optgroup label="<?= InputUtils::escapeAttribute($ownerName) ?>">
-                                    <?php foreach ($choices as $choice) : ?>
-                                        <option value="<?= InputUtils::escapeAttribute($choice['key']) ?>"
-                                                data-scope-type="<?= InputUtils::escapeAttribute($choice['scopeType']) ?>"
-                                                data-scope-label="<?= InputUtils::escapeAttribute($choice['scopeFieldLabel']) ?>"
-                                                data-description="<?= InputUtils::escapeAttribute($choice['description']) ?>"
-                                                data-status="<?= InputUtils::escapeAttribute((string) $choice['statusLabel']) ?>">
-                                            <?= InputUtils::escapeHTML($choice['label']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </optgroup>
-                            <?php endforeach; ?>
-                        </select>
-                        <div class="form-hint" id="portal-grant-capability-hint"></div>
-                    </div>
-                    <div class="mb-3 d-none" id="portal-grant-scope-group">
-                        <label class="form-label required" for="portal-grant-scope" id="portal-grant-scope-label"></label>
-                        <select class="form-select" id="portal-grant-scope" name="scopeId"
-                                data-placeholder="<?= InputUtils::escapeAttribute(gettext('Type a name')) ?>"></select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="portal-grant-ends"><?= gettext('Last day') ?></label>
-                        <input type="date" class="form-control" id="portal-grant-ends" name="endsOn">
-                        <div class="form-hint"><?= gettext('Leave empty to keep it until someone removes it.') ?></div>
-                    </div>
-                    <div>
-                        <label class="form-label required" for="portal-grant-reason"><?= gettext('Reason') ?></label>
-                        <textarea class="form-control" id="portal-grant-reason" name="reason" rows="2" maxlength="255" required></textarea>
-                        <div class="form-hint"><?= gettext('Only administrators see the reason.') ?></div>
-                    </div>
-                    <div class="invalid-feedback d-block" id="portal-grant-error"></div>
+                <div class="mb-3 d-none" id="portal-grant-scope-group">
+                    <label class="form-label required" for="portal-grant-scope" id="portal-grant-scope-label"></label>
+                    <select class="form-select" id="portal-grant-scope" name="scopeId"
+                            data-placeholder="<?= InputUtils::escapeAttribute(gettext('Type a name')) ?>"></select>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal"><?= gettext('Cancel') ?></button>
-                    <button type="submit" class="btn btn-primary" id="portal-grant-save">
-                        <i class="fa-solid fa-plus me-1"></i><?= gettext('Give permission') ?>
-                    </button>
+                <div class="mb-3">
+                    <label class="form-label" for="portal-grant-ends"><?= gettext('Last day') ?></label>
+                    <input type="date" class="form-control" id="portal-grant-ends" name="endsOn">
+                    <div class="form-hint"><?= gettext('Leave empty to keep it until someone removes it.') ?></div>
                 </div>
-            </form>
-        </div>
+                <div>
+                    <label class="form-label required" for="portal-grant-reason"><?= gettext('Reason') ?></label>
+                    <textarea class="form-control" id="portal-grant-reason" name="reason" rows="2" maxlength="255" required></textarea>
+                    <div class="form-hint"><?= gettext('Only administrators see the reason.') ?></div>
+                </div>
+                <div class="invalid-feedback d-block" id="portal-grant-error"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal"><?= gettext('Cancel') ?></button>
+                <button type="submit" class="btn btn-primary" id="portal-grant-save">
+                    <i class="fa-solid fa-plus me-1"></i><?= gettext('Give permission') ?>
+                </button>
+            </div>
+        </form>
     </div>
-<?php endif; ?>
+</div>

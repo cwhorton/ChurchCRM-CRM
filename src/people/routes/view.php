@@ -354,9 +354,9 @@ $app->get('/view/{personID:[0-9]+}', function (Request $request, Response $respo
     $portalSignIn = $currentUser->isEditRecordsEnabled()
         ? (new PersonSignInService())->statusFor($person, $currentUser->isAdmin())
         : null;
-    // Its devices, passkeys and portal permissions (§11.3, §8.6)
-    $portalAccess = $portalSignIn === null ? null : (new PersonPortalAccessService())->forPerson($person, $currentUser->isAdmin());
-    $portalGrantChoices = $portalSignIn !== null && $currentUser->isAdmin() ? PortalGrantService::givableCapabilities() : [];
+    // Its devices, passkeys and portal permissions: administrators only (§11.3, §8.6)
+    $portalAccess = $portalSignIn !== null && $currentUser->isAdmin() ? (new PersonPortalAccessService())->forPerson($person) : null;
+    $portalGrantChoices = $portalAccess === null ? [] : PortalGrantService::givableCapabilities();
 
     // ── Render ───────────────────────────────────────────────────────────────
     $renderer = new PhpRenderer(__DIR__ . '/../views/');
