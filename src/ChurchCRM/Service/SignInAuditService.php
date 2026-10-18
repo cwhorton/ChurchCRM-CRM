@@ -176,6 +176,9 @@ final class SignInAuditService
         if ($rawDetail === 'send_failed') {
             return gettext('The email could not be sent.');
         }
+        if ($rawDetail === RememberedDeviceService::AUDIT_PREVIOUS_TOKEN) {
+            return gettext('With the token the device replaced moments ago');
+        }
         $matched = self::matchedPersonIds($rawDetail);
         if ($matched !== []) {
             return sprintf(

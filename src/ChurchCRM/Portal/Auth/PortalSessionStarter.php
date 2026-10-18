@@ -20,6 +20,7 @@ final class PortalSessionStarter
     /**
      * @param User|null   $actor       the administrator, for ASSISTED (Login as User) only
      * @param string|null $provenEmail for an email method, the address the code or link went to
+     * @param string|null $auditDetail non-secret context for the audit row this step writes
      *
      * @throws PortalSignInRefusedException when the person may not sign in; the refusal is audited
      */
@@ -28,6 +29,7 @@ final class PortalSessionStarter
         SignInMethod $method,
         ?User $actor = null,
         ?string $provenEmail = null,
+        ?string $auditDetail = null,
     ): PortalPrincipal {
         if ($method === SignInMethod::ASSISTED && !$actor instanceof User) {
             throw new InvalidArgumentException('Login as User needs the acting administrator');
@@ -40,7 +42,7 @@ final class PortalSessionStarter
 
         $refusal = PortalSignInRules::refusalReason($person, $state, $method);
         if ($refusal !== null) {
-            SignInAudit::record(SignInAuditEvent::REFUSED, $person === null ? null : $personId, $method, $refusal, $actorUserId, $provenEmail);
+            SignInAudit::record(SignInAuditEvent::REFUSED, $person === null ? null : $personId, $method, $refusal, $actorUserId, $provenEmail, $auditDetail);
 
             throw new PortalSignInRefusedException($refusal);
         }
@@ -80,6 +82,7 @@ final class PortalSessionStarter
             null,
             $actorUserId,
             $provenEmail,
+            $auditDetail,
         );
 
         return $principal;
