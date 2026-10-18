@@ -18,6 +18,7 @@ use ChurchCRM\Portal\Permissions\CorePortalCapabilities;
 use ChurchCRM\Portal\Permissions\PortalAuthorizationService;
 use ChurchCRM\Portal\Permissions\PortalScope;
 use ChurchCRM\Portal\Permissions\Rules\FamilyAdultRule;
+use ChurchCRM\Slim\Middleware\Api\FamilyEmailDeprecationMiddleware;
 use ChurchCRM\Utils\InputUtils;
 use ChurchCRM\Utils\ORMUtils;
 use DateTime;
@@ -151,9 +152,6 @@ class PortalSelfService
         }
 
         $canSeeContacts = self::mayOnFamily($actor, CorePortalCapabilities::FAMILY_CONTACTS_VIEW, $family);
-        $emailRecipient = $family->getEmailRecipient();
-        $showFamilyEmail = $emailRecipient !== null
-            && ($canSeeContacts || (int) $emailRecipient->getId() === (int) $actor->getId());
 
         $members = [];
         foreach ($family->getPeopleSorted() as $member) {
@@ -173,7 +171,7 @@ class PortalSelfService
             ];
         }
 
-        return [
+        $view = [
             'family' => [
                 'id' => (int) $family->getId(),
                 'name' => (string) $family->getName(),
@@ -184,8 +182,6 @@ class PortalSelfService
                 'zip' => (string) $family->getZip(),
                 'country' => (string) $family->getCountry(),
                 'homePhone' => (string) $family->getHomePhone(),
-                // Deprecated in 7.9.0 and read-only (FamilyEmailDeprecationMiddleware).
-                'email' => $showFamilyEmail ? (string) $emailRecipient->getEmail() : '',
                 'weddingDate' => (string) ($family->getWeddingdate('Y-m-d') ?? ''),
             ],
             'members' => $members,
@@ -193,6 +189,13 @@ class PortalSelfService
             'canConfirm' => self::mayOnFamily($actor, CorePortalCapabilities::FAMILY_CONFIRM, $family),
             'canSeeContacts' => $canSeeContacts,
         ];
+        if (FamilyEmailDeprecationMiddleware::isHandling()) {
+            $recipient = $family->getEmailRecipient();
+            $mayShow = $recipient !== null && ($canSeeContacts || (int) $recipient->getId() === (int) $actor->getId());
+            $view['family']['email'] = $mayShow ? (string) $recipient->getEmail() : '';
+        }
+
+        return $view;
     }
 
     /**

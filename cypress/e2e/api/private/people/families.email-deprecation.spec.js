@@ -121,6 +121,8 @@ describe("Deprecated family Email in the family API (7.9.0)", () => {
     it("leaves the family endpoints that never returned it alone", () => {
         cy.makePrivateAdminAPICall("GET", "/api/families/latest", null, 200).then((response) => {
             expect(response.headers).to.not.have.property("deprecation");
+            expect(response.body.families).to.not.be.empty;
+            response.body.families.forEach((family) => expect(family).to.not.have.property("Email"));
         });
     });
 });
