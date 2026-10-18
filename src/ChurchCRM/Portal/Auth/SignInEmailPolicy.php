@@ -51,6 +51,9 @@ final class SignInEmailPolicy
     public const SOURCE_FAMILY_EMAIL = 'family_email';
     public const KIND_CHANGE = 'change';
     public const KIND_CONFIRM = 'confirm';
+    /** How staff confirmed an address, in the audit row's `via`. */
+    public const CONFIRMED_ON_PERSON_PAGE = 'person_page';
+    public const CONFIRMED_IN_BULK = 'bulk_confirm';
 
     private const EMAIL_MAX_LENGTH = 100;
     private const REQUEST_BUCKET = 'email-change.person';
@@ -76,20 +79,36 @@ final class SignInEmailPolicy
      */
     public function needsAdministrator(Person $person): bool
     {
-        $personId = (int) $person->getId();
-        if (UserQuery::create()->filterByPersonId($personId)->exists()) {
-            return true;
+        return $this->peopleNeedingAdministrator([(int) $person->getId()]) !== [];
+    }
+
+    /**
+     * Which of these people have a staff account or given portal grants.
+     *
+     * @param int[] $personIds
+     *
+     * @return int[]
+     */
+    public function peopleNeedingAdministrator(array $personIds): array
+    {
+        if ($personIds === []) {
+            return [];
+        }
+
+        $found = [];
+        foreach (UserQuery::create()->filterByPersonId($personIds, Criteria::IN)->select(['PersonId'])->find() as $personId) {
+            $found[(int) $personId] = true;
         }
 
         $now = $this->now();
-        foreach (PortalGrantQuery::create()->filterByPersonId($personId)->find() as $grant) {
+        foreach (PortalGrantQuery::create()->filterByPersonId($personIds, Criteria::IN)->find() as $grant) {
             $endsAt = $grant->getEndsAt();
             if (!$endsAt instanceof DateTimeInterface || $endsAt > $now) {
-                return true;
+                $found[(int) $grant->getPersonId()] = true;
             }
         }
 
-        return false;
+        return array_keys($found);
     }
 
     /**
@@ -352,11 +371,12 @@ final class SignInEmailPolicy
 
     /**
      * Staff confirm the unconfirmed address `$email` after checking who the
-     * person is, in person or by phone.
+     * person is, in person or by phone. `$via` is CONFIRMED_ON_PERSON_PAGE or
+     * CONFIRMED_IN_BULK.
      *
      * @throws EmailChangeRefusedException 403 when the actor may not, 409 when there is nothing to confirm or the address changed
      */
-    public function confirmByStaff(Person $person, string $email, User $actor): void
+    public function confirmByStaff(Person $person, string $email, User $actor, string $via = self::CONFIRMED_ON_PERSON_PAGE): void
     {
         if (!$actor->isEditRecordsEnabled()) {
             throw new EmailChangeRefusedException(gettext('You are not allowed to confirm this email.'), 403);
@@ -383,7 +403,7 @@ final class SignInEmailPolicy
             $personId,
             actorUserId: (int) $actor->getId(),
             email: $address,
-            detail: self::detail(['via' => 'person_page', 'source' => $source]),
+            detail: self::detail(['via' => $via, 'source' => $source]),
         );
     }
 

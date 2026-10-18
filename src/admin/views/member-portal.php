@@ -221,6 +221,11 @@ $themesDocUrl = 'https://github.com/ChurchCRM/CRM/blob/master/docs/portal-themes
                                         <a href="<?= SystemURLs::getRootPath() ?>/v2/email/dashboard?settings=open" class="ms-1"><?= gettext('Set up email') ?></a>
                                     </div>
                                 <?php endif; ?>
+                                <div class="alert alert-warning mb-0 mt-2<?= $signIn['sharedAddresses'] > 0 ? '' : ' d-none' ?>" id="memberSignInSharedEmails">
+                                    <i class="fa-solid fa-people-arrows me-2"></i><?= gettext('Shared emails that stop people from signing in') ?>:
+                                    <strong data-shared-address-count><?= (int) $signIn['sharedAddresses'] ?></strong>
+                                    <a href="#portal-members" class="ms-1" data-open-shared-email-fix><?= gettext('Fix shared emails') ?></a>
+                                </div>
                             </div>
                         </div>
                     </div>

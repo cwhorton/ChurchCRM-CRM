@@ -117,6 +117,10 @@
             "kind": "fixture",
             "reason": "Member sign-in row 13 (#10463): opens the member rule for a spec that acts as a member and puts the seed's settings back after it; members have no account to sign in with since the cutover."
         },
+        "cypress/support/sign-in-email-fixtures.js": {
+            "kind": "fixture",
+            "reason": "Member sign-in row 9b (#10463): an address moved from the family email (written only by the 7.9.0 upgrade) or replaced after a sign-in, and the shared personal emails Fix shared emails resolves, have no HTTP surface but the legacy person editor form, which also audits and mails; each spec's seed emails, sign-in rows and grants are put back."
+        },
         "cypress/support/sign-in-throttle.js": {
             "kind": "fixture",
             "reason": "Ends a sign-in throttle window (#10197) so specs need not wait out a 15-minute lockout; the server still decides what an ended window means."
