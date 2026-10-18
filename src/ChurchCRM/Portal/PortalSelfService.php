@@ -151,6 +151,9 @@ class PortalSelfService
         }
 
         $canSeeContacts = self::mayOnFamily($actor, CorePortalCapabilities::FAMILY_CONTACTS_VIEW, $family);
+        $emailRecipient = $family->getEmailRecipient();
+        $showFamilyEmail = $emailRecipient !== null
+            && ($canSeeContacts || (int) $emailRecipient->getId() === (int) $actor->getId());
 
         $members = [];
         foreach ($family->getPeopleSorted() as $member) {
@@ -181,6 +184,8 @@ class PortalSelfService
                 'zip' => (string) $family->getZip(),
                 'country' => (string) $family->getCountry(),
                 'homePhone' => (string) $family->getHomePhone(),
+                // Deprecated in 7.9.0 and read-only (FamilyEmailDeprecationMiddleware).
+                'email' => $showFamilyEmail ? (string) $emailRecipient->getEmail() : '',
                 'weddingDate' => (string) ($family->getWeddingdate('Y-m-d') ?? ''),
             ],
             'members' => $members,

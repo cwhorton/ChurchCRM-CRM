@@ -818,7 +818,8 @@ class Family extends BaseFamily implements PhotoInterface
     public function toArray(string $keyType = TableMap::TYPE_PHPNAME, bool $includeLazyLoadColumns = true, array $alreadyDumpedObjects = [], bool $includeForeignObjects = false): array
     {
         $array = parent::toArray($keyType, $includeLazyLoadColumns, $alreadyDumpedObjects, $includeForeignObjects);
-        unset($array[FamilyTableMap::translateFieldName('Email', TableMap::TYPE_PHPNAME, $keyType)]);
+        // Deprecated in 7.9.0 and read-only (FamilyEmailDeprecationMiddleware); removed with the column.
+        $array[FamilyTableMap::translateFieldName('Email', TableMap::TYPE_PHPNAME, $keyType)] = (string) $this->getEmailRecipient()?->getEmail();
         $array['Address'] = $this->getAddress();
         $array['FamilyString'] = $this->getFamilyString();
         // Additive, read-only mailing-address resolution (#9743). `Address` stays the
