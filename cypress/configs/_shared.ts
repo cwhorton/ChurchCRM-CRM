@@ -193,7 +193,7 @@ export const htaccessTasks = {
  * MAILPIT_URL wins; otherwise MAILSERVER_GUI_PORT (which an isolated local
  * stack sets alongside DATABASE_PORT) on localhost; otherwise Mailpit's 8025.
  */
-function mailpitBaseUrl(): string {
+export function mailpitBaseUrl(): string {
   if (process.env.MAILPIT_URL) {
     return process.env.MAILPIT_URL.replace(/\/+$/, '');
   }
