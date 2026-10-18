@@ -72,7 +72,7 @@ describe("Admin → Member Portal → Sign-in", () => {
         cy.freshAdminFormLogin();
         cy.visit("/admin/member-portal#portal-signin");
         cy.get("#bMemberSignIn").should("be.disabled").and("not.be.checked");
-        cy.get("#memberSignInEmailProblem").should("be.visible").find("a").should("have.attr", "href").and("include", "/v2/email/dashboard");
+        cy.get("#memberSignInEmailProblem").should("be.visible").find("a").should("have.attr", "href").and("include", "/admin/email");
     });
 
     it("lets an administrator disable and enable a person's sign-in from the person page", () => {

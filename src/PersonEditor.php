@@ -5,6 +5,7 @@ require_once __DIR__ . '/Include/PageInit.php';
 
 use ChurchCRM\Authentication\AuthenticationManager;
 use ChurchCRM\data\Countries;
+use ChurchCRM\data\States;
 use ChurchCRM\dto\Photo;
 use ChurchCRM\dto\SystemConfig;
 use ChurchCRM\dto\SystemURLs;
@@ -417,7 +418,7 @@ if (isset($_POST['PersonSubmit']) || isset($_POST['PersonSubmitAndAdd'])) {
             ->setAddress1($sAddress1)
             ->setAddress2($sAddress2)
             ->setCity($sCity)
-            ->setState($sState)
+            ->setState(States::keepStoredIfSame($sCountry, $person->getState(), $sState))
             ->setZip($sZip)
             ->setCountry(Countries::keepStoredIfSame($person->getCountry(), $sCountry))
             ->setHomePhone($sHomePhone)
@@ -846,8 +847,7 @@ require_once __DIR__ . '/Include/Header.php';
                         <?= gettext('Zip Code') ?>:
                         <?= $bFamilyZip ? '</span>' : '' ?>
                     </label>
-                    <input type="text" name="Zip" id="Zip" class="form-control"
-                           <?= SystemConfig::getBooleanValue('bForceUppercaseZip') ? 'style="text-transform:uppercase"' : '' ?>
+                    <input type="text" name="Zip" id="Zip" class="form-control<?= SystemConfig::getBooleanValue('bForceUppercaseZip') ? ' text-uppercase' : '' ?>"
                            value="<?= InputUtils::escapeAttribute(stripslashes($sZip)) ?>"
                            maxlength="10">
                 </div>
@@ -966,7 +966,7 @@ require_once __DIR__ . '/Include/Header.php';
                                    maxlength="100" class="form-control"<?= $bEmailLocked ? ' readonly aria-describedby="EmailHint"' : ($sEmailHint !== '' ? ' aria-describedby="EmailHint"' : '') ?>>
                         </div>
                         <?php if ($sEmailHint !== '') { ?>
-                            <div class="form-hint" id="EmailHint"><?= InputUtils::escapeHTML($sEmailHint) ?></div>
+                            <div class="form-text" id="EmailHint"><?= InputUtils::escapeHTML($sEmailHint) ?></div>
                         <?php } ?>
                         <?php if ($sEmailError) { ?>
                             <span class="text-danger small"><?= $sEmailError ?></span>

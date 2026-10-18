@@ -6,10 +6,11 @@ import { humanClick, humanSelect } from './human';
 import { rememberedMemberContext, useMemberSignIn } from './member-sign-in';
 
 /**
- * Volunteer Management v2 fixture for the volunteer captures. V2 is off on a
- * fresh install, so the seed turns it on in Admin → Ministry Settings and
- * builds a "Hospitality" ministry through the volunteer API; removeVolunteerSeed()
- * takes both back out, because every workflow shares one database.
+ * Volunteer Management v2 fixture for the volunteer captures. The demo import
+ * turns V2 on and brings a "Hospitality" ministry of its own; the seed replaces it
+ * with this one, built through the volunteer API, because the recording changes its
+ * staffing and the screenshots need it as seeded. removeVolunteerSeed() takes it
+ * back out, because every workflow shares one database.
  *
  * Volunteers are demo people looked up by their demo email, from families no
  * other spec uses. Emily Evans signs in to the Member Portal with her email.

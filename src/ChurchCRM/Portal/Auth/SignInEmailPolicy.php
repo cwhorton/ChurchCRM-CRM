@@ -23,6 +23,7 @@ use ChurchCRM\Portal\MemberLanguage;
 use ChurchCRM\Portal\PortalSelfService;
 use ChurchCRM\Service\RateLimiter;
 use ChurchCRM\Utils\DateTimeUtils;
+use ChurchCRM\Utils\InputUtils;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Propel\Runtime\ActiveQuery\Criteria;
@@ -159,6 +160,19 @@ final class SignInEmailPolicy
             $connection->rollBack();
 
             throw $e;
+        }
+
+        if ($channel === EmailChangeChannel::STAFF && $actor?->isAdmin() === true && $this->needsAdministrator($person)) {
+            $note = new Note();
+            $note->setPerId($personId);
+            $note->setType('edit');
+            $note->setEntered((int) $actor->getId());
+            $note->setText(sprintf(
+                gettext('Email changed by an administrator from %1$s to %2$s'),
+                InputUtils::escapeHTML($oldEmail),
+                InputUtils::escapeHTML($newEmail)
+            ));
+            $note->save();
         }
 
         SignInAudit::record(

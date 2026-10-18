@@ -11,7 +11,7 @@
         <?= gettext('An administrator can give any permission to one person on that person\'s page. "Given by an administrator" then shows here, with the number of people who were given it.') ?>
     </p>
     <div class="card">
-        <div style="overflow-x: clip; overflow-y: visible;">
+        <div class="table-clip-x">
             <table class="table table-vcenter card-table" id="portalPermissionsTable">
                 <thead>
                     <tr>

@@ -24,7 +24,7 @@ Load `skill-architecture.md` only when adding or editing a skill.
 | [Slim MVC Skill](./slim-mvc-skill.md) | Slim apps under `src/` |
 | [Configuration Management](./configuration-management.md) | SystemConfig |
 | [Settings Placement](./settings-placement.md) | Where a setting lives, area admin hub |
-| [Volunteer Management v2 Design](./volunteer-v2-design.md) | Ministries / Volunteer v2 |
+| [Volunteer Management v2](./volunteer-v2.md) | Ministries / Volunteer v2 (full design: `docs/design/volunteer-v2.md`) |
 | [Member Portal Design](./member-portal-design.md) | `/portal` and themes |
 
 ## Database
@@ -45,7 +45,6 @@ Row actions: [`table-action-menu.md`](./table-action-menu.md). Settings UI: copy
 | [Frontend Development](./frontend-development.md) | UI changes |
 | [Timezone Handling](./timezone-handling.md) | Event / kiosk time |
 | [Responsive Design Guidelines](./responsive-design-guidelines.md) | Layout |
-| [Tabler Components](./tabler-components.md) | Tabler markup |
 | [Webpack & TypeScript](./webpack-typescript.md) | Bundling |
 | [i18n & Localization](./i18n-localization.md) | Wrap UI strings |
 | [Locale Translation](./locale-translation-workflow.md) | Translation agents |
@@ -91,6 +90,8 @@ Row actions: [`table-action-menu.md`](./table-action-menu.md). Settings UI: copy
 | [PHP Best Practices](./php-best-practices.md) | PHP / Perpl |
 | [Performance Optimization](./performance-optimization.md) | Queries |
 
+Community feedback policy (Feature Proposals and RFC Reviews Discussions): [`docs/decisions/0003-rfc-community-prioritization.md`](../../../docs/decisions/0003-rfc-community-prioritization.md).
+
 ## Process
 
 | Skill | When to Use |
@@ -99,6 +100,7 @@ Row actions: [`table-action-menu.md`](./table-action-menu.md). Settings UI: copy
 | [Release Management](./release-management.md) | Release preparation and verification |
 | [Maintainer Review Gates](./maintainer-review-gates.md) | Review a PR |
 | [PR Review](./pr-review.md) | Standards checklist |
+| [Dependabot PR Review](./dependabot-review.md) | `/dependabot-review <PR>`: npm or Composer upgrade review |
 | [PR Review Fix](../pr-review-fix.md) | Address review comments |
 | [Skill architecture](./skill-architecture.md) | Edit a skill |
 | [PR Description Guidelines](../pr-description-guidelines.md) | Title / body |

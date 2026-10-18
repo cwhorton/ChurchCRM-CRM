@@ -157,7 +157,7 @@ $removeButton = static function (string $class, string $dataName, int $id, strin
                             </optgroup>
                         <?php endforeach; ?>
                     </select>
-                    <div class="form-hint" id="portal-grant-capability-hint"></div>
+                    <div class="form-text" id="portal-grant-capability-hint"></div>
                 </div>
                 <div class="mb-3 d-none" id="portal-grant-scope-group">
                     <label class="form-label required" for="portal-grant-scope" id="portal-grant-scope-label"></label>
@@ -167,12 +167,12 @@ $removeButton = static function (string $class, string $dataName, int $id, strin
                 <div class="mb-3">
                     <label class="form-label" for="portal-grant-ends"><?= gettext('Last day') ?></label>
                     <input type="date" class="form-control" id="portal-grant-ends" name="endsOn">
-                    <div class="form-hint"><?= gettext('Leave empty to keep it until someone removes it.') ?></div>
+                    <div class="form-text"><?= gettext('Leave empty to keep it until someone removes it.') ?></div>
                 </div>
                 <div>
                     <label class="form-label required" for="portal-grant-reason"><?= gettext('Reason') ?></label>
                     <textarea class="form-control" id="portal-grant-reason" name="reason" rows="2" maxlength="255" required></textarea>
-                    <div class="form-hint"><?= gettext('Only administrators see the reason.') ?></div>
+                    <div class="form-text"><?= gettext('Only administrators see the reason.') ?></div>
                 </div>
                 <div class="invalid-feedback d-block" id="portal-grant-error"></div>
             </div>

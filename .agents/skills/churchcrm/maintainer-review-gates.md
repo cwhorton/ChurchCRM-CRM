@@ -10,6 +10,8 @@ Draft the GitHub review in chat as normal Markdown (the text that would be poste
 
 If the PR author is the same GitHub user the agent is acting as, do not post a review comment. Fix the branch instead.
 
+Issue sizing and contributor readiness are defined in [`docs/contributing/issue-readiness.md`](../../../docs/contributing/issue-readiness.md). Use that guide for scope, epic decomposition, and `good first issue` readiness; this file remains authoritative for PR hard blocks and follow-ups.
+
 Passing this checklist does not mean the PR should merge.
 
 Leave CI status out of the review; branch protection owns it.
@@ -44,7 +46,7 @@ The "Verified" + "No hard blocks" signal replaces an all-checked checkbox list.
 1. Security — XSS, injection, auth gaps, CSRF, open redirect, data leak, unsafe URL rendered to members.
 2. Performance — extra queries or heavy work on login, people list, or other common paths, unless measured as fine.
 3. Existing installs — required new fields with no default, surprise behavior, destructive migration, surprise permission change.
-4. UI that does not match Tabler / Bootstrap 5, or a UI change with **no manual tablet/mobile pass stated**. Missing screenshots alone is not a hard block if the author (or reviewer) will still do that pass. Tiny tweaks can follow up.
+4. UI that breaks `frontend-development.md` (not Tabler / Bootstrap: a new static `style=""`, page `<style>` block, Bootstrap 4 class name, hard-coded light-theme colour, or a dropped `@media` rule), or a UI change with **no manual pass stated** in light and dark at desktop, tablet and phone. Missing screenshots alone is not a hard block if the author (or reviewer) will still do that pass. Tiny tweaks can follow up.
 5. Localization wrap — new user-visible strings not in `gettext()` / `i18next.t()`. Translations and `locale:build` come after merge.
 6. Locale-sensitive values — dates, times, numbers, currency, or timezone that ignore ChurchCRM conventions. See below.
 7. Tests — feature or bug fix with no new or updated tests.

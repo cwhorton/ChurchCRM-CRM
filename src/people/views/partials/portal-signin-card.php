@@ -112,7 +112,7 @@ use ChurchCRM\Utils\InputUtils;
                     <p><?= gettext('This person can no longer sign in anywhere, to the Member Portal or as staff. Every session ends, and their remembered devices and passkeys are removed.') ?></p>
                     <label class="form-label required" for="portal-signin-disable-reason"><?= gettext('Reason') ?></label>
                     <textarea class="form-control" id="portal-signin-disable-reason" name="reason" rows="3" maxlength="255" required></textarea>
-                    <div class="form-hint"><?= gettext('Only administrators see the reason.') ?></div>
+                    <div class="form-text"><?= gettext('Only administrators see the reason.') ?></div>
                     <div class="invalid-feedback d-block" id="portal-signin-disable-error"></div>
                 </div>
                 <div class="modal-footer">
