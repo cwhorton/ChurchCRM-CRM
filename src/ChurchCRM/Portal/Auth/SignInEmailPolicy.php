@@ -22,6 +22,7 @@ use ChurchCRM\model\ChurchCRM\UserQuery;
 use ChurchCRM\Portal\MemberLanguage;
 use ChurchCRM\Portal\PortalSelfService;
 use ChurchCRM\Service\RateLimiter;
+use ChurchCRM\Service\RememberedDeviceService;
 use ChurchCRM\Utils\DateTimeUtils;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -149,7 +150,7 @@ final class SignInEmailPolicy
                 $devicesRevoked = PersonDeviceQuery::create()
                     ->filterByPersonId($personId)
                     ->filterByRevokedAt(null, Criteria::ISNULL)
-                    ->update(['RevokedAt' => $now->format('Y-m-d H:i:s')], $connection);
+                    ->update(RememberedDeviceService::revokedValues($now), $connection);
             } elseif ($state instanceof PersonSignin && $state->getUnconfirmedEmail() !== null) {
                 $this->clearUnconfirmed($state);
                 $state->save($connection);

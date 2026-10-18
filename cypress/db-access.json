@@ -117,6 +117,10 @@
             "kind": "fixture",
             "reason": "Member sign-in row 13 (#10463): opens the member rule for a spec that acts as a member and puts the seed's settings back after it; members have no account to sign in with since the cutover."
         },
+        "cypress/support/remembered-device.js": {
+            "kind": "fixture",
+            "reason": "Member sign-in (#10463): ends the one-minute grace of a remembered device's replaced token, so specs need not wait it out; the server still decides what an ended grace means."
+        },
         "cypress/support/sign-in-throttle.js": {
             "kind": "fixture",
             "reason": "Ends a sign-in throttle window (#10197) so specs need not wait out a 15-minute lockout; the server still decides what an ended window means."
