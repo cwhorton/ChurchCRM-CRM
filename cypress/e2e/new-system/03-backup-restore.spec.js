@@ -26,7 +26,8 @@ describe('03 - Backup and Restore', () => {
         cy.visit('/login');
         cy.get('input[name=User]').type(adminCredentials.username);
         cy.get('input[name=Password]').type(password + '{enter}');
-        cy.location('pathname', { timeout: 15000 }).should('not.eq', '/admin/');
+        cy.get('[aria-label="Open user menu"]', { timeout: 15000 }).should('exist');
+        cy.get('#UserBox, #PasswordBox').should('not.exist');
     };
 
     describe('Step 6: Create Backup', () => {
