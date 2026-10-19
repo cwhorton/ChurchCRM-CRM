@@ -45,7 +45,7 @@ describe("Admin → Member Portal → Sign-in", () => {
 
         cy.get("#iMemberSignInMinAge").clear().type("16");
         cy.get("#iRememberDeviceDays").clear().type("0");
-        cy.get("#bAllowLoginAsUser").check();
+        cy.get("#bAllowLoginAsPerson").check();
         cy.get("#memberSignInSaveButton").click();
         cy.get("#memberSignInStatus").should("contain.text", "Saved.");
         cy.get('[data-error-for="iMemberSignInMinAge"]').should("be.empty");
@@ -54,7 +54,7 @@ describe("Admin → Member Portal → Sign-in", () => {
         cy.get("#memberSignInClassification-3").should("be.checked");
         cy.get("#iMemberSignInMinAge").should("have.value", "16");
         cy.get("#iRememberDeviceDays").should("have.value", "0");
-        cy.get("#bAllowLoginAsUser").should("be.checked");
+        cy.get("#bAllowLoginAsPerson").should("be.checked");
     });
 
     it("adds people to the office list by name", () => {

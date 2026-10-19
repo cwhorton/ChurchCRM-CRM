@@ -20,8 +20,8 @@ export const SIGN_IN_MEMBERS = [
   'nancy.robinson@demo.churchcrm.io',
 ];
 
-/** No user account, so Login as User may open his portal. */
-export const LOGIN_AS_USER_SUBJECT = 'george.carter@demo.churchcrm.io';
+/** No user account, so Login as Person may open his portal. */
+export const LOGIN_AS_PERSON_SUBJECT = 'george.carter@demo.churchcrm.io';
 
 /** A 19-year-old son: the rules give him no family contacts, so an administrator might. */
 export const GRANT_SUBJECT = 'george.scott1@demo.churchcrm.io';
@@ -43,7 +43,7 @@ async function setConfig(api: APIRequestContext, name: string, value: string): P
 
 /**
  * Email through the stack's Mailpit, and member sign-in on for the Member and
- * Regular Attender classifications, with Login as User allowed. Returns the
+ * Regular Attender classifications, with Login as Person allowed. Returns the
  * step that puts every setting back, so later captures see the instance as it
  * was.
  */
@@ -62,7 +62,7 @@ export async function useMemberSignIn(api: APIRequestContext): Promise<() => Pro
     bEnabledEmail: '1',
     sMemberSignInClassifications: ticked.join(','),
     iMemberSignInRequestsPerIP: '1000',
-    bAllowLoginAsUser: '1',
+    bAllowLoginAsPerson: '1',
     bMemberSignIn: '1',
   };
   const saved: Record<string, string> = {};
