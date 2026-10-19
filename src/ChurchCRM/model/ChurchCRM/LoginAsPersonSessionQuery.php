@@ -8,21 +8,21 @@
 
 namespace ChurchCRM\model\ChurchCRM;
 
-use ChurchCRM\model\ChurchCRM\Base\LoginAsUserSessionQuery as BaseLoginAsUserSessionQuery;
+use ChurchCRM\model\ChurchCRM\Base\LoginAsPersonSessionQuery as BaseLoginAsPersonSessionQuery;
 
 /**
- * Skeleton subclass for performing query and update operations on the 'login_as_user_session_las' table.
+ * Skeleton subclass for performing query and update operations on the 'login_as_person_session_lps' table.
  *
- * One row per Login as User session (member sign-in design §6.5): the administrator acting (actor), the person signed in as (subject), when it started and ended, and why it ended: stop, signout, timeout or ended
+ * One row per Login as Person session (member sign-in design §6.5): the administrator acting (actor), the person signed in as (subject), when it started and ended, and why it ended: stop, signout, timeout or ended
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
  * long as it does not already exist in the output directory.
  *
  * @template ParentQuery extends \Propel\Runtime\ActiveQuery\TypedModelCriteria|null = null
- * @extends BaseLoginAsUserSessionQuery<ParentQuery>
+ * @extends BaseLoginAsPersonSessionQuery<ParentQuery>
  */
-class LoginAsUserSessionQuery extends BaseLoginAsUserSessionQuery
+class LoginAsPersonSessionQuery extends BaseLoginAsPersonSessionQuery
 {
 
 }

@@ -275,7 +275,7 @@ describe("7.9.0 upgrade: what the removed self-service account leaves behind", (
         "note_nte WHERE nte_EnteredBy = ? OR nte_EditedBy = ?",
         "email_log_eml WHERE eml_usr_ID = ?",
         "portal_signin_audit_psa WHERE psa_per_ID = ? OR psa_Actor_usr_ID = ?",
-        "login_as_user_session_las WHERE las_per_ID = ?",
+        "login_as_person_session_lps WHERE lps_per_ID = ?",
         "volunteer_qualification_vqal WHERE vqal_per_ID = ?",
         "volunteer_scope_vscp WHERE vscp_per_ID = ?",
         "volunteer_assignment_vasg WHERE vasg_per_ID = ?",
@@ -295,7 +295,7 @@ describe("7.9.0 upgrade: what the removed self-service account leaves behind", (
             cy.clearCookies();
             cy.request({ method: "POST", url: "/admin/", form: true, body: { User: env["admin.username"], Password: env["admin.password"] } });
             return cy.request(`/people/view/${id.author}`).then(({ body }) => {
-                const sessions = [...body.matchAll(/data-cy="login-as-user-session"[^>]*>\s*<div class="fw-medium">\s*([^<]+?)\s*<\/div>/g)];
+                const sessions = [...body.matchAll(/data-cy="login-as-person-session"[^>]*>\s*<div class="fw-medium">\s*([^<]+?)\s*<\/div>/g)];
                 return sessions.map((match) => match[1]);
             });
         });
@@ -382,11 +382,11 @@ describe("7.9.0 upgrade: what the removed self-service account leaves behind", (
                 [id.subject, id.author],
             );
             db(
-                "INSERT INTO login_as_user_session_las (las_Actor_usr_ID, las_per_ID, las_Started, las_Ended, las_EndReason) " +
+                "INSERT INTO login_as_person_session_lps (lps_Actor_usr_ID, lps_per_ID, lps_Started, lps_Ended, lps_EndReason) " +
                     "VALUES (1, ?, '2026-02-05 10:00:00', '2026-02-05 10:05:00', 'stop')",
                 [id.author],
             ).then(({ insertId }) =>
-                db("INSERT INTO login_as_user_action_laa (laa_las_ID, laa_Time, laa_Method, laa_Path, laa_Status) VALUES (?, '2026-02-05 10:01:00', 'POST', '/api/portal/me', 200)", [
+                db("INSERT INTO login_as_person_action_lpa (lpa_lps_ID, lpa_Time, lpa_Method, lpa_Path, lpa_Status) VALUES (?, '2026-02-05 10:01:00', 'POST', '/api/portal/me', 200)", [
                     insertId,
                 ]),
             );
@@ -504,7 +504,7 @@ describe("7.9.0 upgrade: what the removed self-service account leaves behind", (
             .then((rows) => expect(rows.map((row) => row.personId)).to.include(id.author));
     });
 
-    it("keeps the Login as User history on the person's page", () => {
+    it("keeps the Login as Person history on the person's page", () => {
         expect(seen.history).to.have.length(1);
         expect(seen.history[0]).to.include(prefix);
         historyCard().should("deep.eq", seen.history);

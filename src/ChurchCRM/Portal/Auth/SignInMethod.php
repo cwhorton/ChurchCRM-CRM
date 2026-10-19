@@ -31,7 +31,7 @@ enum SignInMethod: string
         return $this !== self::STAFF && $this !== self::ASSISTED;
     }
 
-    /** Login as User leaves the member's sign-in times, method and activity alone (§6.5). */
+    /** Login as Person leaves the member's sign-in times, method and activity alone (§6.5). */
     public function updatesSignInRecord(): bool
     {
         return $this !== self::ASSISTED;
@@ -66,7 +66,7 @@ enum SignInMethod: string
             self::DEVICE => gettext('Remembered device'),
             self::PASSKEY => gettext('Passkey'),
             self::STAFF => gettext('From a staff sign-in'),
-            self::ASSISTED => gettext('Login as User'),
+            self::ASSISTED => gettext('Login as Person'),
         };
     }
 }

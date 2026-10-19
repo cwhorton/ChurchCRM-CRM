@@ -291,8 +291,8 @@ class   SystemConfig
             'iRememberDeviceDays'                  => new ConfigItem('iRememberDeviceDays', 'number', '30', gettext('How many days a device stays signed in to the Member Portal after the member chooses to stay signed in. Set to 0 to remove the choice.')),
             'bPortalPasskeys'                      => new ConfigItem('bPortalPasskeys', 'boolean', '1', gettext('Let members add passkeys and sign in to the Member Portal with them.')),
             'sMemberSignInNotificationRecipientIDs' => new ConfigItem('sMemberSignInNotificationRecipientIDs', 'text', '', gettext('People to email when someone could not sign in to the Member Portal')),
-            'bAllowLoginAsUser'                    => new ConfigItem('bAllowLoginAsUser', 'boolean', '0', gettext('Let administrators open a member\'s Member Portal as that member, from the person\'s Actions menu.')),
-            'bLoginAsUserCanWrite'                 => new ConfigItem('bLoginAsUserCanWrite', 'boolean', '0', gettext('Allow changes while an administrator uses Login as User. When off, Login as User is read-only.')),
+            'bAllowLoginAsPerson'                  => new ConfigItem('bAllowLoginAsPerson', 'boolean', '0', gettext('Let administrators open a member\'s Member Portal as that member, from the person\'s Actions menu.')),
+            'bLoginAsPersonCanWrite'               => new ConfigItem('bLoginAsPersonCanWrite', 'boolean', '0', gettext('Allow changes while an administrator uses Login as Person. When off, Login as Person is read-only.')),
             // Set by the 7.9.0 upgrade (design §12): how many self-service accounts it
             // removed. The Admin Dashboard asks to turn member sign-in on while it is
             // above 0; dismissing the notice or turning sign-in on sets it to 0.

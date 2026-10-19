@@ -3,10 +3,10 @@
 namespace ChurchCRM\Portal\Auth;
 
 /**
- * How a Login as User session ended, as `las_EndReason` stores it (member
+ * How a Login as Person session ended, as `lps_EndReason` stores it (member
  * sign-in design §6.5). The stored values never change once released.
  */
-enum LoginAsUserEndReason: string
+enum LoginAsPersonEndReason: string
 {
     case STOP = 'stop';
     case SIGN_OUT = 'signout';

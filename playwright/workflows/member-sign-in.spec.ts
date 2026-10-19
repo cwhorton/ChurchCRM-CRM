@@ -10,7 +10,7 @@ import {
   forgetDevicesAndPasskeys,
   freshContext,
   GRANT_SUBJECT,
-  LOGIN_AS_USER_SUBJECT,
+  LOGIN_AS_PERSON_SUBJECT,
   SIGN_IN_MEMBERS,
   signInAsStaffAdmin,
   signInFirstMember,
@@ -239,7 +239,7 @@ test('person-portal-give-permission', async ({ page }, testInfo) => {
 });
 
 test('people-family-email-card', async ({ page }, testInfo) => {
-  const carter = await findDemoPerson(api, LOGIN_AS_USER_SUBJECT);
+  const carter = await findDemoPerson(api, LOGIN_AS_PERSON_SUBJECT);
   await page.goto(`/people/family/${carter.familyId}`);
   await expect(page.locator('#family-email-card [data-family-adult-email]')).toHaveCount(2);
   await keepInView(page, '#family-email-card');
@@ -277,27 +277,27 @@ test.describe('in a browser of its own', () => {
     });
   });
 
-  test('portal-login-as-user', async ({ browser }, testInfo) => {
-    const george = await findDemoPerson(api, LOGIN_AS_USER_SUBJECT);
+  test('portal-login-as-person', async ({ browser }, testInfo) => {
+    const george = await findDemoPerson(api, LOGIN_AS_PERSON_SUBJECT);
     context = await freshContext(browser);
     const page = await context.newPage();
     await signInAsStaffAdmin(page);
     await page.goto(`/people/view/${george.personId}`);
     await humanClick(page.locator('#person-actions-dropdown'));
-    await humanClick(page.locator('a#loginAsUser'));
+    await humanClick(page.locator('a#loginAsPerson'));
     await humanClick(page.locator('.bootbox .btn-warning'));
     await page.waitForURL(/\/portal\/$/, { timeout: 30000 });
-    await expect(page.locator('#login-as-user-banner')).toBeVisible();
+    await expect(page.locator('#login-as-person-banner')).toBeVisible();
     await settle(page, 800);
 
     await captureScreen(page, testInfo, {
-      name: 'portal-login-as-user',
-      title: 'Login as User in the Member Portal',
+      name: 'portal-login-as-person',
+      title: 'Login as Person in the Member Portal',
       category: 'People & Families',
       purpose: "An administrator sees a member's portal as they do, read-only, with Stop always in view.",
     });
 
-    await humanClick(page.locator('#login-as-user-stop'));
+    await humanClick(page.locator('#login-as-person-stop'));
     await page.waitForURL(new RegExp(`/people/view/${george.personId}`), { timeout: 30000 });
   });
 });

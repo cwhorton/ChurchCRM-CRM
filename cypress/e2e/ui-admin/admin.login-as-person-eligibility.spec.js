@@ -2,7 +2,7 @@
 
 import { db } from "../../support/member-sign-in";
 
-// Login as User eligibility (#10463 row 12, docs/member-sign-in-design.md §6.5, §17):
+// Login as Person eligibility (#10463 row 12, docs/member-sign-in-design.md §6.5, §17):
 // only deceased, Disable sign-in and a staff account refuse it, at the start and on
 // every request after it. Everything else that stops a member signing in does not.
 const MEMBER = 2; // Mathew Campbell
@@ -14,8 +14,8 @@ const TURNER_FAMILY = 23;
 const SHARED_EMAIL = 114; // Boby Hall, whose email ten other people have too
 const ADMIN = 1;
 const SETTINGS = [
-    "bAllowLoginAsUser",
-    "bLoginAsUserCanWrite",
+    "bAllowLoginAsPerson",
+    "bLoginAsPersonCanWrite",
     "bMemberSignIn",
     "sMemberSignInFamilyRoles",
     "sMemberSignInClassifications",
@@ -44,11 +44,11 @@ const signInAsAdmin = () =>
             .should("eq", 302);
     });
 
-const startLoginAsUser = (personId) =>
+const startLoginAsPerson = (personId) =>
     cy.request(`/people/view/${personId}`).then(({ body }) =>
         cy.request({
             method: "POST",
-            url: `/admin/api/person/${personId}/login-as-user`,
+            url: `/admin/api/person/${personId}/login-as-person`,
             headers: { "X-CSRF-Token": body.match(/data-csrf-token="([^"]+)"/)[1] },
             body: {},
             failOnStatusCode: false,
@@ -59,17 +59,17 @@ const expectPortalPages = (name) => {
     ["/portal/", "/portal/profile"].forEach((url) => {
         cy.request({ url, followRedirect: false }).then((response) => {
             expect(response.status, url).to.eq(200);
-            expect(response.body, url).to.include(`You are logged in as ${name}.`);
+            expect(response.body, url).to.include(`logged in as ${name} in the Member Portal (read-only).`);
         });
     });
 };
 
-const stopLoginAsUser = () =>
+const stopLoginAsPerson = () =>
     cy.request("/portal/").then(({ body }) =>
         cy
             .request({
                 method: "POST",
-                url: "/portal/login-as-user/stop",
+                url: "/portal/login-as-person/stop",
                 form: true,
                 body: { csrf_token: body.match(/name="csrf_token" value="([^"]+)"/)[1] },
                 followRedirect: false,
@@ -79,9 +79,9 @@ const stopLoginAsUser = () =>
     );
 
 const opensAndStops = (personId, name) => {
-    startLoginAsUser(personId).its("status").should("eq", 200);
+    startLoginAsPerson(personId).its("status").should("eq", 200);
     expectPortalPages(name);
-    stopLoginAsUser();
+    stopLoginAsPerson();
 };
 
 const newestAuditId = (personId) =>
@@ -95,7 +95,7 @@ const auditSince = (personId, afterId) =>
             .map((row) => ({ event: row.event, reason: row.reason, actorId: row.actorId })),
     );
 
-describe("Login as User eligibility", () => {
+describe("Login as Person eligibility", () => {
     const saved = {};
 
     before(() => {
@@ -107,8 +107,8 @@ describe("Login as User eligibility", () => {
     });
 
     beforeEach(() => {
-        setSetting("bAllowLoginAsUser", "1");
-        setSetting("bLoginAsUserCanWrite", "0");
+        setSetting("bAllowLoginAsPerson", "1");
+        setSetting("bLoginAsPersonCanWrite", "0");
         signInAsAdmin();
     });
 
@@ -169,7 +169,7 @@ describe("Login as User eligibility", () => {
     describe("refuses at the start, and ends an open session on the next request", () => {
         const endsOnNextRequest = (block, stored, message) => {
             newestAuditId(TARGET).then((afterId) => {
-                startLoginAsUser(TARGET).its("status").should("eq", 200);
+                startLoginAsPerson(TARGET).its("status").should("eq", 200);
                 expectPortalPages("Jean Hart");
                 block();
                 cy.request({ url: "/portal/profile", followRedirect: false }).then((response) => {
@@ -184,10 +184,10 @@ describe("Login as User eligibility", () => {
                     ]);
 
                 cy.visit(`/people/view/${TARGET}`);
-                cy.get("#login-as-user-history [data-cy=login-as-user-session]")
+                cy.get("#login-as-person-history [data-cy=login-as-person-session]")
                     .first()
                     .should("contain", "Ended by a change to their sign-in");
-                startLoginAsUser(TARGET).then((response) => {
+                startLoginAsPerson(TARGET).then((response) => {
                     expect(response.status).to.eq(403);
                     expect(response.body.message).to.include(message);
                 });
@@ -204,7 +204,7 @@ describe("Login as User eligibility", () => {
 
         it("Disable sign-in", () => {
             endsOnNextRequest(
-                () => admin("POST", `admin/api/person/${TARGET}/sign-in/disable`, { reason: "Login as User eligibility spec" }),
+                () => admin("POST", `admin/api/person/${TARGET}/sign-in/disable`, { reason: "Login as Person eligibility spec" }),
                 "sign_in_disabled",
                 "Sign-in is disabled for this person.",
             );

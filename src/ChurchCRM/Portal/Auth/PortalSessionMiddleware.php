@@ -39,7 +39,7 @@ use Throwable;
  *    through the shared step (§6.4);
  *  - otherwise starts a DEVICE session from a remembered device's cookie, and
  *    replaces its token (§6.2);
- *  - records the activity, except during Login as User.
+ *  - records the activity, except during Login as Person.
  *
  * A STAFF principal outlives its staff session's own timeout: from then on it
  * is a portal session like any other, and staff routes refuse it.
@@ -53,12 +53,12 @@ final class PortalSessionMiddleware implements MiddlewareInterface
     private const ACTIVITY_WRITE_SECONDS = 60;
 
     /** @var array{personId: int, timedOut: bool}|null */
-    private ?array $endedLoginAsUser = null;
+    private ?array $endedLoginAsPerson = null;
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         PortalContext::reset();
-        $this->endedLoginAsUser = null;
+        $this->endedLoginAsPerson = null;
 
         if ($request->getHeaderLine('x-api-key') !== '') {
             throw new HttpForbiddenException(
@@ -69,10 +69,10 @@ final class PortalSessionMiddleware implements MiddlewareInterface
 
         $staffUser = PortalContext::activeStaffUser();
         [$principal, $person, $state] = $this->currentSession($staffUser);
-        if ($this->endedLoginAsUser !== null) {
+        if ($this->endedLoginAsPerson !== null) {
             PortalContext::set(null, null, null);
 
-            return $this->loginAsUserEnded($request, $this->endedLoginAsUser);
+            return $this->loginAsPersonEnded($request, $this->endedLoginAsPerson);
         }
 
         if ($staffUser instanceof User && !$principal instanceof PortalPrincipal) {
@@ -145,7 +145,7 @@ final class PortalSessionMiddleware implements MiddlewareInterface
         if ($reason === null && $deviceId !== null && RememberedDeviceService::isSignedOut($deviceId)) {
             $reason = SignInReason::DEVICE_REMOVED;
         }
-        if ($reason === null && $principal->isAssisted() && !LoginAsUser::keepStaffSessionAlive()) {
+        if ($reason === null && $principal->isAssisted() && !LoginAsPerson::keepStaffSessionAlive()) {
             $reason = SignInReason::IDLE;
         }
 
@@ -159,8 +159,8 @@ final class PortalSessionMiddleware implements MiddlewareInterface
                 $principal->actorUserId,
             );
             if ($principal->isAssisted()) {
-                LoginAsUser::endedByPortal($reason);
-                $this->endedLoginAsUser = ['personId' => $principal->personId, 'timedOut' => $reason === SignInReason::IDLE];
+                LoginAsPerson::endedByPortal($reason);
+                $this->endedLoginAsPerson = ['personId' => $principal->personId, 'timedOut' => $reason === SignInReason::IDLE];
             }
 
             return [null, null, null];
@@ -175,7 +175,7 @@ final class PortalSessionMiddleware implements MiddlewareInterface
      *
      * @param array{personId: int, timedOut: bool} $ended
      */
-    private function loginAsUserEnded(ServerRequestInterface $request, array $ended): ResponseInterface
+    private function loginAsPersonEnded(ServerRequestInterface $request, array $ended): ResponseInterface
     {
         if (!$this->isBrowserRequest($request)) {
             $response = new Response();
@@ -204,7 +204,7 @@ final class PortalSessionMiddleware implements MiddlewareInterface
 
     /**
      * A staff session on this browser owns the portal session only when it is
-     * that person's STAFF principal, or that administrator's Login as User.
+     * that person's STAFF principal, or that administrator's Login as Person.
      * Anything else was left by somebody else and is replaced.
      */
     private static function belongsToStaffSession(PortalPrincipal $principal, User $staffUser): bool

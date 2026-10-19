@@ -19,7 +19,7 @@ use Throwable;
  * them (`psi_Language`). Unset, or set to a language this installation no
  * longer ships, it is the church's `sLanguage`.
  *
- * A member session (an email, device or passkey sign-in) and Login as User use
+ * A member session (an email, device or passkey sign-in) and Login as Person use
  * the person's language. A staff session opening the portal keeps the staff
  * account's own `ui.locale` setting, so it has no choice here.
  */
@@ -32,7 +32,7 @@ final class MemberLanguage
     private static ?array $names = null;
 
     /**
-     * The locale of this browser's member or Login as User session, or null for
+     * The locale of this browser's member or Login as Person session, or null for
      * none and for a staff session, which keeps the staff account's setting.
      */
     public static function forSession(): ?string

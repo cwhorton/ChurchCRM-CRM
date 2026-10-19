@@ -26,7 +26,7 @@ final class PortalSignInRules
         }
 
         if ($method === SignInMethod::ASSISTED) {
-            return self::loginAsUserRefusal($person, $state);
+            return self::loginAsPersonRefusal($person, $state);
         }
 
         $blocked = Person::signInBlockedReasonFor(
@@ -48,12 +48,12 @@ final class PortalSignInRules
     }
 
     /**
-     * Login as User checks only these, at the start and on every request (design
+     * Login as Person checks only these, at the start and on every request (design
      * §6.5): the office may need to see what an inactive person, a deactivated
      * family, someone awaiting review or outside the member rule, or someone with
      * no usable email would see, even while member sign-in is off.
      */
-    private static function loginAsUserRefusal(Person $person, ?PersonSignin $state): ?SignInReason
+    private static function loginAsPersonRefusal(Person $person, ?PersonSignin $state): ?SignInReason
     {
         if (!empty($person->getDateDeceased())) {
             return SignInReason::DECEASED;
