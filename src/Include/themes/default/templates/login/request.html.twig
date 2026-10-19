@@ -10,8 +10,7 @@
   on the email box. portal-passkeys.min.js shows them when the browser can,
   and posts the passkey's answer in `#portalPasskeyForm`.
 
-  Variables: `pageTitle`, `email`, `emailError`, `loginUrl`, `staffSignInUrl`,
-  `passkeySignIn`.
+  Variables: `pageTitle`, `email`, `emailError`, `loginUrl`, `passkeySignIn`.
 #}
 
 {% block nav %}{% endblock %}
@@ -59,8 +58,6 @@
         <input type="hidden" name="userHandle">
     </form>
     {% endif %}
-
-    {% include 'login/staff-link.html.twig' %}
 </div>
 {% endblock %}
 

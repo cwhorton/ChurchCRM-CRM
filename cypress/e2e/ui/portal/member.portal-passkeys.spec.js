@@ -68,6 +68,7 @@ const signInWithPasskey = () => {
 const expectPasskeyRefused = () => {
     cy.get("#portalSignInFailed").should("be.visible");
     cy.get("#portalSignInFailedPasskey").should("contain.text", "sign in with your email address");
+    cy.get("#portalStaffSignIn").should("not.exist");
     cy.request({ url: "/portal/", followRedirect: false }).its("status").should("eq", 302);
 };
 
