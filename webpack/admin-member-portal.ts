@@ -298,6 +298,20 @@ function wireSettingsPanels(): void {
     ],
   });
 
+  panel("#portalDirectorySectionPanel", {
+    title: t("Directory section"),
+    icon: "fa-solid fa-address-book",
+    settings: [
+      {
+        name: "bPortalShowDirectory",
+        type: "boolean",
+        label: t("Show the member directory"),
+        tooltip: t("Show the Directory page in the Member Portal to the classifications chosen below."),
+      },
+    ],
+    onSave: () => void loadPermissionsCatalog(),
+  });
+
   // Both switches feed the catalog's On/Off column, so it is redrawn after a save.
   panel("#portalMemberFeaturesPanel", {
     title: t("What members can use"),
@@ -493,6 +507,53 @@ function wireSignInTab(): void {
 }
 
 /** Open the tab a link points at, such as /admin/member-portal#portal-signin. */
+function collectDirectorySettings(form: HTMLFormElement): Record<string, unknown> {
+  const ticked = (name: string): number[] =>
+    Array.from(form.querySelectorAll<HTMLInputElement>(`input[name="${name}"]:checked`), (input) =>
+      Number(input.value),
+    );
+  const fields: Record<string, boolean> = {};
+  for (const input of form.querySelectorAll<HTMLInputElement>('input[name="fields"]')) {
+    fields[input.value] = input.checked;
+  }
+  const choice = (name: string): string => form.querySelector<HTMLSelectElement>(`select[name="${name}"]`)?.value ?? "";
+
+  return {
+    listed: ticked("listed"),
+    viewers: ticked("viewers"),
+    fields,
+    birthday: choice("birthday"),
+    anniversary: choice("anniversary"),
+    browse: form.querySelector<HTMLInputElement>('input[name="browse"]:checked')?.value !== "0",
+  };
+}
+
+async function saveDirectorySettings(form: HTMLFormElement): Promise<void> {
+  const response = await fetch(`${root()}/admin/api/member-portal/directory`, {
+    method: "POST",
+    headers: { "content-type": "application/json", "X-CSRF-Token": csrfToken() },
+    body: JSON.stringify(collectDirectorySettings(form)),
+  });
+
+  if (!response.ok) {
+    const body: { message?: string } | null = await response.json().catch(() => null);
+    window.CRM?.notify?.(body?.message || t("Failed to save settings"), { type: "error", delay: 5000 });
+    return;
+  }
+
+  window.CRM?.notify?.(t("Settings saved successfully"), { type: "success", delay: 2000 });
+  void loadPermissionsCatalog();
+}
+
+function wireDirectoryTab(): void {
+  const form = document.getElementById("portalDirectoryForm");
+  if (!(form instanceof HTMLFormElement)) {
+    return;
+  }
+  form.addEventListener("change", () => void saveDirectorySettings(form));
+  form.addEventListener("submit", (event) => event.preventDefault());
+}
+
 function openTabFromHash(): void {
   const hash = window.location.hash;
   if (!/^#portal-[a-z-]+$/.test(hash)) {
@@ -513,6 +574,7 @@ function start(): void {
   wireMembersTab();
   wirePermissionsTab();
   wireAuditTab();
+  wireDirectoryTab();
   openTabFromHash();
   window.addEventListener("hashchange", openTabFromHash);
   document.getElementById("portal-statistics-tab")?.addEventListener("click", () => {
