@@ -19,7 +19,7 @@ Define the `ConfigItem` in `SystemConfig::buildConfigs()` (that persists the val
 
 The booleans auto-save through `POST /admin/api/system/config/{name}`. `sMemberPortalTheme` saves through `POST /admin/api/member-portal/theme`, which runs `ThemeManager::validate()` and answers 409 with the findings when the theme cannot render.
 
-The **Sign-in** tab owns the keys in `MemberSignInSettingsService::KEYS` and saves them through `POST /admin/api/member-portal/sign-in`, all or none. The generic config API routes those keys through the same `normalize()`, so a rule such as "member sign-in only while email works" holds whichever way a value is written.
+The **Sign-in** tab owns the keys in `MemberSignInSettingsService::KEYS`. Each control saves as it changes by posting that one key to `POST /admin/api/member-portal/sign-in` (any subset, all or none); a refused value goes back to the saved one, and turning member sign-in on or off asks first. The generic config API routes those keys through the same `normalize()`, so a rule such as "member sign-in only while email works" holds whichever way a value is written.
 
 ## SystemConfig
 
