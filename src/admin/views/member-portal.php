@@ -498,8 +498,15 @@ $themesDocUrl = SystemURLs::attributed('https://docs.churchcrm.io/administration
 
         <!-- ============================ Calendars =========================== -->
         <div class="tab-pane fade" id="portal-calendars" role="tabpanel">
-            <div id="portalCalendarSectionPanel" class="mb-3"></div>
-
+            <?php $calendarShared = array_filter($portalCalendars, static fn (array $portalCalendar): bool => $portalCalendar['visible']) !== []; ?>
+            <p class="fw-medium mb-2" id="portalCalendarsRule">
+                <span class="portal-calendars-rule-shown<?= $calendarShared ? '' : ' d-none' ?>">
+                    <i class="fa-solid fa-calendar-check text-success me-2"></i><?= gettext('Members see the Calendar page while at least one calendar is switched on.') ?>
+                </span>
+                <span class="portal-calendars-rule-hidden<?= $calendarShared ? ' d-none' : '' ?>">
+                    <i class="fa-solid fa-eye-slash text-secondary me-2"></i><?= gettext('No calendar is switched on, so members do not see the Calendar page.') ?>
+                </span>
+            </p>
             <p class="text-secondary" id="portalCalendarsLead">
                 <?= gettext('Members see only the calendars switched on here. Birthdays and anniversaries show first names and last initials only.') ?>
             </p>

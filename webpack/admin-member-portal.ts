@@ -3,16 +3,17 @@
  *
  * The tabs are rendered server-side; this bundle adds what needs the browser:
  *
- *   1. three Settings Panels for the portal ConfigItems, each in the tab it
+ *   1. Settings Panels for the portal ConfigItems, each in the tab it
  *      belongs to, saving through POST /admin/api/system/config/{name}:
- *      the calendar switch (Calendars), Developer mode (Themes), and the
- *      birthday and volunteering switches (Permissions);
+ *      Developer mode (Themes), the birthday and volunteering switches
+ *      (Permissions) and the directory switch (Directory);
  *   2. the Themes tab's row actions: Check re-runs the validator and Activate
  *      goes through POST /admin/api/member-portal/theme so the validator can
  *      refuse. Either one shows what it found in the row under that theme;
  *   3. a refresh of the statistics numbers when that tab is opened;
  *   4. the Calendars tab's switches, each saved as it changes through
- *      POST /admin/api/member-portal/calendars;
+ *      POST /admin/api/member-portal/calendars. Members see the Calendar
+ *      page while at least one calendar is switched on;
  *   5. the Sign-in tab's controls, each saved as it changes by posting that one
  *      setting to POST /admin/api/member-portal/sign-in. A refused value is put
  *      back to the saved one, so the page only ever shows what the server kept.
@@ -273,19 +274,6 @@ function wireSettingsPanels(): void {
     }
   };
 
-  panel("#portalCalendarSectionPanel", {
-    title: t("Calendar section"),
-    icon: "fa-solid fa-calendar-days",
-    settings: [
-      {
-        name: "bPortalShowCalendar",
-        type: "boolean",
-        label: t("Show the church calendar"),
-        tooltip: t("Show the church calendar section in the Member Portal."),
-      },
-    ],
-  });
-
   panel("#portalDeveloperModePanel", {
     title: t("Theme development"),
     icon: "fa-solid fa-code",
@@ -365,6 +353,16 @@ async function postJSON<T>(
 
 const calendarKey = (type: string, id: number): string => `${type}:${id}`;
 
+/** The line above the list: whether members see the Calendar page at all. */
+function paintCalendarRule(shared: boolean): void {
+  const rule = document.getElementById("portalCalendarsRule");
+  if (!rule) {
+    return;
+  }
+  rule.querySelector(".portal-calendars-rule-shown")?.classList.toggle("d-none", !shared);
+  rule.querySelector(".portal-calendars-rule-hidden")?.classList.toggle("d-none", shared);
+}
+
 function calendarRows(): HTMLTableRowElement[] {
   return Array.from(document.querySelectorAll<HTMLTableRowElement>(`#${CALENDARS_TABLE_ID} tr[data-calendar-type]`));
 }
@@ -429,7 +427,9 @@ function wireCalendarControls(): void {
         saved.add(calendarKey(choice.type, choice.id));
       }
     }
+    paintCalendarRule(saved.size > 0);
     notifySaved();
+    void loadPermissionsCatalog();
   };
 
   table.addEventListener("change", (event) => {

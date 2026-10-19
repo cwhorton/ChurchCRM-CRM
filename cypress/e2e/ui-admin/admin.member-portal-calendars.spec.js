@@ -114,6 +114,27 @@ describe("Admin → Member Portal → Calendars", () => {
         );
     });
 
+    it("Says above the list whether members see the Calendar page, and has no section switch", () => {
+        openCalendarsTab();
+        cy.get("#portalCalendarSectionPanel").should("not.exist");
+        cy.get("#portalCalendarsRule .portal-calendars-rule-hidden")
+            .should("be.visible")
+            .and("contain.text", "No calendar is switched on, so members do not see the Calendar page.");
+        cy.get("#portalCalendarsRule .portal-calendars-rule-shown").should("not.be.visible");
+
+        calendarRow(CHURCH_CALENDAR_NAME).find(".portal-calendar-switch").check();
+        cy.wait("@saveCalendars");
+        cy.get("#portalCalendarsRule .portal-calendars-rule-shown")
+            .should("be.visible")
+            .and("contain.text", "Members see the Calendar page while at least one calendar is switched on.");
+        cy.get("#portalCalendarsRule .portal-calendars-rule-hidden").should("not.be.visible");
+
+        calendarRow(CHURCH_CALENDAR_NAME).find(".portal-calendar-switch").uncheck();
+        cy.wait("@saveCalendars");
+        cy.get("#portalCalendarsRule .portal-calendars-rule-hidden").should("be.visible");
+        cy.get("#portalCalendarsRule .portal-calendars-rule-shown").should("not.be.visible");
+    });
+
     it("Church, ministry and system calendars are each listed under their own kind", () => {
         openCalendarsTab();
 

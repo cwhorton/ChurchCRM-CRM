@@ -175,14 +175,14 @@ Administrators only, under People Settings (breadcrumb and header button), one p
 - **Sign-in, Members, Audit:** member sign-in settings, the member lists and the sign-in audit (member sign-in design).
 - **Permissions:** the portal permissions (member sign-in design), under a "What members can use" panel for `bPortalAllowBirthdayEdit` and `bPortalShowVolunteer`.
 - **Themes:** discovered folders (`listThemes()`, "System default" first) with display name, author, overridden-template count and validation badge. Each row's Check and Activate show their findings under that row; activation goes through `POST /admin/api/member-portal/theme` so it can refuse. Developer mode sits below the list.
-- **Calendars:** `bPortalShowCalendar` on top switches the whole section; below it, one list of church calendars, ministry calendars and system calendars with a "Show in Member Portal" switch each.
+- **Calendars:** one list of church calendars, ministry calendars and system calendars with a "Show in Member Portal" switch each, saved as it changes. Members see the Calendar page, its nav entry, its API and the home card (`portal.calendar.view`, Twig `portal.showCalendar`) while at least one calendar is switched on; a line above the list says which.
 - **Directory:** `bPortalShowDirectory` on top; below it the classifications that are listed and the ones that may see it (both Member by default), the printed directory's "Information to Include" checkboxes, Birthday and Wedding Anniversary as "Show with year", "Show without year" (default) or "Do not show", and the search method: "Browse the full directory" (default) or "Search only". Changes auto-save through `POST /admin/api/member-portal/directory`, which `PortalDirectoryService::save()` validates.
 
-The five booleans use the Settings Panel component and auto-save through `POST /admin/api/system/config/{name}`.
+The four booleans use the Settings Panel component and auto-save through `POST /admin/api/system/config/{name}`. The Sign-in tab saves each control as it changes; every tab says "Changes save as you make them" and has no Save button.
 
 Admin APIs: `/admin/api/member-portal/{stats,themes,theme/{name}/validation,theme,calendars,directory}`.
 
-Config items: `sMemberPortalTheme`, `bPortalDeveloperMode`, `bPortalShowCalendar`, `bPortalShowVolunteer`, `bPortalAllowBirthdayEdit`, `bPortalShowDirectory`, `aPortalCalendars`, `aPortalDirectory`.
+Config items: `sMemberPortalTheme`, `bPortalDeveloperMode`, `bPortalShowVolunteer`, `bPortalAllowBirthdayEdit`, `bPortalShowDirectory`, `aPortalCalendars`, `aPortalDirectory`.
 
 ## Screens and APIs
 
