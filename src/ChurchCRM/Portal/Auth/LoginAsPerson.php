@@ -51,7 +51,7 @@ final class LoginAsPerson
         return SystemConfig::getBooleanValue('bLoginAsPersonCanWrite');
     }
 
-    /** Why an administrator may not log in as this person, or null: deceased, Disable sign-in or a staff account. */
+    /** Why an administrator may not log in as this person, or null: member sign-in off, deceased, Disable sign-in or a staff account. */
     public static function refusalFor(Person $person): ?SignInReason
     {
         return PortalSignInRules::refusalReason($person, PersonSigninQuery::create()->findPk($person->getId()), SignInMethod::ASSISTED);
@@ -67,6 +67,7 @@ final class LoginAsPerson
     public static function refusalMessage(SignInReason $reason): string
     {
         return match ($reason) {
+            SignInReason::MEMBER_SIGN_IN_OFF => gettext('Member sign-in is off.'),
             SignInReason::DECEASED => gettext('This person is deceased.'),
             SignInReason::SIGN_IN_DISABLED => gettext('Sign-in is disabled for this person.'),
             SignInReason::STAFF_ACCOUNT => gettext('This person has a staff account. Login as Person never opens a staff account.'),
@@ -151,7 +152,8 @@ final class LoginAsPerson
 
     /**
      * `PortalSessionMiddleware` ended the ASSISTED principal. Idle time ends the
-     * administrator's waiting staff session too; any other reason returns them to it.
+     * administrator's waiting staff session too; any other reason returns them to
+     * it, and their next staff page says why.
      */
     public static function endedByPortal(SignInReason $reason): void
     {
@@ -165,7 +167,9 @@ final class LoginAsPerson
 
             return;
         }
-        self::finish($record, LoginAsPersonEndReason::ENDED, true);
+        self::finish($record, $reason === SignInReason::MEMBER_SIGN_IN_OFF ? LoginAsPersonEndReason::MEMBER_SIGN_IN_OFF : LoginAsPersonEndReason::ENDED, true);
+        $_SESSION['sGlobalMessage'] = sprintf(gettext('Login as Person ended: %s'), self::refusalMessage($reason));
+        $_SESSION['sGlobalMessageClass'] = 'warning';
     }
 
     /** The PHP session is being destroyed (sign-out, or a staff session that ended). */

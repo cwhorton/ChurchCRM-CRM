@@ -4,7 +4,7 @@
 // the member's own language, so the administrator sees what the member sees, and
 // read-only Login as Person cannot change that language.
 const MEMBER = 2; // Mathew Campbell, head of the Campbell family
-const SETTINGS = ["bAllowLoginAsPerson", "bLoginAsPersonCanWrite"];
+const SETTINGS = ["bAllowLoginAsPerson", "bLoginAsPersonCanWrite", "bMemberSignIn"];
 
 const admin = (method, url, body = null, status = 200) => cy.makePrivateAdminAPICall(method, url, body, status);
 

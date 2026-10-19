@@ -57,11 +57,28 @@ const auditSince = (personId, afterId) =>
 
 const newestSession = () => cy.get("#login-as-person-history [data-cy=login-as-person-session]").first();
 
+const expectGrayedOutAndRefused = (personId, reason, stored) => {
+    cy.visit(`/people/view/${personId}`);
+    cy.get("#person-actions-dropdown").click();
+    cy.get("#loginAsPerson").should("have.class", "disabled").and("have.attr", "aria-disabled", "true");
+    cy.get("#loginAsPersonRefusal").should("have.attr", "title").and("include", reason);
+
+    newestAuditId(personId).then((afterId) => {
+        startLoginAsPerson(personId).then((response) => {
+            expect(response.status).to.eq(403);
+            expect(response.body.message).to.include(reason);
+        });
+        auditSince(personId, afterId).should("deep.equal", [
+            { event: "refused", method: "assisted", reason: stored, actorId: ADMIN },
+        ]);
+    });
+};
+
 describe("Login as Person", () => {
     const saved = {};
 
     before(() => {
-        ["bAllowLoginAsPerson", "bLoginAsPersonCanWrite"].forEach((name) => {
+        ["bAllowLoginAsPerson", "bLoginAsPersonCanWrite", "bMemberSignIn"].forEach((name) => {
             cy.getSystemConfig(name).then((value) => {
                 saved[name] = value;
             });
@@ -72,6 +89,7 @@ describe("Login as Person", () => {
     beforeEach(() => {
         setSetting("bAllowLoginAsPerson", "1");
         setSetting("bLoginAsPersonCanWrite", "0");
+        setSetting("bMemberSignIn", "1");
         cy.freshAdminFormLogin();
     });
 
@@ -97,22 +115,12 @@ describe("Login as Person", () => {
             [STAFF, "This person has a staff account.", "staff_account"],
             [ADMIN, "This person has a staff account.", "staff_account"],
         ];
-        cases.forEach(([personId, reason, stored]) => {
-            cy.visit(`/people/view/${personId}`);
-            cy.get("#person-actions-dropdown").click();
-            cy.get("#loginAsPerson").should("have.class", "disabled").and("have.attr", "aria-disabled", "true");
-            cy.get("#loginAsPersonRefusal").should("have.attr", "title").and("include", reason);
+        cases.forEach(([personId, reason, stored]) => expectGrayedOutAndRefused(personId, reason, stored));
+    });
 
-            newestAuditId(personId).then((afterId) => {
-                startLoginAsPerson(personId).then((response) => {
-                    expect(response.status).to.eq(403);
-                    expect(response.body.message).to.include(reason);
-                });
-                auditSince(personId, afterId).should("deep.equal", [
-                    { event: "refused", method: "assisted", reason: stored, actorId: ADMIN },
-                ]);
-            });
-        });
+    it("grays the item out and refuses the start while member sign-in is off", () => {
+        setSetting("bMemberSignIn", "0");
+        expectGrayedOutAndRefused(MEMBER, "Member sign-in is off.", "member_sign_in_off");
     });
 
     it("leaves the item on for an inactive person", () => {

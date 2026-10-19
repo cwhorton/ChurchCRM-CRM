@@ -378,6 +378,10 @@ $app->get('/view/{personID:[0-9]+}', function (Request $request, Response $respo
         }
     }
 
+    // PageInit.php (required above) took the previous request's message, e.g. why
+    // Login as Person ended, out of the session; Footer.php shows it.
+    global $sGlobalMessage, $sGlobalMessageClass;
+
     // ── Render ───────────────────────────────────────────────────────────────
     $renderer = new PhpRenderer(__DIR__ . '/../views/');
 
@@ -439,10 +443,12 @@ $app->get('/view/{personID:[0-9]+}', function (Request $request, Response $respo
         'portalSignInIsSelf'     => $iPersonID === (int) $currentUser->getPersonId(),
         'portalSignInCsrfToken'  => $portalSignIn === null ? '' : CSRFUtils::generateToken(),
         // Login as Person: the Actions item (null while off or for non-admins) and the history card
-        'loginAsPerson'            => $loginAsPerson,
-        'loginAsPersonHistory'     => $loginAsPersonHistory,
+        'loginAsPerson'          => $loginAsPerson,
+        'loginAsPersonHistory'   => $loginAsPersonHistory,
         'portalAccess'           => $portalAccess,
         'portalGrantChoices'     => $portalGrantChoices,
+        'sGlobalMessage'         => $sGlobalMessage ?? '',
+        'sGlobalMessageClass'    => $sGlobalMessageClass ?? 'success',
     ];
 
     return $renderer->render($response, 'person-view.php', $pageArgs);

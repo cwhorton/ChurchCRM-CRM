@@ -13,7 +13,7 @@ use ChurchCRM\model\ChurchCRM\Base\LoginAsPersonSessionQuery as BaseLoginAsPerso
 /**
  * Skeleton subclass for performing query and update operations on the 'login_as_person_session_lps' table.
  *
- * One row per Login as Person session (member sign-in design §6.5): the administrator acting (actor), the person signed in as (subject), when it started and ended, and why it ended: stop, signout, timeout or ended
+ * One row per Login as Person session (member sign-in design §6.5): the administrator acting (actor), the person signed in as (subject), when it started and ended, and why it ended: stop, signout, timeout, ended or signin_off
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as

@@ -1957,7 +1957,7 @@
     </table>
 
     <table name="login_as_person_session_lps" idMethod="native" phpName="LoginAsPersonSession"
-           description="One row per Login as Person session (member sign-in design §6.5): the administrator acting (actor), the person signed in as (subject), when it started and ended, and why it ended: stop, signout, timeout or ended">
+           description="One row per Login as Person session (member sign-in design §6.5): the administrator acting (actor), the person signed in as (subject), when it started and ended, and why it ended: stop, signout, timeout, ended or signin_off">
         <column name="lps_ID" phpName="Id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
         <column name="lps_Actor_usr_ID" phpName="ActorUserId" type="SMALLINT" size="9" sqlType="mediumint(9) unsigned" required="true"/>
         <column name="lps_per_ID" phpName="PersonId" type="SMALLINT" size="9" sqlType="mediumint(9) unsigned" required="true"/>

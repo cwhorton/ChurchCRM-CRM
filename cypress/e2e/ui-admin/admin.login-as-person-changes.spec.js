@@ -8,7 +8,7 @@ import { db } from "../../support/member-sign-in";
 const MEMBER = 2; // Mathew Campbell, head of the Campbell family
 const ADMIN = 1;
 const DEVICE_TOKEN = "c".repeat(64);
-const SETTINGS = ["bAllowLoginAsPerson", "bLoginAsPersonCanWrite", "sVolunteerVersion", "iSessionTimeout"];
+const SETTINGS = ["bAllowLoginAsPerson", "bLoginAsPersonCanWrite", "bMemberSignIn", "sVolunteerVersion", "iSessionTimeout"];
 const REFUSED = "Changes are turned off during Login as Person.";
 
 const admin = (method, url, body = null, status = 200) => cy.makePrivateAdminAPICall(method, url, body, status);
@@ -101,6 +101,7 @@ describe("Login as Person: changes and endings", () => {
     beforeEach(() => {
         setSetting("bAllowLoginAsPerson", "1");
         setSetting("bLoginAsPersonCanWrite", "0");
+        setSetting("bMemberSignIn", "1");
         setSetting("sVolunteerVersion", "v2");
         signInAsAdmin();
     });

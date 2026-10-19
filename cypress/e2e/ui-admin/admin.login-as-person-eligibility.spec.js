@@ -3,9 +3,9 @@
 import { db } from "../../support/member-sign-in";
 
 // Login as Person eligibility (#10463 row 12, docs/member-sign-in-design.md §6.5, §17):
-// only deceased, Disable sign-in and a staff account refuse it, at the start and on
-// every request after it. Everything else that stops a member signing in does not.
-const MEMBER = 2; // Mathew Campbell
+// only deceased, Disable sign-in, a staff account and member sign-in turned off refuse
+// it, at the start and on every request after it. Everything else that stops a member
+// signing in does not.
 const CHILD = 5; // Albert Campbell, a child of the Campbell family
 const TARGET = 9; // Jean Hart
 const INACTIVE = 10; // Tom Hart
@@ -109,6 +109,7 @@ describe("Login as Person eligibility", () => {
     beforeEach(() => {
         setSetting("bAllowLoginAsPerson", "1");
         setSetting("bLoginAsPersonCanWrite", "0");
+        setSetting("bMemberSignIn", "1");
         signInAsAdmin();
     });
 
@@ -158,16 +159,10 @@ describe("Login as Person eligibility", () => {
             signInStatus(SHARED_EMAIL).its("reason").should("eq", "shared_email");
             opensAndStops(SHARED_EMAIL, "Boby Hall");
         });
-
-        it("anyone while member sign-in is off", () => {
-            setSetting("bMemberSignIn", "0");
-            signInStatus(MEMBER).its("memberSignInEnabled").should("eq", false);
-            opensAndStops(MEMBER, "Mathew Campbell");
-        });
     });
 
     describe("refuses at the start, and ends an open session on the next request", () => {
-        const endsOnNextRequest = (block, stored, message) => {
+        const endsOnNextRequest = (block, stored, message, ended = "Ended by a change to their sign-in") => {
             newestAuditId(TARGET).then((afterId) => {
                 startLoginAsPerson(TARGET).its("status").should("eq", 200);
                 expectPortalPages("Jean Hart");
@@ -184,9 +179,10 @@ describe("Login as Person eligibility", () => {
                     ]);
 
                 cy.visit(`/people/view/${TARGET}`);
+                cy.contains(".notyf__toast", `Login as Person ended: ${message}`).should("be.visible");
                 cy.get("#login-as-person-history [data-cy=login-as-person-session]")
                     .first()
-                    .should("contain", "Ended by a change to their sign-in");
+                    .should("contain", ended);
                 startLoginAsPerson(TARGET).then((response) => {
                     expect(response.status).to.eq(403);
                     expect(response.body.message).to.include(message);
@@ -207,6 +203,15 @@ describe("Login as Person eligibility", () => {
                 () => admin("POST", `admin/api/person/${TARGET}/sign-in/disable`, { reason: "Login as Person eligibility spec" }),
                 "sign_in_disabled",
                 "Sign-in is disabled for this person.",
+            );
+        });
+
+        it("member sign-in turned off", () => {
+            endsOnNextRequest(
+                () => setSetting("bMemberSignIn", "0"),
+                "member_sign_in_off",
+                "Member sign-in is off.",
+                "Ended when member sign-in was turned off",
             );
         });
 
