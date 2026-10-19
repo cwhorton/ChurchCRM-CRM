@@ -33,8 +33,8 @@ use Throwable;
  *
  *  - refuses API keys: the portal acts only for the session's own person;
  *  - reloads the person and their sign-in row, and ends the portal session when
- *    the rules no longer hold, the session version changed, or it sat idle for
- *    `iPortalIdleMinutes`;
+ *    the rules no longer hold, the session version changed, it sat idle for
+ *    `iPortalIdleMinutes`, or it is a member's session and member sign-in is off;
  *  - turns a signed-in staff session into a STAFF principal for its own person
  *    through the shared step (§6.4);
  *  - otherwise starts a DEVICE session from a remembered device's cookie, and
@@ -68,7 +68,8 @@ final class PortalSessionMiddleware implements MiddlewareInterface
         }
 
         $staffUser = PortalContext::activeStaffUser();
-        [$principal, $person, $state] = $this->currentSession($staffUser);
+        $memberSignInOn = EmailSignInService::isEnabled();
+        [$principal, $person, $state] = $this->currentSession($staffUser, $memberSignInOn);
         if ($this->endedLoginAsPerson !== null) {
             PortalContext::set(null, null, null);
 
@@ -88,7 +89,9 @@ final class PortalSessionMiddleware implements MiddlewareInterface
         }
 
         $deviceToken = null;
-        if (!$principal instanceof PortalPrincipal && !$staffUser instanceof User && RememberedDeviceCookie::isPresent($request) && EmailSignInService::isEnabled()) {
+        // Checked before resume(), which replaces the token and signs the device out
+        // when the shared step refuses: a device waits while member sign-in is off.
+        if (!$principal instanceof PortalPrincipal && !$staffUser instanceof User && RememberedDeviceCookie::isPresent($request) && $memberSignInOn) {
             $deviceToken = (new RememberedDeviceService())->resume(RememberedDeviceCookie::read($request));
             if (!$deviceToken instanceof RememberedDeviceToken) {
                 PortalContext::set(null, null, null);
@@ -121,7 +124,7 @@ final class PortalSessionMiddleware implements MiddlewareInterface
      *
      * @return array{0: PortalPrincipal|null, 1: Person|null, 2: PersonSignin|null}
      */
-    private function currentSession(?User $staffUser): array
+    private function currentSession(?User $staffUser, bool $memberSignInOn): array
     {
         $principal = PortalSessionStore::load();
         if (!$principal instanceof PortalPrincipal) {
@@ -132,6 +135,9 @@ final class PortalSessionMiddleware implements MiddlewareInterface
         $state = PersonSigninQuery::create()->findPk($principal->personId);
 
         $reason = PortalSignInRules::refusalReason($person, $state, $principal->method);
+        if ($reason === null && !$memberSignInOn && $principal->method->appliesMemberRule()) {
+            $reason = SignInReason::MEMBER_SIGN_IN_OFF;
+        }
         if ($reason === null && $principal->sessionVersion !== ($state instanceof PersonSignin ? (int) $state->getSessionVersion() : 0)) {
             $reason = SignInReason::SESSION_VERSION;
         }

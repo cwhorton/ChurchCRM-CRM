@@ -23,8 +23,9 @@ enum SignInMethod: string
     }
 
     /**
-     * STAFF gets the blocks for everyone but not the member rule (§4, §6.4).
-     * ASSISTED gets neither: only its own checks (`PortalSignInRules`, §6.5).
+     * The member ways in, which need the member rule and member sign-in on.
+     * STAFF gets the blocks for everyone but neither of these (§4, §6.4).
+     * ASSISTED gets only its own checks (`PortalSignInRules`, §6.5).
      */
     public function appliesMemberRule(): bool
     {
