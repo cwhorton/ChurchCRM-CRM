@@ -17,6 +17,10 @@
             "kind": "schema",
             "reason": "Migration spec for the 7.9.0 family email move (member sign-in row 11): the app no longer writes a family email, so the fixtures, the upgrade block and its marker table are reached in SQL."
         },
+        "cypress/e2e/api/private/admin/private.admin.portal-calendar-upgrade.spec.js": {
+            "kind": "schema",
+            "reason": "Migration spec for the 7.9.0 block that retires bPortalShowCalendar: the application no longer reads or writes the switch, so its pre-upgrade config row and the upgrade block are reached in SQL."
+        },
         "cypress/e2e/api/private/admin/private.admin.member-sign-in-cutover.spec.js": {
             "kind": "schema",
             "reason": "Migration spec for the 7.9.0 release-day cutover (member sign-in row 13): the application no longer makes self-service accounts, so the pre-upgrade accounts, their per-user rows, the history that names them and the upgrade block are reached in SQL."

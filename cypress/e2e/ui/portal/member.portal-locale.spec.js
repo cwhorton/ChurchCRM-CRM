@@ -99,10 +99,14 @@ before(() => {
 
 describe("Member Portal — the page's language", () => {
     let savedLanguage;
+    let savedCalendars;
 
     before(() => {
-        // The nav entries this spec reads are only there when their sections are on.
-        setConfig("bPortalShowCalendar", "1");
+        // The Calendar nav entry this spec reads is there while a calendar is shared.
+        cy.getMemberPortalCalendars().then((calendars) => {
+            savedCalendars = calendars;
+        });
+        cy.shareMemberPortalCalendars([{ type: "calendar", id: 1 }]);
         cy.getSystemConfig("sLanguage").then((value) => {
             savedLanguage = value;
         });
@@ -116,6 +120,7 @@ describe("Member Portal — the page's language", () => {
         db("UPDATE person_signin_psi SET psi_Language = NULL WHERE psi_per_ID IN (?, ?)", [LENA, ALICE]);
         setStaffLanguage("");
         cy.restoreSystemConfig("sLanguage", savedLanguage);
+        cy.then(() => cy.shareMemberPortalCalendars(savedCalendars));
     });
 
     it("renders the portal and the next page in the language the member picks", () => {

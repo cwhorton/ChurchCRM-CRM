@@ -458,3 +458,16 @@ WHERE r.`rlm_Bucket` IN ('signin.lockout', 'password-reset.account') AND u.`usr_
 DELETE FROM `user_usr` WHERE `usr_EditSelf` = 1 AND `usr_Admin` = 0;
 
 -- END: member sign-in row 13, release-day cutover
+
+-- ============================================================================
+-- BEGIN: member portal calendar follows the shared calendars
+-- ============================================================================
+-- bPortalShowCalendar is retired: the portal shows its calendar while at least
+-- one calendar is shared with members (aPortalCalendars). An install that had
+-- the switch off ('0' or '', as PHP reads it) keeps the calendar hidden by
+-- sharing none. Safe to run again.
+SET @portal_calendar_off = (SELECT COUNT(*) FROM `config_cfg`
+  WHERE `cfg_name` = 'bPortalShowCalendar' AND `cfg_value` IN ('', '0'));
+DELETE FROM `config_cfg` WHERE `cfg_name` = 'aPortalCalendars' AND @portal_calendar_off > 0;
+DELETE FROM `config_cfg` WHERE `cfg_name` = 'bPortalShowCalendar';
+-- END: member portal calendar follows the shared calendars
