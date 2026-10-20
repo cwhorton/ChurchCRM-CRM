@@ -29,10 +29,6 @@
             "kind": "fixture",
             "reason": "Member sign-in row 9 (#10463): shared and unconfirmed emails, past sign-in times, the 7.9.0 family email move rows, an emailed family confirmation and an old refusal are fixtures with no HTTP surface; the upgrade, the email link and row 10 write them."
         },
-        "cypress/e2e/api/private/admin/private.admin.member-sign-in-rule.spec.js": {
-            "kind": "fixture",
-            "reason": "Member sign-in row 4 (#10463): a head of household with no birth year and an unconfirmed address (row 11 writes it during the upgrade) have no HTTP surface; the person editor that sets a birth year is a legacy form."
-        },
         "cypress/e2e/api/private/admin/private.admin.portal-permissions.spec.js": {
             "kind": "fixture",
             "reason": "Member sign-in row 9 (#10463): remembered devices and passkeys are written by rows 7 and 8, so the removal fixtures are inserted; the staff and group membership counts are read to check the Permissions tab's holder counts independently."
