@@ -2,10 +2,11 @@
 // registered only by a WebAuthn ceremony in a browser, a remembered device takes
 // its label from the browser that chose to stay signed in, the family email
 // move rows come only from the 7.9.0 upgrade, a person waits for review only
-// after a registration or a member's proposal, and the profile page stores only a
-// language this installation ships. The rest is time passing: a given
-// permission's last day, an expired link or sign-in request, old audit rows and
-// past sign-ins. Each spec removes what it adds.
+// after a registration or a member's proposal, the give API refuses a grant an
+// older release or a dropped plugin capability left behind, and the profile page
+// stores only a language this installation ships. The rest is time passing: a
+// given permission's last day, an expired link or sign-in request, old audit
+// rows, past sign-ins and confirmations. Each spec removes what it adds.
 
 const FILE = "cypress/support/member-sign-in-fixtures.js";
 
