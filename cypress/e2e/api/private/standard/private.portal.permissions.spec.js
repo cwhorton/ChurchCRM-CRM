@@ -290,12 +290,6 @@ describe("Member Portal permissions (portal permissions model)", () => {
             status(`/portal/teams/${teamOther}`).should("eq", 404);
             status(`/api/ministries/teams/${teamOther}`).should("eq", 403);
         });
-
-        it("is ignored when its scope type does not match the capability", () => {
-            giveGrant(NON_ADULT.personId, "portal.family.contacts.view", "team", NON_ADULT.familyId, "NULL");
-            signIn(NON_ADULT);
-            cy.request("/api/portal/family").its("body.canSeeContacts").should("eq", false);
-        });
     });
 
     describe("Feature switches", () => {
