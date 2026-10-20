@@ -358,7 +358,7 @@ $app->get('/view/{personID:[0-9]+}', function (Request $request, Response $respo
         : null;
     // Its devices, passkeys and portal permissions: administrators only (§11.3, §8.6)
     $portalAccess = $portalSignIn !== null && $currentUser->isAdmin() ? (new PersonPortalAccessService())->forPerson($person) : null;
-    $portalGrantChoices = $portalAccess === null ? [] : PortalGrantService::givableCapabilities();
+    $portalGrantChoices = $portalAccess === null ? [] : PortalGrantService::givableCapabilitiesFor($iPersonID);
 
     // ── Login as Person (§6.5, §11.3): administrators only ───────────────────
     $loginAsPerson = null;
