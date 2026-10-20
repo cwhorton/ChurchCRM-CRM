@@ -45,17 +45,9 @@
             "kind": "fixture",
             "reason": "Member sign-in row 10 (#10463): an expired link, given grants, the proven email and the sign-in audit have no HTTP surface until rows 5 and 9."
         },
-        "cypress/e2e/api/private/standard/private.portal.permissions.spec.js": {
-            "kind": "fixture",
-            "reason": "Member sign-in row 2 (#10463): given portal grants, the session timeout behind a portal-only session, and a person's family role and birth year for the adult rule have no HTTP surface until row 9 adds the admin pages."
-        },
         "cypress/e2e/api/private/standard/private.portal.session.spec.js": {
             "kind": "fixture",
             "reason": "Member sign-in row 1 (#10463): Disable sign-in, the session version, the timeouts and the sign-in audit have no HTTP surface until rows 4 and 9 add the admin pages."
-        },
-        "cypress/e2e/api/private/standard/private.portal.signin-blocks.spec.js": {
-            "kind": "fixture",
-            "reason": "Member sign-in row 4 (#10463): awaiting review, remembered devices, passkeys, the session timeout and the sign-in audit have no HTTP surface until rows 7, 8 and 9."
         },
         "cypress/e2e/api/private/standard/private.portal.signin-schema.spec.js": {
             "kind": "schema",
