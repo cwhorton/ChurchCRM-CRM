@@ -3,7 +3,7 @@ import { verifyDownloadTasks } from 'cy-verify-downloads';
 import { registerRowCountGuard } from './row-count-guard';
 
 import base from './base.config'
-import { dbTasks, mailpitBaseUrl, mailTasks, pluginFixtureTasks } from './_shared'
+import { dbTasks, mailpitBaseUrl, mailTasks, pluginFixtureTasks, trackCurrentSpec } from './_shared'
 export default defineConfig({
   chromeWebSecurity: false,
   video: false,
@@ -80,6 +80,8 @@ export default defineConfig({
       // Test-database drift guard (#9769) — read-only row counts, plus the
       // env flag cypress/support/e2e.js checks before arming the guard.
       registerRowCountGuard(on, config);
+      // db:query and db:upgradeBlock answer only the files cypress/db-access.json lists (#10377).
+      trackCurrentSpec(on);
       on('before:browser:launch', (browser, launchOptions) => {
         if (browser.name === 'chrome') {
           launchOptions.args.push('--disable-dev-shm-usage');
