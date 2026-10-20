@@ -117,6 +117,10 @@
             "kind": "fixture",
             "reason": "Member sign-in row 5 (#10463): turns member sign-in on, ends the sign-in throttle windows and reads the sign-in audit and requests, none of which has an HTTP surface until row 9."
         },
+        "cypress/support/member-sign-in-fixtures.js": {
+            "kind": "fixture",
+            "reason": "Member sign-in (#10463, #10377): named fixtures for states no HTTP route writes (a passkey, which only a WebAuthn ceremony registers; a remembered device with a chosen label; the 7.9.0 family email move rows; a person awaiting review; a stored grant the give API refuses; a language the profile page no longer offers) and for time passing (a grant's last day, an expired link or sign-in request, old audit rows, past sign-ins and confirmations), with the resets that remove them."
+        },
         "cypress/support/member-session.js": {
             "kind": "fixture",
             "reason": "Member sign-in row 13 (#10463): opens the member rule for a spec that acts as a member and puts the seed's settings back after it; members have no account to sign in with since the cutover."
