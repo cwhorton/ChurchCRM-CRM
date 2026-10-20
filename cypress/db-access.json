@@ -128,8 +128,6 @@
     },
     "baseline": {
         "cypress/e2e/api/private/admin/private.volunteer.rollout.spec.js": 19,
-        "cypress/e2e/api/private/people/families.envelope-search.spec.js": 4,
-        "cypress/e2e/api/private/people/people.email-history.spec.js": 4,
         "cypress/e2e/api/private/standard/private.volunteer.anchored.spec.js": 90,
         "cypress/e2e/api/private/standard/private.volunteer.assignment.spec.js": 67,
         "cypress/e2e/api/private/standard/private.volunteer.authorization.spec.js": 45,
