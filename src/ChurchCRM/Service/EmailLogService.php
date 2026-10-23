@@ -4,6 +4,7 @@ namespace ChurchCRM\Service;
 
 use ChurchCRM\model\ChurchCRM\EmailLog;
 use ChurchCRM\model\ChurchCRM\EmailLogQuery;
+use ChurchCRM\model\ChurchCRM\FamilyQuery;
 use ChurchCRM\model\ChurchCRM\PersonQuery;
 use ChurchCRM\Utils\DateTimeUtils;
 use ChurchCRM\Utils\LoggerUtils;
