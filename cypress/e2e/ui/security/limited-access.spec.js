@@ -65,7 +65,7 @@ describe("Safety net — a self-service account the upgrade left behind", () => 
 
     it("Staff pages send it back to the portal", () => {
         login();
-        ["v2/dashboard", "people/dashboard", "PropertyList.php"].forEach((path) => {
+        ["v2/dashboard", "people/dashboard", "PropertyList.php", "LettersAndLabels.php"].forEach((path) => {
             cy.visit(path, { failOnStatusCode: false });
             cy.location("pathname", { timeout: 10000 }).should("eq", "/portal/");
         });

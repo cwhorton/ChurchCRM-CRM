@@ -3,6 +3,7 @@
 use ChurchCRM\Authentication\AuthenticationManager;
 use ChurchCRM\Authentication\Exceptions\PasswordChangeException;
 use ChurchCRM\data\Countries;
+use ChurchCRM\data\GradePresets;
 use ChurchCRM\dto\ChurchMetaData;
 use ChurchCRM\dto\LocaleInfo;
 use ChurchCRM\dto\SystemConfig;
@@ -14,6 +15,7 @@ use ChurchCRM\model\ChurchCRM\User;
 use ChurchCRM\model\ChurchCRM\UserQuery;
 use ChurchCRM\Service\AppIntegrityService;
 use ChurchCRM\Service\ClassificationService;
+use ChurchCRM\Service\GradeService;
 use ChurchCRM\Service\LocaleService;
 use ChurchCRM\Service\UserService;
 use ChurchCRM\Slim\Middleware\CSRFMiddleware;
@@ -92,6 +94,7 @@ $app->group('/system', function (RouteCollectorProxy $group): void {
         $listConfig = match ($mode) {
             'famroles' => ['listId' => 2, 'title' => gettext('Family Roles Editor'), 'noun' => gettext('Family Role')],
             'classes' => ['listId' => 1, 'title' => gettext('Person Classifications Editor'), 'noun' => gettext('Person Classification')],
+            'grades' => ['listId' => GradeService::listId(), 'title' => gettext('Grades Editor'), 'noun' => gettext('Grade')],
             'grptypes' => ['listId' => 3, 'title' => gettext('Group Types Editor'), 'noun' => gettext('Group Type')],
             'securitygrp' => ['listId' => 5, 'title' => gettext('Security Groups Editor'), 'noun' => gettext('Security Group')],
             'grproles' => $customListId > 0 && GroupQuery::create()->findOneByRoleListId($customListId) !== null
@@ -130,27 +133,32 @@ $app->group('/system', function (RouteCollectorProxy $group): void {
 
         $breadcrumbParent = match ($mode) {
             'grptypes', 'grproles', 'groupcustom' => [gettext('Groups'), '/groups/dashboard'],
-            'famroles', 'famcustom', 'classes', 'custom' => [gettext('People'), '/people/dashboard'],
+            'famroles', 'famcustom', 'classes', 'custom', 'grades' => [gettext('People'), '/people/dashboard'],
             default => [gettext('Admin'), '/admin/'],
         };
         $pageArgs = [
             'sRootPath' => SystemURLs::getRootPath(),
             'sPageTitle' => $listConfig['title'],
-            'sPageSubtitle' => sprintf(gettext('Manage %s options'), $listConfig['noun']),
+            'sPageSubtitle' => $mode === 'grades'
+                ? gettext('Every year each person moves to the next grade in this order, and the last grade is cleared.')
+                : sprintf(gettext('Manage %s options'), $listConfig['noun']),
             'aBreadcrumbs' => PageHeader::breadcrumbs(array_values(array_filter([
                 $breadcrumbParent,
-                in_array($mode, ['famroles', 'famcustom', 'classes', 'custom'], true)
+                in_array($mode, ['famroles', 'famcustom', 'classes', 'custom', 'grades'], true)
                     ? [gettext('People Settings'), '/admin/people']
                     : null,
                 [$listConfig['title']],
             ]))),
-            'sPageHeaderButtons' => in_array($mode, ['famroles', 'famcustom', 'classes', 'custom'], true) ? PageHeader::peopleSettingsButton() : '',
+            'sPageHeaderButtons' => in_array($mode, ['famroles', 'famcustom', 'classes', 'custom', 'grades'], true) ? PageHeader::peopleSettingsButton() : '',
             'mode' => $mode,
             'listId' => $listConfig['listId'],
             'noun' => $listConfig['noun'],
+            'addLabel' => $mode === 'grades' ? gettext('Add New Grade') : gettext('Add New') . ' ' . $listConfig['noun'],
             'optionRows' => $optionRows,
             'inactiveClasses' => $inactiveClasses,
             'directoryClasses' => $directoryClasses,
+            'gradePresets' => $mode === 'grades' ? array_map(static fn (array $preset): string => $preset['name'], GradePresets::all()) : [],
+            'currentGradePreset' => $mode === 'grades' ? GradeService::currentPresetKey() : '',
         ];
 
         return $renderer->render($response, 'option-manager.php', $pageArgs);
@@ -940,7 +948,7 @@ function adminUserEditorNew(Request $request, Response $response): Response
             $pageArgs['sUserName']        = '';
             $pageArgs['perms']            = ['admin' => 0, 'editSelf' => 0, 'addRecords' => 0,
                                              'editRecords' => 0, 'deleteRecords' => 0,
-                                             'menuOptions' => 0, 'manageGroups' => 0,
+                                             'manageGroups' => 0,
                                              'finance' => 0, 'manageFundraisers' => 0,
                                              'manageMinistries' => 0, 'manageMyMinistries' => 0, 'notes' => 0,
                                              'addEvent' => 0];
@@ -992,7 +1000,7 @@ function adminUserEditorNew(Request $request, Response $response): Response
     $pageArgs['perms'] = [
         'admin' => 0, 'editSelf' => 0, 'addRecords' => 0,
         'editRecords' => 0, 'deleteRecords' => 0,
-        'menuOptions' => 0, 'manageGroups' => 0,
+        'manageGroups' => 0,
         'finance' => 0, 'manageFundraisers' => 0, 'manageMinistries' => 0, 'manageMyMinistries' => 0, 'notes' => 0,
         'addEvent' => 0,
     ];
@@ -1080,7 +1088,6 @@ function adminUserEditorEdit(Request $request, Response $response, array $args):
         'addRecords'   => $user->getAddRecords(),
         'editRecords'  => $user->getEditRecords(),
         'deleteRecords' => $user->getDeleteRecords(),
-        'menuOptions'  => $user->getMenuOptions(),
         'manageGroups'       => $user->getManageGroups(),
         'finance'            => $user->getFinance(),
         'manageFundraisers'  => $user->getManageFundraisers(),

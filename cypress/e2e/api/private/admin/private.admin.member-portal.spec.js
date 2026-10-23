@@ -101,10 +101,6 @@ describe("API Private Admin Member Portal", () => {
         it("Rejects an empty name with 400", () => {
             cy.makePrivateAdminAPICall("POST", "/admin/api/member-portal/theme", { name: "" }, 400);
         });
-
-        it("Is not reachable by a non-admin API key", () => {
-            cy.makePrivateUserAPICall("POST", "/admin/api/member-portal/theme", { name: "default" }, 403);
-        });
     });
 
     describe("GET /admin/api/member-portal/theme/{name}/validation", () => {
@@ -179,10 +175,6 @@ describe("API Private Admin Member Portal", () => {
                 expect(after.body.recentSignIns[0].lastSignIn).to.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
                 expect(after.body.recentSignIns[0].lastActivity).to.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
             });
-        });
-
-        it("Is not reachable by a non-admin API key", () => {
-            cy.makePrivateUserAPICall("GET", "/admin/api/member-portal/stats", null, 403);
         });
     });
 });

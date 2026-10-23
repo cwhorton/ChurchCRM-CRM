@@ -82,16 +82,7 @@ describe("Admin User Password", () => {
             cy.get("#NewPasswordError").should("have.text", "Enter a new password");
             cy.contains("Password Change Successful").should("not.exist");
         });
-
-        it("Non-admin user denied access to change password page", () => {
-            cy.setupStandardSession();
-            cy.visit({ url: "admin/system/user/28/changePassword", failOnStatusCode: false });
-            // AdminRoleAuthMiddleware redirects non-admins to access-denied page
-            cy.url().should("include", "access-denied");
-            cy.get("#NewPassword1").should("not.exist");
-        });
     });
-
 
     it("Create System Users", () => {
         // Ensure clean start: if Peyton Ray already exists as a user, remove that user first.

@@ -37,7 +37,6 @@ class Menu
     {
         $currentUser = AuthenticationManager::getCurrentUser();
         $isAdmin = $currentUser->isAdmin();
-        $isMenuOptions = $currentUser->isMenuOptionsEnabled();
         $isManageGroups = $currentUser->isManageGroupsEnabled();
         $canViewEvents = $currentUser->canViewEvents();
         $isVolunteerV1Enabled = User::isVolunteerV1Enabled();
@@ -48,8 +47,8 @@ class Menu
         $menus = [
             'Dashboard'    => new MenuItem(gettext('Dashboard'), 'v2/dashboard', true, 'fa-gauge'),
             'Calendar'     => self::getCalendarMenu($canViewEvents),
-            'People'       => self::getPeopleMenu($isAdmin, $isMenuOptions, $currentUser->isAddRecordsEnabled(), $isVolunteerV1Enabled),
-            'Groups'       => self::getGroupMenu($isAdmin, $isMenuOptions, $isManageGroups),
+            'People'       => self::getPeopleMenu($isAdmin, $currentUser->isAddRecordsEnabled(), $isVolunteerV1Enabled),
+            'Groups'       => self::getGroupMenu($isAdmin, $isManageGroups),
             'SundaySchool' => self::getSundaySchoolMenu($isAdmin, $isManageGroups),
             'Communication' => self::getCommunicationMenu($currentUser->isEmailEnabled(), $isAdmin),
             'Events'       => self::getEventsMenu($currentUser->isAddEventEnabled(), $canViewEvents, $currentUser->canWriteEvents()),
@@ -106,7 +105,7 @@ class Menu
         return $calendarMenu;
     }
 
-    private static function getPeopleMenu(bool $isAdmin, bool $isMenuOptions, bool $isAddRecordsEnabled, bool $isVolunteerV1Enabled): MenuItem
+    private static function getPeopleMenu(bool $isAdmin, bool $isAddRecordsEnabled, bool $isVolunteerV1Enabled): MenuItem
     {
         $peopleMenu = new MenuItem(gettext('People'), '', true, 'fa-people-group');
         $peopleMenu->addSubMenu(new MenuItem(gettext('Dashboard'), 'people/dashboard', true, 'fa-gauge'));
@@ -121,16 +120,17 @@ class Menu
         $selfRegisterItem->addCounter(new MenuCounter('selfRegisterPending', 'bg-warning d-none', 0, gettext('Pending review')));
         $peopleMenu->addSubMenu($selfRegisterItem);
 
-        if ($isAdmin || $isMenuOptions) {
+        if ($isAdmin) {
             $adminMenu = new MenuItem(gettext('Admin'), '', true);
             $adminMenu->addSubMenu(new MenuItem(gettext('People Settings'), 'admin/people', $isAdmin, 'fa-sliders'));
             $adminMenu->addSubMenu(new MenuItem(gettext('Member Portal'), 'admin/member-portal', $isAdmin, 'fa-house-user'));
             $adminMenu->addSubMenu(new MenuItem(gettext('Family Roles'), 'admin/system/options?mode=famroles', $isAdmin, 'fa-people-roof'));
-            $adminMenu->addSubMenu(new MenuItem(gettext('Family Properties'), 'PropertyList.php?Type=f', $isMenuOptions, 'fa-people-roof'));
+            $adminMenu->addSubMenu(new MenuItem(gettext('Family Properties'), 'PropertyList.php?Type=f', $isAdmin, 'fa-people-roof'));
             $adminMenu->addSubMenu(new MenuItem(gettext('Family Custom Fields'), 'FamilyCustomFieldsEditor.php', $isAdmin, 'fa-sliders'));
             $adminMenu->addSubMenu(new MenuItem(gettext('Person Classifications'), 'admin/system/options?mode=classes', $isAdmin, 'fa-tags'));
-            $adminMenu->addSubMenu(new MenuItem(gettext('Person Properties'), 'PropertyList.php?Type=p', $isMenuOptions, 'fa-person-half-dress'));
+            $adminMenu->addSubMenu(new MenuItem(gettext('Person Properties'), 'PropertyList.php?Type=p', $isAdmin, 'fa-person-half-dress'));
             $adminMenu->addSubMenu(new MenuItem(gettext('Person Custom Fields'), 'PersonCustomFieldsEditor.php', $isAdmin, 'fa-sliders'));
+            $adminMenu->addSubMenu(new MenuItem(gettext('Grades'), 'admin/system/options?mode=grades', $isAdmin, 'fa-graduation-cap'));
             $adminMenu->addSubMenu(new MenuItem(gettext('Volunteer Opportunities'), 'VolunteerOpportunityEditor.php', $isAdmin && $isVolunteerV1Enabled, 'fa-handshake-angle'));
     
             $peopleMenu->addSubMenu($adminMenu);
@@ -139,7 +139,7 @@ class Menu
         return $peopleMenu;
     }
 
-    private static function getGroupMenu(bool $isAdmin, bool $isMenuOptions, bool $isManageGroups): MenuItem
+    private static function getGroupMenu(bool $isAdmin, bool $isManageGroups): MenuItem
     {
         $groupMenu = new MenuItem(gettext('Groups'), '', $isManageGroups, 'fa-users');
         if (!$isManageGroups) {
@@ -196,10 +196,10 @@ class Menu
             $groupMenu->addSubMenu($tmpMenu);
         }
 
-        // Each entry mirrors its route's permission: PropertyList.php requires MenuOptions,
-        // group types require Admin, the kiosk manager requires ManageGroups.
+        // Each entry mirrors its route's permission: group properties and group types
+        // require Admin, the kiosk manager requires ManageGroups.
         $adminMenu = new MenuItem(gettext('Admin'), '', true);
-        $adminMenu->addSubMenu(new MenuItem(gettext('Group Properties'), 'PropertyList.php?Type=g', $isMenuOptions, 'fa-users'));
+        $adminMenu->addSubMenu(new MenuItem(gettext('Group Properties'), 'PropertyList.php?Type=g', $isAdmin, 'fa-users'));
         $adminMenu->addSubMenu(new MenuItem(gettext('Group Types'), 'admin/system/options?mode=grptypes', $isAdmin, 'fa-tags'));
         $adminMenu->addSubMenu(new MenuItem(gettext('Kiosk Manager'), 'kiosk/admin', $isManageGroups, 'fa-desktop'));
         $groupMenu->addSubMenu($adminMenu);
@@ -487,7 +487,7 @@ class Menu
         $depositsMenu->addSubMenu(new MenuItem(gettext('Dashboard'), 'finance/', $isFinanceEnabled, 'fa-gauge'));
         $depositsMenu->addSubMenu(new MenuItem(gettext('View All Deposits'), 'finance/deposit/search', $isFinanceEnabled, 'fa-list'));
         $depositsMenu->addSubMenu(new MenuItem(gettext('Pledge Dashboard'), 'finance/pledge/dashboard', $isFinanceEnabled, 'fa-handshake'));
-        $depositsMenu->addSubMenu(new MenuItem(gettext('Edit Deposit Slip'), 'DepositSlipEditor.php?DepositSlipID=' . $_SESSION['iCurrentDeposit'], $isFinanceEnabled, 'fa-pen-to-square'));
+        $depositsMenu->addSubMenu(new MenuItem(gettext('Edit Deposit Slip'), 'finance/deposit/' . (int) ($_SESSION['iCurrentDeposit'] ?? 0), $isFinanceEnabled, 'fa-pen-to-square'));
 
         if ($isFinanceEnabled) {
             $adminMenu = new MenuItem(gettext('Admin'), '', $isFinanceEnabled);

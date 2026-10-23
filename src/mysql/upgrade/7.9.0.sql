@@ -299,7 +299,7 @@ FROM `family_email_move_fem` m
 WHERE m.`fem_ID` > @fem_max_id AND m.`fem_Outcome` IN ('head', 'spouse') AND m.`fem_NeedsConfirm` = 1
 ON DUPLICATE KEY UPDATE `psi_UnconfirmedEmail` = m.`fem_Email`, `psi_UnconfirmedSource` = 'family_email', `psi_UnconfirmedAt` = @fem_run;
 
--- nte_EnteredBy -3 is Person::UPGRADE, shown as "System Upgrade" on the timeline.
+-- nte_EnteredBy -4 is Person::UPGRADE, shown as "System Upgrade" on the timeline.
 INSERT INTO `note_nte` (`nte_per_ID`, `nte_fam_ID`, `nte_Private`, `nte_Text`, `nte_DateEntered`, `nte_EnteredBy`, `nte_EditedBy`, `nte_Type`) SELECT
        0, m.`fem_fam_ID`, 0,
        CONCAT('The family email ', m.`fem_Email`, ' was not moved to a person: ',
@@ -308,7 +308,7 @@ INSERT INTO `note_nte` (`nte_per_ID`, `nte_fam_ID`, `nte_Private`, `nte_Text`, `
                 WHEN 'no_adult' THEN 'the family has no living, active head of household or spouse'
                 ELSE CONCAT('another person (', TRIM(CONCAT(IFNULL(p.`per_FirstName`, ''), ' ', IFNULL(p.`per_LastName`, ''))), ') already uses this address')
               END, '.'),
-       @fem_run, -3, 0, 'family-email'
+       @fem_run, -4, 0, 'family-email'
 FROM `family_email_move_fem` m
 LEFT JOIN `person_per` p ON p.`per_ID` = m.`fem_per_ID`
 WHERE m.`fem_ID` > @fem_max_id AND m.`fem_Outcome` = 'noted';
@@ -430,9 +430,9 @@ INSERT INTO `config_cfg` (`cfg_name`, `cfg_value`) SELECT 'iMemberSignInFormerAc
 FROM DUAL WHERE @msi_former_accounts > 0
 ON DUPLICATE KEY UPDATE `cfg_value` = CAST(`cfg_value` AS UNSIGNED) + @msi_former_accounts;
 
--- nte_EnteredBy -3 is Person::UPGRADE, shown as "System Upgrade" on the timeline.
+-- nte_EnteredBy -4 is Person::UPGRADE, shown as "System Upgrade" on the timeline.
 INSERT INTO `note_nte` (`nte_per_ID`, `nte_fam_ID`, `nte_Private`, `nte_Text`, `nte_DateEntered`, `nte_EnteredBy`, `nte_EditedBy`, `nte_Type`) SELECT
-  u.`usr_per_ID`, 0, 0, 'Member Portal account removed by the upgrade', NOW(), -3, 0, 'user'
+  u.`usr_per_ID`, 0, 0, 'Member Portal account removed by the upgrade', NOW(), -4, 0, 'user'
 FROM `user_usr` u
 JOIN `person_per` p ON p.`per_ID` = u.`usr_per_ID`
 WHERE u.`usr_EditSelf` = 1 AND u.`usr_Admin` = 0;

@@ -12,7 +12,6 @@ $(document).ready(() => {
     "AddRecords",
     "EditRecords",
     "DeleteRecords",
-    "MenuOptions",
     "ManageGroups",
     "Finance",
     "Notes",

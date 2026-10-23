@@ -96,6 +96,9 @@ $canSendEmail = AuthenticationManager::getCurrentUser()->isEmailEnabled() && Sys
                     <?php if (!empty($sFamRole)) : ?>
                     <li class="mb-1"><i class="fa-solid fa-users me-2 text-body-secondary icon-fixed-width"></i><?= InputUtils::escapeHTML(gettext($sFamRole)) ?></li>
                     <?php endif; ?>
+                    <?php if ($person->getGradeName() !== null) : ?>
+                    <li class="mb-1" id="personGrade" title="<?= InputUtils::escapeAttribute(gettext('Grade')) ?>"><i class="fa-solid fa-graduation-cap me-2 text-body-secondary icon-fixed-width"></i><?= gettext('Grade') ?>: <?= InputUtils::escapeHTML($person->getGradeName()) ?></li>
+                    <?php endif; ?>
                     <?php if ($per_MembershipDate) : ?>
                     <li class="mb-1"><i class="fa-solid fa-calendar-check me-2 text-body-secondary icon-fixed-width"></i><?= gettext('Since') ?> <?= DateTimeUtils::formatDate($per_MembershipDate, false) ?></li>
                     <?php endif; ?>
@@ -446,7 +449,7 @@ $canSendEmail = AuthenticationManager::getCurrentUser()->isEmailEnabled() && Sys
                     <i class="fa-solid fa-ellipsis-vertical me-1"></i><?= gettext("Actions") ?>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <?php if (AuthenticationManager::getCurrentUser()->isNotesEnabled()) { ?>
+                    <?php if (AuthenticationManager::getCurrentUser()->isEditRecordsEnabled()) { ?>
                         <a class="dropdown-item" id="editWhyCame" href="<?= SystemURLs::getRootPath() ?>/WhyCameEditor.php?PersonID=<?= $iPersonID ?>"><i class="fa-solid fa-circle-question me-2"></i><?= gettext("Why Came") ?></a>
                     <?php } ?>
                     <?php if ($bOkToEdit && $fam_ID !== '') { ?>
@@ -562,7 +565,7 @@ $canSendEmail = AuthenticationManager::getCurrentUser()->isEmailEnabled() && Sys
                                             <a class="dropdown-item" href="<?= SystemURLs::getRootPath() ?>/PersonEditor.php?PersonID=<?= $tmpPersonId ?>"><i class="fa-solid fa-pen me-2"></i><?= gettext('Edit') ?></a>
                                             <?php } ?>
                                             <button class="dropdown-item AddToCart" data-cart-id="<?= $tmpPersonId ?>" data-cart-type="person"><i class="fa-solid fa-cart-plus me-2"></i><?= gettext('Add to Cart') ?></button>
-                                            <?php if ($bOkToEdit) { ?>
+                                            <?php if (AuthenticationManager::getCurrentUser()->isDeleteRecordsEnabled()) { ?>
                                             <div class="dropdown-divider"></div>
                                             <button class="dropdown-item text-danger delete-person" data-person_name="<?= InputUtils::escapeAttribute($familyMember->getFullName()) ?>" data-person_id="<?= $familyMember->getId() ?>" data-view="family"<?= PersonDeleteGuard::attributes((int) $familyMember->getId()) ?>><i class="fa-solid fa-trash-can me-2"></i><?= gettext('Delete') ?></button>
                                             <?php } ?>
@@ -649,7 +652,7 @@ $canSendEmail = AuthenticationManager::getCurrentUser()->isEmailEnabled() && Sys
                         <i class="fa-solid fa-people-roof me-1"></i><?= gettext('Find Neighbors') ?>
                     </a>
                     <?php endif; ?>
-                    <?php if (!empty($fam_ID) && !$familyHasCoords) : ?>
+                    <?php if (!empty($fam_ID) && !$familyHasCoords && AuthenticationManager::getCurrentUser()->isEditRecordsEnabled()) : ?>
                     <button type="button" class="btn btn-sm btn-outline-success" id="refresh-coordinates-btn" data-family-id="<?= $fam_ID ?>" title="<?= gettext('Automatically detect coordinates using address') ?>">
                         <i class="fa-solid fa-location-dot me-1"></i><?= gettext('Refresh Coordinates') ?>
                     </button>

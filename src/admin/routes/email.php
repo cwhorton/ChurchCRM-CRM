@@ -146,7 +146,6 @@ $app->post('/email', function (Request $request, Response $response): Response {
 
 $app->get('/email/log', function (Request $request, Response $response): Response {
     $renderer = new PhpRenderer(__DIR__ . '/../views/');
-    $log = new EmailLogService();
 
     $pageArgs = [
         'sRootPath'          => SystemURLs::getRootPath(),
@@ -160,9 +159,12 @@ $app->get('/email/log', function (Request $request, Response $response): Respons
             ['label' => gettext('Email Settings'), 'url' => '/admin/email', 'icon' => 'fa-sliders'],
             ['label' => gettext('Email Debug'), 'url' => '/admin/email/debug', 'icon' => 'fa-stethoscope'],
         ]),
-        'recentEmails'       => $log->getRecent(null, 1, 20),
-        'failedEmailCount'   => $log->getRecent(EmailLogService::STATUS_FAILED, 1, 1)['total'],
-        'queuedEmailCount'   => $log->getRecent(EmailLogService::STATUS_QUEUED, 1, 1)['total'],
+        'emailLog'           => [
+            'facets'         => (new EmailLogService())->getLogFacets(),
+            'pageUrl'        => '/admin/email/log',
+            'showSender'     => true,
+            'canDeleteQueue' => true,
+        ],
     ];
 
     return $renderer->render($response, 'email-log.php', $pageArgs);

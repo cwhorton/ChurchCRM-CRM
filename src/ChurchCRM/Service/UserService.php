@@ -234,7 +234,6 @@ class UserService
             'addRecords'        => isset($body['AddRecords'])        ? 1 : 0,
             'editRecords'       => isset($body['EditRecords'])       ? 1 : 0,
             'deleteRecords'     => isset($body['DeleteRecords'])     ? 1 : 0,
-            'menuOptions'       => isset($body['MenuOptions'])       ? 1 : 0,
             'manageGroups'      => isset($body['ManageGroups'])      ? 1 : 0,
             'finance'           => isset($body['Finance'])           ? 1 : 0,
             'manageFundraisers' => isset($body['ManageFundraisers']) ? 1 : 0,
@@ -302,7 +301,6 @@ class UserService
                 ->setAddRecords($perms['addRecords'])
                 ->setEditRecords($perms['editRecords'])
                 ->setDeleteRecords($perms['deleteRecords'])
-                ->setMenuOptions($perms['menuOptions'])
                 ->setManageGroups($perms['manageGroups'])
                 ->setFinance($perms['finance'])
                 ->setManageFundraisers($perms['manageFundraisers'])
@@ -416,7 +414,6 @@ class UserService
         $user->setAddRecords($perms['addRecords'])
             ->setEditRecords($perms['editRecords'])
             ->setDeleteRecords($perms['deleteRecords'])
-            ->setMenuOptions($perms['menuOptions'])
             ->setManageGroups($perms['manageGroups'])
             ->setFinance($perms['finance'])
             ->setManageFundraisers($perms['manageFundraisers'])

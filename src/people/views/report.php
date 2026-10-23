@@ -10,7 +10,6 @@ require SystemURLs::getDocumentRoot() . '/Include/Header.php';
 $reportUrl = $sRootPath . '/people/reports/' . InputUtils::escapeAttribute($slug);
 $canEdit = AuthenticationManager::getCurrentUser()->isEditRecordsEnabled();
 $canDelete = AuthenticationManager::getCurrentUser()->isDeleteRecordsEnabled();
-$canPrintLabels = AuthenticationManager::getCurrentUser()->isMenuOptionsEnabled();
 $cart = $_SESSION['aPeopleCart'] ?? [];
 $missingLabels = array_map(static fn (string $key): string => $report['params'][$key]['label'], $missing);
 ?>
@@ -25,7 +24,7 @@ $missingLabels = array_map(static fn (string $key): string => $report['params'][
                     $id = InputUtils::escapeAttribute($key);
                     $value = $values[$key] ?? null;
                     $isMissing = in_array($key, $missing, true);
-                    $invalid = $isMissing ? ' is-invalid' : '';
+                    $invalid = $isMissing && $submitted ? ' is-invalid' : '';
                     ?>
                 <div class="<?= in_array($param['type'], ['classification', 'events'], true) ? 'col-md-6 col-lg-4' : 'col-md-4 col-lg-3' ?>">
                     <label class="form-label" for="<?= $id ?>"><?= InputUtils::escapeHTML($param['label']) ?></label>
@@ -80,11 +79,9 @@ $missingLabels = array_map(static fn (string $key): string => $report['params'][
             <button type="button" id="addAllToCart" class="btn btn-sm btn-outline-primary"<?= $rows === [] ? ' disabled' : '' ?>>
                 <i class="fa-solid fa-cart-plus me-1"></i><?= gettext('Add All to Cart') ?>
             </button>
-            <?php if ($canPrintLabels) : ?>
             <button type="button" id="printLabels" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#labelsModal"<?= $rows === [] ? ' disabled' : '' ?>>
                 <i class="fa-solid fa-tags me-1"></i><?= gettext('Print Labels') ?>
             </button>
-            <?php endif; ?>
             <a id="downloadCsv" class="btn btn-sm btn-outline-secondary" href="<?= $reportUrl ?>/csv<?= $csvQuery !== '' ? '?' . InputUtils::escapeAttribute($csvQuery) : '' ?>">
                 <i class="fa-solid fa-file-csv me-1"></i><?= gettext('Download CSV') ?>
             </a>
@@ -165,12 +162,10 @@ $missingLabels = array_map(static fn (string $key): string => $report['params'][
     </div>
 </div>
 <?php
-if ($canPrintLabels) {
-    $labelsIntro = gettext('Mailing labels for the people in this report. A person with no address of their own is addressed at their family address.');
-    $labelsHiddenFields = ['report' => $slug] + $reportParams;
-    $labelsGrouping = $report['labelGrouping'] ?? null;
-    require __DIR__ . '/partials/labels-modal.php';
-}
+$labelsIntro = gettext('Mailing labels for the people in this report. A person with no address of their own is addressed at their family address.');
+$labelsHiddenFields = ['report' => $slug] + $reportParams;
+$labelsGrouping = $report['labelGrouping'] ?? null;
+require __DIR__ . '/partials/labels-modal.php';
 ?>
 <?php endif; ?>
 
@@ -183,6 +178,10 @@ if ($canPrintLabels) {
                 hidePlaceholder: true,
                 placeholder: select.dataset.placeholder
             });
+        });
+
+        $('#reportFilters').on('change', 'select', function () {
+            this.classList.remove('is-invalid');
         });
 
         $('#addAllToCart').on('click', function () {
