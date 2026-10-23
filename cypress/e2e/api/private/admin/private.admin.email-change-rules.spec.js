@@ -368,7 +368,7 @@ describe("Sign-in email changes by staff, imports and registration (§9)", () =>
         });
 
         it("lets only an administrator change or confirm the email of a person with a given grant", () => {
-            giveGrant(MATHEW.id, 1);
+            giveGrant(MATHEW.id, 3);
             markFamilyEmailMoved(MATHEW, 1);
 
             saveEmailInPersonEditor(MATHEW.id, "mathew.elsewhere@example.com").then((response) => {
