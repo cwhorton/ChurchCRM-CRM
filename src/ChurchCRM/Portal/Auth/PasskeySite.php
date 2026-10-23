@@ -4,6 +4,7 @@ namespace ChurchCRM\Portal\Auth;
 
 use ChurchCRM\dto\SystemConfig;
 use ChurchCRM\dto\SystemURLs;
+use ChurchCRM\Utils\RequestUtils;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -85,10 +86,6 @@ final class PasskeySite
 
     private static function isHttps(ServerRequestInterface $request): bool
     {
-        $server = $request->getServerParams();
-
-        return $request->getUri()->getScheme() === 'https'
-            || (!empty($server['HTTPS']) && $server['HTTPS'] !== 'off')
-            || strtolower($request->getHeaderLine('X-Forwarded-Proto')) === 'https';
+        return $request->getUri()->getScheme() === 'https' || RequestUtils::isHttps($request->getServerParams());
     }
 }

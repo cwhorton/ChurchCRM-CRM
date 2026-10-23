@@ -3,6 +3,7 @@
 namespace ChurchCRM\Portal\Auth;
 
 use ChurchCRM\dto\SystemURLs;
+use ChurchCRM\Utils\RequestUtils;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -45,8 +46,7 @@ final class RememberedDeviceCookie
 
     private static function header(string $value, int $maxAge): string
     {
-        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-            || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+        $isHttps = RequestUtils::isHttps();
 
         return sprintf(
             '%s=%s; Path=%s; Max-Age=%d; HttpOnly; SameSite=Lax%s',
