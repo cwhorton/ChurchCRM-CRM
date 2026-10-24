@@ -21,6 +21,7 @@ use ChurchCRM\model\ChurchCRM\User;
 use ChurchCRM\model\ChurchCRM\UserQuery;
 use ChurchCRM\Portal\MemberLanguage;
 use ChurchCRM\Portal\PortalSelfService;
+use ChurchCRM\Service\EmailSignInService;
 use ChurchCRM\Service\RateLimiter;
 use ChurchCRM\Service\RememberedDeviceService;
 use ChurchCRM\Utils\DateTimeUtils;
@@ -135,11 +136,19 @@ final class SignInEmailPolicy
      * may have changed `per_Email` from `$oldEmail`. Before the first sign-in
      * the new address is the address on record and works at once. After it,
      * every portal session and remembered device ends, the previous address is
-     * told, and the new address stays unconfirmed. Passkeys stay. Audited.
+     * told, and the new address stays unconfirmed. Passkeys stay. Either way
+     * the sign-in codes and links already emailed stop working. Audited.
+     *
+     * `$oldEmail` is null when the save created the person: a new person's
+     * first email is the address on record, with nothing to end, nobody to
+     * tell and no change to audit.
      */
     public function recordChange(Person $person, ?string $oldEmail, EmailChangeChannel $channel, ?User $actor): void
     {
-        $oldEmail = trim((string) $oldEmail);
+        if ($oldEmail === null) {
+            return;
+        }
+        $oldEmail = trim($oldEmail);
         $newEmail = trim((string) $person->getEmail());
         if (self::sameAddress($oldEmail, $newEmail)) {
             return;
@@ -181,6 +190,7 @@ final class SignInEmailPolicy
 
             throw $e;
         }
+        (new EmailSignInService())->cancelOpenRequests($personId, SignInReason::EMAIL_CHANGED, $actor === null ? null : (int) $actor->getId());
 
         if ($channel === EmailChangeChannel::STAFF && $actor?->isAdmin() === true && $this->needsAdministrator($person)) {
             $note = new Note();
@@ -458,6 +468,9 @@ final class SignInEmailPolicy
         $this->clearUnconfirmed($state);
         $state->save();
         $this->cancelOpenLinks($personId, null, $now);
+        if ($changed) {
+            (new EmailSignInService())->cancelOpenRequests($personId, SignInReason::EMAIL_CHANGED);
+        }
 
         SignInAudit::record(
             $changed ? SignInAuditEvent::EMAIL_CHANGED : SignInAuditEvent::EMAIL_CONFIRMED,

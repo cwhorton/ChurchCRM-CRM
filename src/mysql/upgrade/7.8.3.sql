@@ -1,4 +1,4 @@
--- ChurchCRM 7.9.0 upgrade script
+-- ChurchCRM 7.8.3 upgrade script
 
 -- Member sign-in row 0 (#10197): counters for login throttling and temporary lockouts.
 CREATE TABLE IF NOT EXISTS `rate_limit_rlm` (
@@ -201,15 +201,30 @@ WHERE m.`fem_ID` > @fem_max_id AND m.`fem_Outcome` = 'pending'
               WHERE p.`per_fam_ID` = f.`fam_ID`
                 AND LOWER(TRIM(p.`per_Email`)) = LOWER(TRIM(f.`fam_Email`)));
 
+-- Every personal email once, trimmed and in lower case, with the lowest per_ID
+-- that has it, so each family email is one indexed lookup. Grouped in the key's
+-- own collation, so the primary key never meets a duplicate.
+DROP TEMPORARY TABLE IF EXISTS `fem_person_email`;
+CREATE TEMPORARY TABLE `fem_person_email` (
+  `fem_key`    varchar(100)          NOT NULL,
+  `fem_per_ID` mediumint(9) unsigned NOT NULL,
+  PRIMARY KEY (`fem_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `fem_person_email` (`fem_key`, `fem_per_ID`) SELECT
+  CONVERT(LOWER(TRIM(`per_Email`)) USING utf8mb4) COLLATE utf8mb4_unicode_ci AS `fem_key`, MIN(`per_ID`)
+FROM `person_per`
+WHERE `per_Email` IS NOT NULL AND TRIM(`per_Email`) <> ''
+GROUP BY `fem_key`;
+
 UPDATE `family_email_move_fem` m
-JOIN `family_fam` f ON f.`fam_ID` = m.`fem_fam_ID`
+JOIN `fem_person_email` e ON e.`fem_key` = LOWER(m.`fem_Email`)
 SET m.`fem_Outcome` = 'noted',
     m.`fem_Reason` = 'other_person',
-    m.`fem_per_ID` = (SELECT MIN(p.`per_ID`) FROM `person_per` p
-                      WHERE LOWER(TRIM(p.`per_Email`)) = LOWER(TRIM(f.`fam_Email`)))
-WHERE m.`fem_ID` > @fem_max_id AND m.`fem_Outcome` = 'pending'
-  AND EXISTS (SELECT 1 FROM `person_per` p
-              WHERE LOWER(TRIM(p.`per_Email`)) = LOWER(TRIM(f.`fam_Email`)));
+    m.`fem_per_ID` = e.`fem_per_ID`
+WHERE m.`fem_ID` > @fem_max_id AND m.`fem_Outcome` = 'pending';
+
+DROP TEMPORARY TABLE IF EXISTS `fem_person_email`;
 
 -- Oldest first without window functions: the smallest birth-date key wins, unknown
 -- parts sort last, and the key ends with the zero-padded per_ID it is read back from.
@@ -406,7 +421,7 @@ ON DUPLICATE KEY UPDATE
   `psi_LastActivity` = GREATEST(COALESCE(`psi_LastActivity`, u.`usr_LastPortalActivity`), COALESCE(u.`usr_LastPortalActivity`, `psi_LastActivity`));
 
 -- A self-service account's language (its ui.locale user setting) becomes the
--- person's portal language, when it is one of the languages 7.9.0 ships
+-- person's portal language, when it is one of the languages 7.8.3 ships
 -- (src/locale/locales.json). A language already on the sign-in row wins.
 INSERT INTO `person_signin_psi` (`psi_per_ID`, `psi_Language`) SELECT
   u.`usr_per_ID`, TRIM(s.`setting_value`)

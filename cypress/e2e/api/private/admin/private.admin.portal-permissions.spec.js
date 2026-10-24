@@ -29,7 +29,8 @@ const db = (sql, params = []) =>
     });
 
 const grants = (personId) => `/admin/api/person/${personId}/sign-in/grants`;
-const give = (personId, body, status = 201) => cy.makePrivateAdminAPICall("POST", grants(personId), { reason: REASON, ...body }, status);
+const give = (personId, body, status = 201) =>
+    cy.makePrivateAdminAPICall("POST", grants(personId), { reason: REASON, endsOn: day(30), ...body }, status);
 const catalog = () =>
     cy.makePrivateAdminAPICall("GET", "/admin/api/member-portal/permissions", null, 200).then(({ body }) =>
         Object.fromEntries(body.capabilities.map((capability) => [capability.key, capability])),
@@ -118,6 +119,29 @@ describe("Admin → Member Portal permissions and given grants", () => {
         });
     });
 
+    it("names the switch that turns a permission off for everyone, and links to where it is set", () => {
+        cy.getSystemConfig("bPortalShowDirectory").as("showDirectory");
+        cy.getSystemConfig("bPortalShowVolunteer").then((showVolunteer) => {
+            cy.getMemberPortalCalendars().then((shared) => {
+                cy.makePrivateAdminAPICall("POST", "/admin/api/system/config/bPortalShowVolunteer", { value: "0" }, 200);
+                cy.makePrivateAdminAPICall("POST", "/admin/api/system/config/bPortalShowDirectory", { value: "0" }, 200);
+                cy.shareMemberPortalCalendars([]);
+                catalog().then((capabilities) => {
+                    expect(capabilities["portal.directory.view"].statusLabel).to.eq('Off for everyone: "Show the member directory" is switched off');
+                    expect(capabilities["portal.directory.view"].statusUrl).to.eq("/admin/member-portal#portal-directory");
+                    expect(capabilities["portal.volunteer.use"].statusLabel).to.eq('Off for everyone: "Show volunteering" is switched off');
+                    expect(capabilities["portal.volunteer.use"].statusUrl).to.eq("/admin/member-portal#portal-permissions");
+                    expect(capabilities["portal.calendar.view"].statusLabel).to.eq("Off for everyone: no calendar is shared with members");
+                    expect(capabilities["portal.calendar.view"].statusUrl).to.eq("/admin/member-portal#portal-calendars");
+                    expect(capabilities["portal.profile.edit"].statusUrl).to.be.null;
+                });
+                cy.shareMemberPortalCalendars(shared);
+                cy.restoreSystemConfig("bPortalShowVolunteer", showVolunteer);
+            });
+        });
+        cy.get("@showDirectory").then((showDirectory) => cy.restoreSystemConfig("bPortalShowDirectory", showDirectory));
+    });
+
     it("counts holders among everyone the rules let in and staff, from each rule's own data", () => {
         allIds("may-sign-in").then((maySignIn) => {
             allIds("email-attention").then((attention) => {
@@ -191,6 +215,26 @@ describe("Admin → Member Portal permissions and given grants", () => {
         });
     });
 
+    it("stops counting a given permission once its team is deleted", () => {
+        cy.getSystemConfig("sVolunteerVersion").as("volunteerVersion");
+        cy.makePrivateAdminAPICall("POST", "/admin/api/system/config/sVolunteerVersion", { value: "v2" }, 200);
+        cy.makePrivateAdminAPICall("POST", "/api/ministries/ministries", { name: `${REASON} ministry`, description: "" }, 201).then(({ body }) => {
+            const ministryId = body.ministry.id;
+            cy.makePrivateAdminAPICall("POST", `/api/ministries/ministries/${ministryId}/teams`, { name: `${REASON} team` }, 201).then(({ body: created }) => {
+                holderCount("volunteer.team.manage").then((before) => {
+                    give(OTHER, { capability: "volunteer.team.manage", scopeId: created.team.id });
+                    holderCount("volunteer.team.manage").should("eq", before + 1);
+
+                    cy.makePrivateAdminAPICall("DELETE", `/api/ministries/teams/${created.team.id}`, null, [200, 204]);
+                    holderCount("volunteer.team.manage").should("eq", before);
+                });
+            });
+            cy.makePrivateAdminAPICall("POST", `/api/ministries/ministries/${ministryId}`, { active: false }, 200);
+            cy.makePrivateAdminAPICall("DELETE", `/api/ministries/ministries/${ministryId}`, null, [200, 204]);
+        });
+        cy.get("@volunteerVersion").then((version) => cy.restoreSystemConfig("sVolunteerVersion", version));
+    });
+
     it("refuses a permission the person already holds from a rule or the everyone rule", () => {
         give(CHILD, { capability: "portal.profile.edit" }, 409).its("body.message").should("eq", "This person already has this permission.");
         give(CHILD, { capability: "portal.family.view", scopeId: 3 }, 409);
@@ -221,6 +265,9 @@ describe("Admin → Member Portal permissions and given grants", () => {
         give(CHILD, { capability: "no.such.capability" }, 400);
         give(CHILD, { capability: "portal.family.edit" }, 400);
         give(CHILD, { capability: "portal.family.edit", scopeId: 987654 }, 400);
+        give(CHILD, { capability: "portal.calendar.view", endsOn: "" }, 400)
+            .its("body.message")
+            .should("eq", "Choose the last day of this permission.");
         give(CHILD, { capability: "portal.calendar.view", endsOn: day(-2) }, 400);
         give(CHILD, { capability: "portal.calendar.view", endsOn: "31/12/2026" }, 400);
         give(CHILD, { capability: "portal.calendar.view", reason: "  " }, 400);

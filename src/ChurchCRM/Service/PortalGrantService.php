@@ -2,6 +2,7 @@
 
 namespace ChurchCRM\Service;
 
+use ChurchCRM\dto\SystemConfig;
 use ChurchCRM\model\ChurchCRM\FamilyQuery;
 use ChurchCRM\model\ChurchCRM\GroupQuery;
 use ChurchCRM\model\ChurchCRM\Person;
@@ -13,6 +14,7 @@ use ChurchCRM\model\ChurchCRM\VolunteerTeamQuery;
 use ChurchCRM\Plugin\PluginManager;
 use ChurchCRM\Portal\Auth\SignInAudit;
 use ChurchCRM\Portal\Auth\SignInAuditEvent;
+use ChurchCRM\Portal\Permissions\CorePortalCapabilities;
 use ChurchCRM\Portal\Permissions\Decision;
 use ChurchCRM\Portal\Permissions\PortalAuthorizationService;
 use ChurchCRM\Portal\Permissions\PortalCapability;
@@ -48,7 +50,7 @@ final class PortalGrantService
     ];
 
     /**
-     * @throws InvalidArgumentException 400: an unknown capability, a missing or unknown scope, a bad date or reason
+     * @throws InvalidArgumentException 400: an unknown capability, a missing or unknown scope, a missing or bad last day, a bad reason
      * @throws DomainException          409: the person already holds this capability on this scope, from any source
      */
     public function give(Person $person, User $actor, string $capability, ?int $scopeId, ?string $endsOn, string $reason): PortalGrant
@@ -142,7 +144,7 @@ final class PortalGrantService
             if (in_array($capability['scopeType'], self::GIVABLE_SCOPE_TYPES, true)) {
                 $choices[] = $capability + [
                     'ownerName' => self::ownerName($capability['owner']),
-                    'statusLabel' => self::statusLabel($capability['status']),
+                    'statusLabel' => self::statusLabel($capability['status'], PortalCapabilityRegistry::get($capability['key'])),
                     'scopeLabel' => self::scopeTypeLabel($capability['scopeType']),
                     'scopeFieldLabel' => match ($capability['scopeType']) {
                         PortalScope::FAMILY => gettext('Family'),
@@ -340,12 +342,64 @@ final class PortalGrantService
         return PluginManager::getPluginMetadata($owner)?->getName() ?? $owner;
     }
 
-    public static function statusLabel(string $status): ?string
+    /**
+     * Why a capability is off for everyone, naming the switch when it is a
+     * known one, or null while it is on.
+     */
+    public static function statusLabel(string $status, ?PortalCapability $capability = null): ?string
     {
         return match ($status) {
             PortalAuthorizationService::STATUS_ON => null,
             Decision::OWNER_OFF => gettext('Off for everyone: its plugin is turned off'),
-            default => gettext('Off for everyone: its feature is switched off'),
+            default => self::offSwitch($capability)['label'] ?? gettext('Off for everyone: its feature is switched off'),
+        };
+    }
+
+    /**
+     * The root-relative address of the page that turns a capability back on, or
+     * null while it is on or when no page is known.
+     */
+    public static function statusUrl(string $status, PortalCapability $capability): ?string
+    {
+        return match ($status) {
+            PortalAuthorizationService::STATUS_ON => null,
+            Decision::OWNER_OFF => '/plugins/management',
+            default => self::offSwitch($capability)['url'] ?? null,
+        };
+    }
+
+    /**
+     * @return array{label: string, url: string}|null
+     */
+    private static function offSwitch(?PortalCapability $capability): ?array
+    {
+        if ($capability === null) {
+            return null;
+        }
+        if ($capability->featureSwitch !== null && !SystemConfig::getBooleanValue($capability->featureSwitch)) {
+            return match ($capability->featureSwitch) {
+                'bPortalShowVolunteer' => [
+                    'label' => sprintf(gettext('Off for everyone: "%s" is switched off'), gettext('Show volunteering')),
+                    'url' => '/admin/member-portal#portal-permissions',
+                ],
+                'bPortalShowDirectory' => [
+                    'label' => sprintf(gettext('Off for everyone: "%s" is switched off'), gettext('Show the member directory')),
+                    'url' => '/admin/member-portal#portal-directory',
+                ],
+                default => null,
+            };
+        }
+
+        return match ($capability->key) {
+            CorePortalCapabilities::VOLUNTEER_USE, CorePortalCapabilities::TEAM_MANAGE, CorePortalCapabilities::TEAM_SUBSTITUTES => [
+                'label' => gettext('Off for everyone: Volunteer Management is not set to V2'),
+                'url' => '/admin/system/feature-toggles',
+            ],
+            CorePortalCapabilities::CALENDAR_VIEW => [
+                'label' => gettext('Off for everyone: no calendar is shared with members'),
+                'url' => '/admin/member-portal#portal-calendars',
+            ],
+            default => null,
         };
     }
 
@@ -370,14 +424,15 @@ final class PortalGrantService
 
     /**
      * The last day a grant counts, inclusive: it ends at that day's last second.
+     * Every given grant has one (design §8.6).
      *
-     * @throws InvalidArgumentException for a malformed date or one in the past
+     * @throws InvalidArgumentException for a missing or malformed date, or one in the past
      */
-    private static function endOfDay(?string $endsOn): ?DateTimeImmutable
+    private static function endOfDay(?string $endsOn): DateTimeImmutable
     {
         $endsOn = trim((string) $endsOn);
         if ($endsOn === '') {
-            return null;
+            throw new InvalidArgumentException(gettext('Choose the last day of this permission.'));
         }
         $timezone = DateTimeUtils::getConfiguredTimezone();
         $day = DateTimeImmutable::createFromFormat('!Y-m-d', $endsOn, $timezone);

@@ -1,7 +1,7 @@
 // Member sign-in states that no HTTP route writes (#10463, #10377). A passkey is
-// registered only by a WebAuthn ceremony in a browser, a remembered device takes
+// registered, and its signature counter moved, only by a WebAuthn ceremony in a browser, a remembered device takes
 // its label from the browser that chose to stay signed in, the family email
-// move rows come only from the 7.9.0 upgrade, a person waits for review only
+// move rows come only from the 7.8.3 upgrade, a person waits for review only
 // after a registration or a member's proposal, the give API refuses a grant an
 // older release or a dropped plugin capability left behind, and the profile page
 // stores only a language this installation ships. The rest is time passing: a
@@ -27,6 +27,10 @@ export const addPasskey = (personId, { label = null } = {}) => {
     ).its("insertId");
 };
 
+/** Sets the signature counter stored for the person's passkeys, as their last sign-in left it. */
+export const setPasskeySignCount = (personId, signCount) =>
+    db("UPDATE person_passkey_ppk SET ppk_SignCount = ? WHERE ppk_per_ID = ?", [signCount, personId]);
+
 /** Adds a remembered device for the person; yields its id. `signedOut` leaves it revoked, as Sign out does. */
 export const addRememberedDevice = (personId, { label = null, expiresInDays = 30, signedOut = false } = {}) =>
     db(
@@ -48,7 +52,7 @@ export const resetSignIn = (personIds) => {
 };
 
 /**
- * Records what the 7.9.0 upgrade did with family emails, one row per move:
+ * Records what the 7.8.3 upgrade did with family emails, one row per move:
  * `{ familyId, email, outcome, reason, personId, needsConfirm }`.
  */
 export const recordFamilyEmailMoves = (moves) => {
