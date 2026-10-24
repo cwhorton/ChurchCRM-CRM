@@ -23,7 +23,7 @@ final class EmailChangeConfirmEmail extends BaseEmail
     ) {
         parent::__construct([$toAddress]);
         $this->setLogContext((int) $person->getId());
-        $this->mail->Subject = ChurchMetaData::getChurchName() . ': ' . gettext('Confirm your email address');
+        $this->mail->Subject = gettext('Confirm your email address');
         $this->mail->isHTML(true);
         $this->mail->msgHTML($this->buildMessage());
     }

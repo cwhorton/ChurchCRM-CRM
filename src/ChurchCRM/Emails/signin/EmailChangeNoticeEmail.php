@@ -30,7 +30,7 @@ final class EmailChangeNoticeEmail extends BaseEmail
     ) {
         parent::__construct([$toAddress]);
         $this->setLogContext((int) $person->getId());
-        $this->mail->Subject = ChurchMetaData::getChurchName() . ': ' . $this->getSubSubject();
+        $this->mail->Subject = $this->getSubSubject();
         $this->mail->isHTML(true);
         $this->mail->msgHTML($this->buildMessage());
     }

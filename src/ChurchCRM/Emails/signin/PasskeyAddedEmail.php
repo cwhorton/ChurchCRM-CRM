@@ -23,7 +23,7 @@ final class PasskeyAddedEmail extends BaseEmail
     ) {
         parent::__construct([trim((string) $person->getEmail())]);
         $this->setLogContext((int) $person->getId());
-        $this->mail->Subject = ChurchMetaData::getChurchName() . ': ' . $this->getSubSubject();
+        $this->mail->Subject = $this->getSubSubject();
         $this->mail->isHTML(true);
         $this->mail->msgHTML($this->buildMessage());
     }
