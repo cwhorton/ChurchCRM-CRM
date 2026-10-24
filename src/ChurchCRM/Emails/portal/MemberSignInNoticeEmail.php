@@ -2,7 +2,6 @@
 
 namespace ChurchCRM\Emails\portal;
 
-use ChurchCRM\dto\ChurchMetaData;
 use ChurchCRM\dto\SystemURLs;
 use ChurchCRM\Emails\BaseEmail;
 use ChurchCRM\model\ChurchCRM\Person;
@@ -30,7 +29,7 @@ class MemberSignInNoticeEmail extends BaseEmail
         private readonly DateTimeInterface $when,
     ) {
         parent::__construct($toAddresses);
-        $this->mail->Subject = ChurchMetaData::getChurchName() . ': ' . $this->getSubSubject();
+        $this->mail->Subject = $this->getSubSubject();
         $this->mail->isHTML(true);
         $this->mail->msgHTML($this->buildMessage());
     }

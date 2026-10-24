@@ -75,6 +75,7 @@ Cypress.Commands.add("signInAsMember", (who, { rememberDevice = false } = {}) =>
             return cy.task("mail:get", { id: fresh[0].ID });
         })
         .then(({ body }) => {
+            expect(body.Subject, "the sender name is the church, so the subject does not repeat it").to.eq("Your Member Portal sign-in code");
             const code = `${body.Text || ""}`.match(/Your code\s+(\d{6})/);
             expect(code, "code in the sign-in email").to.not.eq(null);
             return postCode(code[1], rememberDevice ? { rememberDevice: "1" } : {});
