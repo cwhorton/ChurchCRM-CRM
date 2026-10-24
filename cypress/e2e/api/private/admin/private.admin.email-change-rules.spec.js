@@ -149,7 +149,12 @@ const giveGrant = (personId, familyId) =>
     cy.makePrivateAdminAPICall(
         "POST",
         `/admin/api/person/${personId}/sign-in/grants`,
-        { capability: "portal.family.contacts.view", scopeId: familyId, reason: "Email change spec" },
+        {
+            capability: "portal.family.contacts.view",
+            scopeId: familyId,
+            endsOn: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+            reason: "Email change spec",
+        },
         201,
     );
 
@@ -209,6 +214,26 @@ describe("Sign-in email changes by staff, imports and registration (§9)", () =>
                 expect(rows[0].actorId).to.eq(JUDITH.id);
                 expect(rows[0].email).to.eq(newEmail);
                 expect(rows[0].detail).to.eq(`from=${MATHEW.email}; via=staff`);
+            });
+        });
+    });
+
+    it("a sign-in code already emailed to the old address stops working once staff change the email", () => {
+        const newEmail = `mathew.moved.${Date.now()}@example.com`;
+        cy.clearCookies();
+        resetEmailSignIn([MATHEW.id]);
+        newestAuditId().then((startId) => {
+            askForEmail(MATHEW.email);
+            signInEmail(MATHEW.email).then(({ code }) => {
+                keepingSession(() => saveEmailInPersonEditor(MATHEW.id, newEmail).its("status").should("eq", 302));
+                postCode(code).its("body").should("include", "That code did not work");
+                cy.request({ url: "/api/portal/me", failOnStatusCode: false }).its("status").should("eq", 401);
+                auditRowsSince(MATHEW.id, startId).then((rows) => {
+                    const cancelled = rows.filter((row) => row.event === "request_cancelled");
+                    expect(cancelled).to.have.length(1);
+                    expect(cancelled[0].reason).to.eq("email_changed");
+                    expect(cancelled[0].actorId).to.eq(JUDITH.id);
+                });
             });
         });
     });
@@ -400,7 +425,7 @@ describe("Sign-in email changes by staff, imports and registration (§9)", () =>
         status(MATHEW.id).its("reason").should("eq", "email_unconfirmed");
     });
 
-    it("a registration form's address is audited as given by registration", () => {
+    it("a registration form's address is the address on record, with no email change audited", () => {
         const email = `registered.${Date.now()}@example.com`;
         newestAuditId().then((startId) => {
             cy.request({
@@ -409,13 +434,7 @@ describe("Sign-in email changes by staff, imports and registration (§9)", () =>
                 body: { firstName: "Reggie", lastName: "Emailchange", gender: "1", email },
             }).then(({ body }) => {
                 const personId = Number(body.Id);
-                auditRowsSince(personId, startId).then((rows) => {
-                    expect(rows).to.have.length(1);
-                    expect(rows[0].event).to.eq("email_changed");
-                    expect(rows[0].actorId).to.be.null;
-                    expect(rows[0].email).to.eq(email);
-                    expect(rows[0].detail).to.eq("from=; via=registration");
-                });
+                auditRowsSince(personId, startId).should("have.length", 0);
                 cy.cleanupPeople([personId]);
             });
         });
