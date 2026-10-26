@@ -640,8 +640,10 @@ class UserService
 
         $token = new Token();
         $token->build(Token::TYPE_PASSWORD, $user->getId());
+        $rawToken = $token->getToken();
+        $token->setToken(Token::passwordResetStorageKey($rawToken));
         $token->save();
-        $email = new ResetPasswordTokenEmail($user, $token->getToken());
+        $email = new ResetPasswordTokenEmail($user, $rawToken);
         if (!$email->send()) {
             $token->delete();
             $logger->error('Password reset email failed', $logCtx + ['error' => $email->getError()]);

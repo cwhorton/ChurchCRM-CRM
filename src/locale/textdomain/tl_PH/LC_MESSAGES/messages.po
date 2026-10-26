@@ -17979,10 +17979,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d dokumento ng buwis ay matagumpay na ipinadala sa pamilya."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "%s %d Pahayag ng Pagbibigay"
-
-#: 
 msgid "All classifications"
 msgstr "Lahat ng klasipikasyon"
 
@@ -21501,10 +21497,6 @@ msgid "Signed up"
 msgstr "Nag-sign up"
 
 #: 
-msgid "Sincerely"
-msgstr "Taos-pusong gumagalang"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "May ilan sa mga detalye mo na hindi ma-save. Pakisuri ang mga naka-highlight na field."
 
@@ -24627,4 +24619,24 @@ msgstr "Ang buwan kung kailan umaakyat ng isang baitang ang lahat ng may baitang
 #: 
 msgid "Through Grade"
 msgstr "Hanggang baitang"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "Hindi wastong pangalan o halaga ng setting"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "Hindi tumugon ang serbisyo ng geocoding — subukan muli mamaya"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "Ang email na ipinadala mo lang ang ipinapakita."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "%d Pahayag ng Pagbibigay"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "Hindi magawa ang mga paulit-ulit na kaganapan. Suriin ang log ng aplikasyon para sa mga detalye."
 

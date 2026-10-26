@@ -33,6 +33,10 @@
             "kind": "fixture",
             "reason": "Registers cy.dbQuery()."
         },
+        "cypress/support/password-reset-fixtures.js": {
+            "kind": "fixture",
+            "reason": "Deterministic password-reset token fixtures (including legacy/expired links) and exact user/token snapshots and restoration for #10201. Password hashes and token uses have no HTTP read surface; the spec exercises GET and POST through HTTP."
+        },
         "cypress/support/member-sign-in.js": {
             "kind": "fixture",
             "reason": "Member sign-in row 5 (#10463): turns member sign-in on, ends the sign-in throttle windows and reads the sign-in audit and requests, none of which has an HTTP surface until row 9."

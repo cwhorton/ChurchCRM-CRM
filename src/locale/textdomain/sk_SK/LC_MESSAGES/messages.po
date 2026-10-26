@@ -18013,10 +18013,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d daňový dokument bol úspešne zaslané rodine."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "%s %d Výkaz darov"
-
-#: 
 msgid "All classifications"
 msgstr "Všetky klasifikácie"
 
@@ -21559,10 +21555,6 @@ msgid "Signed up"
 msgstr "Prihlásený(á)"
 
 #: 
-msgid "Sincerely"
-msgstr "S úctou"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "Niektoré vaše údaje sa nepodarilo uložiť. Skontrolujte zvýraznené polia."
 
@@ -24693,4 +24685,24 @@ msgstr "Mesiac, v ktorom všetci s ročníkom postúpia o jeden ročník. Vypnut
 #: 
 msgid "Through Grade"
 msgstr "Po ročník"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "Neplatný názov alebo hodnota nastavenia"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "Geokódovacia služba neodpovedala — skúste to znova neskôr"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "Zobrazuje sa iba e-mail, ktorý ste odoslali."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "%d Výkaz darov"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "Opakujúce sa udalosti sa nepodarilo vytvoriť. Podrobnosti nájdete v protokole aplikácie."
 

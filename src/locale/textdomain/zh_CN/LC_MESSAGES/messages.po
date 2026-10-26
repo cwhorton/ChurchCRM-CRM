@@ -18065,10 +18065,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d 份税单已成功邮寄给家庭"
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "%s %d 捐献声明"
-
-#: 
 msgid "All classifications"
 msgstr "所有分类"
 
@@ -21575,10 +21571,6 @@ msgid "Signed up"
 msgstr "已报名"
 
 #: 
-msgid "Sincerely"
-msgstr "谨上"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "您的部分资料无法保存。请检查标出的字段。"
 
@@ -24697,4 +24689,24 @@ msgstr "所有有年级的人升一个年级的月份。关闭会停用自动升
 #: 
 msgid "Through Grade"
 msgstr "至年级"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "设置名称或值无效"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "地理编码服务未响应 — 请稍后重试"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "仅显示您发送的电子邮件。"
+
+#: 
+msgid "%d Giving Statement"
+msgstr "%d 奉献报表"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "无法创建重复活动。请查看应用程序日志了解详情。"
 

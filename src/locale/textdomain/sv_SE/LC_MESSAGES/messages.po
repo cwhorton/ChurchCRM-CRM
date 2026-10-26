@@ -18102,10 +18102,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d skattedokument skickat till familjen via e-post."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "%s %d Givningsutgift"
-
-#: 
 msgid "All classifications"
 msgstr "Alla klassificeringar"
 
@@ -21624,10 +21620,6 @@ msgid "Signed up"
 msgstr "Anmäld"
 
 #: 
-msgid "Sincerely"
-msgstr "Med vänliga hälsningar"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "Vissa av dina uppgifter kunde inte sparas. Kontrollera de markerade fälten."
 
@@ -24750,4 +24742,24 @@ msgstr "Månaden då alla som har en årskurs flyttas upp en årskurs. Av stäng
 #: 
 msgid "Through Grade"
 msgstr "Till årskurs"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "Ogiltigt inställningsnamn eller värde"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "Geokodningstjänsten svarade inte — försök igen senare"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "Endast det e-postmeddelande du skickade visas."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "%d Givarapport"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "Upprepade händelser kunde inte skapas. Kontrollera applikationsloggen för detaljer."
 

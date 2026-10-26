@@ -17980,10 +17980,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d veroasiakirja lähetetty perheelle onnistuneesti."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "%s %d lahjoitussillan osalta"
-
-#: 
 msgid "All classifications"
 msgstr "Kaikki luokittelut"
 
@@ -21502,10 +21498,6 @@ msgid "Signed up"
 msgstr "Ilmoittautunut"
 
 #: 
-msgid "Sincerely"
-msgstr "Ystävällisin terveisin"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "Joitakin tietojasi ei voitu tallentaa. Tarkista korostetut kentät."
 
@@ -24628,4 +24620,24 @@ msgstr "Kuukausi, jolloin kaikki, joilla on luokka-aste, siirtyvät yhden asteen
 #: 
 msgid "Through Grade"
 msgstr "Luokka-asteeseen"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "Virheellinen asetuksen nimi tai arvo"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "Geokoodauspalvelu ei vastannut — yritä myöhemmin uudelleen"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "Vain lähettämäsi sähköposti näytetään."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "%d Lahjoitusilmoitus"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "Toistuvia tapahtumia ei voitu luoda. Tarkista sovelluksen loki lisätietoja varten."
 

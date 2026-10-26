@@ -18010,10 +18010,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d document fiscal envoyé par courrier électronique à la famille avec succès."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "%s %d déclaration de don"
-
-#: 
 msgid "All classifications"
 msgstr "Toutes les classifications"
 
@@ -21532,10 +21528,6 @@ msgid "Signed up"
 msgstr "Inscrit"
 
 #: 
-msgid "Sincerely"
-msgstr "Cordialement"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "Certaines de vos informations n'ont pas pu être enregistrées. Veuillez vérifier les champs en surbrillance."
 
@@ -24658,4 +24650,24 @@ msgstr "Le mois au cours duquel toute personne ayant un niveau monte d’un nive
 #: 
 msgid "Through Grade"
 msgstr "Jusqu’au niveau"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "Nom ou valeur du paramètre non valide"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "Le service de géocodage n’a pas répondu — réessayez plus tard"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "Seul le courriel que vous avez envoyé est affiché."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "Relevé de dons %d"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "Les événements récurrents n'ont pas pu être créés. Consultez le journal de l'application pour plus de détails."
 

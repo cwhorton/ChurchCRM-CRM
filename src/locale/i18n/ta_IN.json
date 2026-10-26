@@ -4357,7 +4357,6 @@
   "Too many recipients for email client ({{total}} > {{max}}). Use Copy Addresses instead.": "மின்னஞ்சல் கிளையண்ட்டுக்கு பெறுநர்கள் அதிகம் ({{total}} > {{max}}). அதற்குப் பதிலாக முகவரிகளை நகலெடு-ஐப் பயன்படுத்தவும்.",
   "{{minutes}} min left": "{{minutes}} நிமிடங்கள் மீதம்",
   "%d tax document emailed to the family successfully.": "%d வரி ஆவணம் குடும்பத்திற்கு வெற்றிகரமாக மின்னஞ்சல் அனுப்பப்பட்டது.",
-  "%s %d Giving Statement": "%s %d வழங்குதல் அறிக்கை",
   "All classifications": "அனைத்து வகைப்பாடுகள்",
   "As an admin, please also review the": "நிர்வாகி என்ற முறையில், தயவு செய்து பின்வருவனவையும் மதிப்பாய்வு செய்யவும்",
   "Birthdays, anniversaries, volunteers and other people lists with a classification filter": "பிறந்த நாள்கள், வார்ஷிகோஷணைகள், தன்னார்வலர்கள் மற்றும் வகைப்பாடு வடிப்பல் கொண்ட மற்ற மக்கள் பட்டியல்கள்",
@@ -5252,7 +5251,6 @@
   "Sign-in and security": "உள்நுழைவும் பாதுகாப்பும்",
   "Signed in": "உள்நுழைந்தார்",
   "Signed up": "பதிவு செய்தார்",
-  "Sincerely": "இப்படிக்கு",
   "Some of your details could not be saved. Please check the highlighted fields.": "உங்கள் விவரங்களில் சில சேமிக்கப்படவில்லை. சிறப்பிக்கப்பட்ட புலங்களைச் சரிபார்க்கவும்.",
   "Some of your family details could not be saved. Please check the highlighted fields.": "உங்கள் குடும்ப விவரங்களில் சில சேமிக்கப்படவில்லை. சிறப்பிக்கப்பட்ட புலங்களைச் சரிபார்க்கவும்.",
   "Someone else is covering": "வேறொருவர் பணியாற்றுகிறார்",
@@ -5996,6 +5994,11 @@
   "The grades changed after the preview. Review the changes again before applying them.": "முன்னோட்டத்திற்குப் பிறகு வகுப்புகள் மாறின. அவற்றைப் பயன்படுத்துவதற்கு முன் மாற்றங்களை மீண்டும் பார்க்கவும்.",
   "The month in which everyone with a grade moves up one grade. Off turns automatic promotion off.": "வகுப்பு உள்ள அனைவரும் ஒரு வகுப்பு மேலே செல்லும் மாதம். ஆஃப் தானியங்கி உயர்வை அணைக்கிறது.",
   "Through Grade": "வகுப்பு வரை",
+  "Invalid setting name or value": "தவறான அமைப்புப் பெயர் அல்லது மதிப்பு",
+  "The geocoding service did not answer — try again later": "புவிக்குறியீட்டுச் சேவை பதிலளிக்கவில்லை — பின்னர் மீண்டும் முயற்சிக்கவும்",
+  "Only the email you sent is shown.": "நீங்கள் அனுப்பிய மின்னஞ்சல் மட்டுமே காட்டப்படும்.",
+  "%d Giving Statement": "%d கொடை அறிக்கை",
+  "Repeat events could not be created. Check the application log for details.": "மீண்டும் வரும் நிகழ்வுகளை உருவாக்க முடியவில்லை. விவரங்களுக்கு பயன்பாட்டு பதிவைச் சரிபார்க்கவும்.",
   "\"{{name}}\": {{count}} occurrences created": {
     "one": "\"{{name}}\": {{count}} நிகழ்வு உருவாக்கப்பட்டது",
     "other": "\"{{name}}\": {{count}} நிகழ்வுகள் உருவாக்கப்பட்டன"

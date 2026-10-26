@@ -18025,10 +18025,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d வரி ஆவணம் குடும்பத்திற்கு வெற்றிகரமாக மின்னஞ்சல் அனுப்பப்பட்டது."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "%s %d வழங்குதல் அறிக்கை"
-
-#: 
 msgid "All classifications"
 msgstr "அனைத்து வகைப்பாடுகள்"
 
@@ -21547,10 +21543,6 @@ msgid "Signed up"
 msgstr "பதிவு செய்தார்"
 
 #: 
-msgid "Sincerely"
-msgstr "இப்படிக்கு"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "உங்கள் விவரங்களில் சில சேமிக்கப்படவில்லை. சிறப்பிக்கப்பட்ட புலங்களைச் சரிபார்க்கவும்."
 
@@ -24673,4 +24665,24 @@ msgstr "வகுப்பு உள்ள அனைவரும் ஒரு �
 #: 
 msgid "Through Grade"
 msgstr "வகுப்பு வரை"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "தவறான அமைப்புப் பெயர் அல்லது மதிப்பு"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "புவிக்குறியீட்டுச் சேவை பதிலளிக்கவில்லை — பின்னர் மீண்டும் முயற்சிக்கவும்"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "நீங்கள் அனுப்பிய மின்னஞ்சல் மட்டுமே காட்டப்படும்."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "%d கொடை அறிக்கை"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "மீண்டும் வரும் நிகழ்வுகளை உருவாக்க முடியவில்லை. விவரங்களுக்கு பயன்பாட்டு பதிவைச் சரிபார்க்கவும்."
 

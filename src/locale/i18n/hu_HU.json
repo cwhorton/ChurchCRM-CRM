@@ -4357,7 +4357,6 @@
   "Too many recipients for email client ({{total}} > {{max}}). Use Copy Addresses instead.": "Túl sok címzett az e-mail klienshez ({{total}} > {{max}}). Használja inkább a Címek másolása funkciót.",
   "{{minutes}} min left": "{{minutes}} perc van hátra",
   "%d tax document emailed to the family successfully.": "%d adóbevallási dokumentum sikeresen elküldve a családnak.",
-  "%s %d Giving Statement": "%s %d adományi kimutatás",
   "All classifications": "Összes besorolás",
   "As an admin, please also review the": "Adminisztrátorként kérjük, tekintse meg a következőket is:",
   "Birthdays, anniversaries, volunteers and other people lists with a classification filter": "Születésnapok, évfordulók, önkéntesek és egyéb emberek listája besorolás szűrővel",
@@ -5252,7 +5251,6 @@
   "Sign-in and security": "Bejelentkezés és biztonság",
   "Signed in": "Bejelentkezve",
   "Signed up": "Jelentkezett",
-  "Sincerely": "Szeretettel",
   "Some of your details could not be saved. Please check the highlighted fields.": "Néhány adatodat nem sikerült elmenteni. Ellenőrizd a kiemelt mezőket.",
   "Some of your family details could not be saved. Please check the highlighted fields.": "A családod néhány adatát nem sikerült elmenteni. Ellenőrizd a kiemelt mezőket.",
   "Someone else is covering": "Valaki más helyettesít",
@@ -5996,6 +5994,11 @@
   "The grades changed after the preview. Review the changes again before applying them.": "Az évfolyamok az előnézet után megváltoztak. Az alkalmazás előtt tekintse át újra a módosításokat.",
   "The month in which everyone with a grade moves up one grade. Off turns automatic promotion off.": "Az a hónap, amelyben minden évfolyammal rendelkező személy egy évfolyamot lép feljebb. A Ki kikapcsolja az automatikus léptetést.",
   "Through Grade": "Évfolyamig",
+  "Invalid setting name or value": "Érvénytelen beállításnév vagy érték",
+  "The geocoding service did not answer — try again later": "A geokódolási szolgáltatás nem válaszolt — próbálja újra később",
+  "Only the email you sent is shown.": "Csak az Ön által küldött e-mail jelenik meg.",
+  "%d Giving Statement": "%d Adománykimutatás",
+  "Repeat events could not be created. Check the application log for details.": "Az ismétlődő eseményeket nem sikerült létrehozni. Részletekért ellenőrizze az alkalmazás naplóját.",
   "\"{{name}}\": {{count}} occurrences created": {
     "one": "\"{{name}}\": {{count}} esemény létrehozva",
     "other": "\"{{name}}\": {{count}} esemény létrehozva"

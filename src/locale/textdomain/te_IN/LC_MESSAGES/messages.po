@@ -17990,10 +17990,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d పన్నుపత్రాలు కుటుంబానికి విజయవంతంగా ఈమెయిల్ చేయబడ్డాయి."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "%s %d దానం ప్రకటన"
-
-#: 
 msgid "All classifications"
 msgstr "అన్ని వర్గీకరణలు"
 
@@ -21512,10 +21508,6 @@ msgid "Signed up"
 msgstr "నమోదు చేసుకున్నారు"
 
 #: 
-msgid "Sincerely"
-msgstr "భవదీయులు"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "మీ వివరాలలో కొన్ని సేవ్ చేయబడలేదు. దయచేసి హైలైట్ చేసిన ఫీల్డ్‌లను తనిఖీ చేయండి."
 
@@ -24638,4 +24630,24 @@ msgstr "తరగతి ఉన్న ప్రతి ఒక్కరూ ఒక �
 #: 
 msgid "Through Grade"
 msgstr "తరగతి వరకు"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "చెల్లని సెట్టింగ్ పేరు లేదా విలువ"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "జియోకోడింగ్ సేవ స్పందించలేదు — తర్వాత మళ్లీ ప్రయత్నించండి"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "మీరు పంపిన ఇమెయిల్ మాత్రమే చూపబడుతుంది."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "%d దాన ప్రకటన"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "పునరావృత ఈవెంట్‌లను సృష్టించలేకపోయాము. వివరాల కోసం అప్లికేషన్ లాగ్‌ను తనిఖీ చేయండి."
 

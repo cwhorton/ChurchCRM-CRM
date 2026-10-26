@@ -18068,10 +18068,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "تم إرسال %d وثيقة ضريبية إلى الأسرة بنجاح عبر البريد الإلكتروني."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "%s %d بيان التبرع"
-
-#: 
 msgid "All classifications"
 msgstr "جميع التصنيفات"
 
@@ -21638,10 +21634,6 @@ msgid "Signed up"
 msgstr "مسجَّل"
 
 #: 
-msgid "Sincerely"
-msgstr "مع خالص التحية"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "تعذّر حفظ بعض بياناتك. يُرجى التحقق من الحقول المميزة."
 
@@ -24780,4 +24772,24 @@ msgstr "الشهر الذي ينتقل فيه كل من لديه صف إلى ا�
 #: 
 msgid "Through Grade"
 msgstr "إلى الصف"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "اسم الإعداد أو قيمته غير صالح"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "لم تستجب خدمة الترميز الجغرافي — حاول مرة أخرى لاحقًا"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "يُعرض فقط البريد الإلكتروني الذي أرسلته."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "بيان العطاء %d"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "تعذر إنشاء الأحداث المتكررة. تحقق من سجل التطبيق للحصول على التفاصيل."
 

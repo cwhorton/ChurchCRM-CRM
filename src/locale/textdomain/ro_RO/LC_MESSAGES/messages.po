@@ -18086,10 +18086,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d document fiscal trimis cu succes familiei."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "Declarație de donație %s %d"
-
-#: 
 msgid "All classifications"
 msgstr "Toate clasificările"
 
@@ -21620,10 +21616,6 @@ msgid "Signed up"
 msgstr "Înscris"
 
 #: 
-msgid "Sincerely"
-msgstr "Cu sinceritate"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "Unele dintre datele dumneavoastră nu au putut fi salvate. Verificați câmpurile evidențiate."
 
@@ -24750,4 +24742,24 @@ msgstr "Luna în care toți cei cu o clasă urcă o clasă. Dezactivat oprește 
 #: 
 msgid "Through Grade"
 msgstr "Până la clasa"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "Nume sau valoare nevalidă pentru setare"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "Serviciul de geocodificare nu a răspuns — încercați din nou mai târziu"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "Este afișat doar e-mailul pe care l-ați trimis."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "Declarație de donații %d"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "Evenimentele repetitive nu au putut fi create. Verificați jurnalul aplicației pentru detalii."
 

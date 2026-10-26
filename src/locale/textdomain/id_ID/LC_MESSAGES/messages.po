@@ -17991,10 +17991,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d dokumen pajak berhasil dikirim ke keluarga melalui email."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "%s %d Laporan Pemberian"
-
-#: 
 msgid "All classifications"
 msgstr "Semua klasifikasi"
 
@@ -21501,10 +21497,6 @@ msgid "Signed up"
 msgstr "Terdaftar"
 
 #: 
-msgid "Sincerely"
-msgstr "Hormat kami"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "Sebagian data Anda tidak dapat disimpan. Periksa kolom yang ditandai."
 
@@ -24623,4 +24615,24 @@ msgstr "Bulan saat semua orang yang memiliki tingkat naik satu tingkat. Mati men
 #: 
 msgid "Through Grade"
 msgstr "Sampai tingkat"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "Nama atau nilai pengaturan tidak valid"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "Layanan geocoding tidak merespons — coba lagi nanti"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "Hanya email yang Anda kirim yang ditampilkan."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "Laporan Pemberian %d"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "Acara berulang tidak dapat dibuat. Periksa log aplikasi untuk detailnya."
 

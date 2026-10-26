@@ -4357,7 +4357,6 @@
   "Too many recipients for email client ({{total}} > {{max}}). Use Copy Addresses instead.": "Te veel ontvangers vir e-posprogram ({{total}} > {{max}}). Gebruik eerder Kopieer Adresse.",
   "{{minutes}} min left": "{{minutes}} min oor",
   "%d tax document emailed to the family successfully.": "%d belastingdokument is suksesvol aan die gesin e-pos gestuur.",
-  "%s %d Giving Statement": "%s %d Gawing Verklaring",
   "All classifications": "Alle klassifikasies",
   "As an admin, please also review the": "As administrateur, bekyk asseblief ook die",
   "Birthdays, anniversaries, volunteers and other people lists with a classification filter": "Verjaardae, verjaardae, vrywilligers en ander menslyste met 'n klassifikasiefilter",
@@ -5252,7 +5251,6 @@
   "Sign-in and security": "Aanmelding en sekuriteit",
   "Signed in": "Aangemeld",
   "Signed up": "Ingeskryf",
-  "Sincerely": "Met vriendelike groete",
   "Some of your details could not be saved. Please check the highlighted fields.": "Sommige van jou besonderhede kon nie gestoor word nie. Gaan asseblief die gemerkte velde na.",
   "Some of your family details could not be saved. Please check the highlighted fields.": "Sommige van jou gesinsbesonderhede kon nie gestoor word nie. Gaan asseblief die gemerkte velde na.",
   "Someone else is covering": "Iemand anders staan in",
@@ -5996,6 +5994,11 @@
   "The grades changed after the preview. Review the changes again before applying them.": "Die grade het ná die voorskou verander. Hersien die veranderinge weer voordat jy dit toepas.",
   "The month in which everyone with a grade moves up one grade. Off turns automatic promotion off.": "Die maand waarin almal met 'n graad een graad opskuif. Af skakel outomatiese bevordering af.",
   "Through Grade": "Tot graad",
+  "Invalid setting name or value": "Ongeldige instellingnaam of waarde",
+  "The geocoding service did not answer — try again later": "Die geokoderingsdiens het nie geantwoord nie — probeer later weer",
+  "Only the email you sent is shown.": "Slegs die e-pos wat jy gestuur het, word gewys.",
+  "%d Giving Statement": "%d Gee-verklaring",
+  "Repeat events could not be created. Check the application log for details.": "Herhalende gebeure kon nie geskep word nie. Kyk na die toepassingslogboek vir besonderhede.",
   "\"{{name}}\": {{count}} occurrences created": {
     "one": "\"{{name}}\": {{count}} voorkoms geskep",
     "other": "\"{{name}}\": {{count}} voorkomste geskep"

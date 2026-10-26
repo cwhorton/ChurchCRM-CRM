@@ -18013,10 +18013,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d vergi belgesi aileye başarıyla e-posta ile gönderildi."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "%s %d Bağış Açıklaması"
-
-#: 
 msgid "All classifications"
 msgstr "Tüm sınıflandırmalar"
 
@@ -21535,10 +21531,6 @@ msgid "Signed up"
 msgstr "Kaydoldu"
 
 #: 
-msgid "Sincerely"
-msgstr "Saygılarımızla"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "Bilgilerinizden bazıları kaydedilemedi. Lütfen vurgulanan alanları kontrol edin."
 
@@ -24661,4 +24653,24 @@ msgstr "Sınıfı olan herkesin bir sınıf yukarı taşındığı ay. Kapalı, 
 #: 
 msgid "Through Grade"
 msgstr "Bitiş sınıfı"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "Geçersiz ayar adı veya değeri"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "Coğrafi kodlama hizmeti yanıt vermedi — daha sonra tekrar deneyin"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "Yalnızca gönderdiğiniz e-posta gösterilir."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "%d Bağış Beyanı"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "Tekrarlayan etkinlikler oluşturulamadı. Ayrıntılar için uygulama günlüğünü kontrol edin."
 

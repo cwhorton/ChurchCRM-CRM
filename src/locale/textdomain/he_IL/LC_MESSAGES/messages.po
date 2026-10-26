@@ -18011,10 +18011,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d מסמכי מס נשלחו למשפחה בהצלחה."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "%s %d הצהרת תרומה"
-
-#: 
 msgid "All classifications"
 msgstr "כל הסיווגים"
 
@@ -21533,10 +21529,6 @@ msgid "Signed up"
 msgstr "נרשם"
 
 #: 
-msgid "Sincerely"
-msgstr "בכבוד רב"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "לא ניתן היה לשמור חלק מהפרטים שלכם. אנא בדקו את השדות המסומנים."
 
@@ -24659,4 +24651,24 @@ msgstr "החודש שבו כל מי שיש לו כיתה עולה כיתה אח�
 #: 
 msgid "Through Grade"
 msgstr "עד כיתה"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "שם ההגדרה או הערך אינם תקינים"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "שירות הקידוד הגאוגרפי לא הגיב — יש לנסות שוב מאוחר יותר"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "מוצגת רק הודעת הדוא״ל ששלחת."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "הצהרת תרומות %d"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "לא ניתן היה ליצור אירועים חוזרים. בדוק את יומן היישום לפרטים."
 

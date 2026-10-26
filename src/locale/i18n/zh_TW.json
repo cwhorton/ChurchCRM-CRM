@@ -4341,7 +4341,6 @@
   "Too many recipients for email client ({{total}} > {{max}}). Use Copy Addresses instead.": "收件者數量超出電子郵件用戶端上限（{{total}} > {{max}}），請改用「複製地址」功能。",
   "{{minutes}} min left": "剩餘 {{minutes}} 分鐘",
   "%d tax document emailed to the family successfully.": "%d 份稅單已成功郵寄給家庭",
-  "%s %d Giving Statement": "%s %d 捐獻聲明",
   "All classifications": "所有分類",
   "As an admin, please also review the": "作為管理員，請同時查看",
   "Birthdays, anniversaries, volunteers and other people lists with a classification filter": "生日、紀念日、志願者和其他帶有分類篩選的人員列表",
@@ -5224,7 +5223,6 @@
   "Sign-in and security": "登入與安全",
   "Signed in": "已登入",
   "Signed up": "已報名",
-  "Sincerely": "謹上",
   "Some of your details could not be saved. Please check the highlighted fields.": "您的部分資料無法儲存。請檢查標出的欄位。",
   "Some of your family details could not be saved. Please check the highlighted fields.": "您的部分家庭資料無法儲存。請檢查標出的欄位。",
   "Someone else is covering": "有其他人代替",
@@ -5964,6 +5962,11 @@
   "The grades changed after the preview. Review the changes again before applying them.": "預覽後年級已變更。套用前請再次檢查變更。",
   "The month in which everyone with a grade moves up one grade. Off turns automatic promotion off.": "所有有年級的人升一個年級的月份。關閉會停用自動升級。",
   "Through Grade": "至年級",
+  "Invalid setting name or value": "設定名稱或值無效",
+  "The geocoding service did not answer — try again later": "地理編碼服務未回應 — 請稍後再試",
+  "Only the email you sent is shown.": "僅顯示您寄出的電子郵件。",
+  "%d Giving Statement": "%d 奉獻報表",
+  "Repeat events could not be created. Check the application log for details.": "無法建立重複活動。請查看應用程式日誌了解詳情。",
   "\"{{name}}\": {{count}} occurrences created": {
     "one": "\"{{name}}\"：建立了 {{count}} 個發生",
     "other": "\"{{name}}\"：建立了 {{count}} 個發生"

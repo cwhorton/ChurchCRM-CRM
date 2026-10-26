@@ -4357,7 +4357,6 @@
   "Too many recipients for email client ({{total}} > {{max}}). Use Copy Addresses instead.": "Shumë marrës për klientin e emailit ({{total}} > {{max}}). Përdorni Kopjo Adresat në vend të kësaj.",
   "{{minutes}} min left": "{{minutes}} min të mbetura",
   "%d tax document emailed to the family successfully.": "%d dokument tatimor i dërguar me sukses në familje me email.",
-  "%s %d Giving Statement": "Deklarata e dhurimit %s %d",
   "All classifications": "Të gjitha klasifikimet",
   "As an admin, please also review the": "Si administrator, ju lutemi rishikoni edhe",
   "Birthdays, anniversaries, volunteers and other people lists with a classification filter": "Ditëlindjet, jubileumet, vullnetarët dhe listat e tjera të njerëzve me një filtër klasifikimi",
@@ -5252,7 +5251,6 @@
   "Sign-in and security": "Hyrja dhe siguria",
   "Signed in": "Hyrë",
   "Signed up": "Regjistruar",
-  "Sincerely": "Me respekt",
   "Some of your details could not be saved. Please check the highlighted fields.": "Disa nga të dhënat tuaja nuk u ruajtën dot. Kontrolloni fushat e theksuara.",
   "Some of your family details could not be saved. Please check the highlighted fields.": "Disa nga të dhënat e familjes suaj nuk u ruajtën dot. Kontrolloni fushat e theksuara.",
   "Someone else is covering": "Dikush tjetër po zëvendëson",
@@ -5996,6 +5994,11 @@
   "The grades changed after the preview. Review the changes again before applying them.": "Klasat ndryshuan pas parapamjes. Shqyrtoji ndryshimet përsëri para se t'i zbatosh.",
   "The month in which everyone with a grade moves up one grade. Off turns automatic promotion off.": "Muaji në të cilin të gjithë që kanë një klasë ngjiten një klasë. Fikur e ndalon ngritjen automatike.",
   "Through Grade": "Deri në klasën",
+  "Invalid setting name or value": "Emër ose vlerë e pavlefshme e cilësimit",
+  "The geocoding service did not answer — try again later": "Shërbimi i gjeokodimit nuk u përgjigj — provoni përsëri më vonë",
+  "Only the email you sent is shown.": "Shfaqet vetëm emaili që keni dërguar.",
+  "%d Giving Statement": "Deklaratë Dhëniesh %d",
+  "Repeat events could not be created. Check the application log for details.": "Ngjarjet e përsëritura nuk mund të krijoheshin. Kontrolloni regjistrin e aplikacionit për detaje.",
   "\"{{name}}\": {{count}} occurrences created": {
     "one": "\"{{name}}\": {{count}} ngjarje e krijuar",
     "other": "\"{{name}}\": {{count}} ngjarje të krijuara"

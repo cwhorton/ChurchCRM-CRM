@@ -4357,7 +4357,6 @@
   "Too many recipients for email client ({{total}} > {{max}}). Use Copy Addresses instead.": "For mange mottakere for e-postklienten ({{total}} > {{max}}). Bruk Kopier adresser i stedet.",
   "{{minutes}} min left": "{{minutes}} min igjen",
   "%d tax document emailed to the family successfully.": "%d skattefølge dokument sendt til familien via e-post.",
-  "%s %d Giving Statement": "%s %d Gaveerklæring",
   "All classifications": "Alle klassifiseringer",
   "As an admin, please also review the": "Som administrator, vennligst gjennomgå også",
   "Birthdays, anniversaries, volunteers and other people lists with a classification filter": "Bursdager, jubileer, frivillige og andre personlister med klassifiseringsfilter",
@@ -5252,7 +5251,6 @@
   "Sign-in and security": "Innlogging og sikkerhet",
   "Signed in": "Logget inn",
   "Signed up": "Påmeldt",
-  "Sincerely": "Vennlig hilsen",
   "Some of your details could not be saved. Please check the highlighted fields.": "Noen av opplysningene dine kunne ikke lagres. Kontroller de markerte feltene.",
   "Some of your family details could not be saved. Please check the highlighted fields.": "Noen av familieopplysningene dine kunne ikke lagres. Kontroller de markerte feltene.",
   "Someone else is covering": "Noen andre tar over",
@@ -5996,6 +5994,11 @@
   "The grades changed after the preview. Review the changes again before applying them.": "Klassetrinnene ble endret etter forhåndsvisningen. Gå gjennom endringene på nytt før du bruker dem.",
   "The month in which everyone with a grade moves up one grade. Off turns automatic promotion off.": "Måneden da alle med et klassetrinn flyttes opp ett trinn. Av slår av automatisk opprykk.",
   "Through Grade": "Til klassetrinn",
+  "Invalid setting name or value": "Ugyldig innstillingsnavn eller verdi",
+  "The geocoding service did not answer — try again later": "Geokodingstjenesten svarte ikke — prøv igjen senere",
+  "Only the email you sent is shown.": "Bare e-posten du sendte, vises.",
+  "%d Giving Statement": "%d Giverapport",
+  "Repeat events could not be created. Check the application log for details.": "Gjentaende hendelser kunne ikke opprettes. Sjekk applikasjonsloggen for detaljer.",
   "\"{{name}}\": {{count}} occurrences created": {
     "one": "\"{{name}}\": {{count}} forekomst opprettet",
     "other": "\"{{name}}\": {{count}} forekomster opprettet"

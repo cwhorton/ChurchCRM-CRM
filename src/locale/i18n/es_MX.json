@@ -4357,7 +4357,6 @@
   "Too many recipients for email client ({{total}} > {{max}}). Use Copy Addresses instead.": "Demasiados destinatarios para el cliente de correo ({{total}} > {{max}}). Use Copiar direcciones en su lugar.",
   "{{minutes}} min left": "{{minutes}} min restantes",
   "%d tax document emailed to the family successfully.": "%d documento de impuestos enviado a la familia correctamente.",
-  "%s %d Giving Statement": "Estado de cuenta de contribución %s %d",
   "All classifications": "Todas las clasificaciones",
   "As an admin, please also review the": "Como administrador, también revise el",
   "Birthdays, anniversaries, volunteers and other people lists with a classification filter": "Cumpleaños, aniversarios, voluntarios y otras listas de personas con filtro de clasificación",
@@ -5252,7 +5251,6 @@
   "Sign-in and security": "Inicio de sesión y seguridad",
   "Signed in": "Sesión iniciada",
   "Signed up": "Apuntado",
-  "Sincerely": "Atentamente",
   "Some of your details could not be saved. Please check the highlighted fields.": "No se pudieron guardar algunos de sus datos. Revise los campos resaltados.",
   "Some of your family details could not be saved. Please check the highlighted fields.": "No se pudieron guardar algunos de los datos de su familia. Revise los campos resaltados.",
   "Someone else is covering": "Otra persona lo cubre",
@@ -5996,6 +5994,11 @@
   "The grades changed after the preview. Review the changes again before applying them.": "Los grados cambiaron después de la vista previa. Revisen los cambios otra vez antes de aplicarlos.",
   "The month in which everyone with a grade moves up one grade. Off turns automatic promotion off.": "El mes en el que todas las personas con un grado escolar suben un grado. Apagado desactiva la promoción automática.",
   "Through Grade": "Hasta el grado",
+  "Invalid setting name or value": "Nombre o valor de configuración no válido",
+  "The geocoding service did not answer — try again later": "El servicio de geocodificación no respondió — inténtalo de nuevo más tarde",
+  "Only the email you sent is shown.": "Solo se muestra el correo electrónico que enviaste.",
+  "%d Giving Statement": "Declaración de ofrendas %d",
+  "Repeat events could not be created. Check the application log for details.": "No se pudieron crear los eventos recurrentes. Consulte el registro de la aplicación para obtener detalles.",
   "\"{{name}}\": {{count}} occurrences created": {
     "one": "\"{{name}}\": {{count}} occurrence creado",
     "other": "\"{{name}}\": {{count}} occurrences creados"

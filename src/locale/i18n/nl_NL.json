@@ -4357,7 +4357,6 @@
   "Too many recipients for email client ({{total}} > {{max}}). Use Copy Addresses instead.": "Te veel ontvangers voor de e-mailclient ({{total}} > {{max}}). Gebruik in plaats daarvan Adressen kopiëren.",
   "{{minutes}} min left": "{{minutes}} min resterend",
   "%d tax document emailed to the family successfully.": "%d belastingdocument succesvol naar het gezin gemaild.",
-  "%s %d Giving Statement": "%s %d Givingverklaring",
   "All classifications": "Alle classificaties",
   "As an admin, please also review the": "Als beheerder, controleer ook de",
   "Birthdays, anniversaries, volunteers and other people lists with a classification filter": "Verjaardagen, jubilea, vrijwilligers en andere persoonlijsten met een classificatiefilter",
@@ -5252,7 +5251,6 @@
   "Sign-in and security": "Aanmelding en beveiliging",
   "Signed in": "Aangemeld",
   "Signed up": "Aangemeld om te dienen",
-  "Sincerely": "Met vriendelijke groet",
   "Some of your details could not be saved. Please check the highlighted fields.": "Sommige van uw gegevens konden niet worden opgeslagen. Controleer de gemarkeerde velden.",
   "Some of your family details could not be saved. Please check the highlighted fields.": "Sommige van uw familiegegevens konden niet worden opgeslagen. Controleer de gemarkeerde velden.",
   "Someone else is covering": "Iemand anders vervangt",
@@ -5996,6 +5994,11 @@
   "The grades changed after the preview. Review the changes again before applying them.": "De klassen zijn na het voorbeeld gewijzigd. Controleer de wijzigingen opnieuw voordat u ze toepast.",
   "The month in which everyone with a grade moves up one grade. Off turns automatic promotion off.": "De maand waarin iedereen met een klas één klas omhooggaat. Uit schakelt automatische bevordering uit.",
   "Through Grade": "Tot en met klas",
+  "Invalid setting name or value": "Ongeldige instellingsnaam of waarde",
+  "The geocoding service did not answer — try again later": "De geocoderingsdienst heeft niet gereageerd — probeer het later opnieuw",
+  "Only the email you sent is shown.": "Alleen de e-mail die u hebt verzonden wordt getoond.",
+  "%d Giving Statement": "%d Geefverklaring",
+  "Repeat events could not be created. Check the application log for details.": "Herhalende evenementen konden niet worden aangemaakt. Controleer het applicatielogboek voor details.",
   "\"{{name}}\": {{count}} occurrences created": {
     "one": "\"{{name}}\": {{count}} voorkomen gemaakt",
     "other": "\"{{name}}\": {{count}} voorkomens gemaakt"

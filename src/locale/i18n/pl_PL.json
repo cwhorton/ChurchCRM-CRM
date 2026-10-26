@@ -4373,7 +4373,6 @@
   "Too many recipients for email client ({{total}} > {{max}}). Use Copy Addresses instead.": "Zbyt wielu odbiorców dla klienta poczty e-mail ({{total}} > {{max}}). Zamiast tego użyj opcji Kopiuj adresy.",
   "{{minutes}} min left": "Pozostało {{minutes}} min",
   "%d tax document emailed to the family successfully.": "%d dokument podatkowy został pomyślnie wysłany do rodziny.",
-  "%s %d Giving Statement": "%s %d Poświadczenie darowizny",
   "All classifications": "Wszystkie klasyfikacje",
   "As an admin, please also review the": "Jako administrator, proszę także przejrzeć",
   "Birthdays, anniversaries, volunteers and other people lists with a classification filter": "Listy urodzin, rocznic, wolontariuszy i innych osób z filtrem klasyfikacji",
@@ -5280,7 +5279,6 @@
   "Sign-in and security": "Logowanie i bezpieczeństwo",
   "Signed in": "Zalogowano",
   "Signed up": "Zapisano",
-  "Sincerely": "Z poważaniem",
   "Some of your details could not be saved. Please check the highlighted fields.": "Nie udało się zapisać niektórych Twoich danych. Sprawdź wyróżnione pola.",
   "Some of your family details could not be saved. Please check the highlighted fields.": "Nie udało się zapisać niektórych danych Twojej rodziny. Sprawdź wyróżnione pola.",
   "Someone else is covering": "Ktoś inny zastępuje",
@@ -6028,6 +6026,11 @@
   "The grades changed after the preview. Review the changes again before applying them.": "Klasy zmieniły się po podglądzie. Sprawdź zmiany ponownie przed ich zastosowaniem.",
   "The month in which everyone with a grade moves up one grade. Off turns automatic promotion off.": "Miesiąc, w którym wszyscy z klasą przechodzą o jedną klasę wyżej. Wyłączone wyłącza automatyczną promocję.",
   "Through Grade": "Do klasy",
+  "Invalid setting name or value": "Nieprawidłowa nazwa lub wartość ustawienia",
+  "The geocoding service did not answer — try again later": "Usługa geokodowania nie odpowiedziała — spróbuj ponownie później",
+  "Only the email you sent is shown.": "Wyświetlana jest tylko wysłana przez Ciebie wiadomość e-mail.",
+  "%d Giving Statement": "%d Zestawienie darowizn",
+  "Repeat events could not be created. Check the application log for details.": "Nie można było utworzyć powtarzających się wydarzeń. Sprawdź dziennik aplikacji, aby uzyskać szczegóły.",
   "\"{{name}}\": {{count}} occurrences created": {
     "one": "\"{{name}}\": {{count}} zdarzenie utworzone",
     "other": "\"{{name}}\": {{count}} zdarzeń utworzonych"

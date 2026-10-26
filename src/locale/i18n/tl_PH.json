@@ -4357,7 +4357,6 @@
   "Too many recipients for email client ({{total}} > {{max}}). Use Copy Addresses instead.": "Masyadong maraming tatanggap para sa email client ({{total}} > {{max}}). Gamitin na lang ang Copy Addresses.",
   "{{minutes}} min left": "{{minutes}} min na lang",
   "%d tax document emailed to the family successfully.": "%d dokumento ng buwis ay matagumpay na ipinadala sa pamilya.",
-  "%s %d Giving Statement": "%s %d Pahayag ng Pagbibigay",
   "All classifications": "Lahat ng klasipikasyon",
   "As an admin, please also review the": "Bilang isang admin, mangyaring suriin din ang",
   "Birthdays, anniversaries, volunteers and other people lists with a classification filter": "Mga kaarawan, anibersaryo, mga boluntaryo at iba pang listahan ng mga tao na may filter ng klasipikasyon",
@@ -5252,7 +5251,6 @@
   "Sign-in and security": "Sign-in at seguridad",
   "Signed in": "Naka-sign in",
   "Signed up": "Nag-sign up",
-  "Sincerely": "Taos-pusong gumagalang",
   "Some of your details could not be saved. Please check the highlighted fields.": "May ilan sa mga detalye mo na hindi ma-save. Pakisuri ang mga naka-highlight na field.",
   "Some of your family details could not be saved. Please check the highlighted fields.": "May ilan sa mga detalye ng pamilya mo na hindi ma-save. Pakisuri ang mga naka-highlight na field.",
   "Someone else is covering": "May ibang pumapalit",
@@ -5996,6 +5994,11 @@
   "The grades changed after the preview. Review the changes again before applying them.": "Nagbago ang mga baitang pagkatapos ng preview. Suriin muli ang mga pagbabago bago ilapat.",
   "The month in which everyone with a grade moves up one grade. Off turns automatic promotion off.": "Ang buwan kung kailan umaakyat ng isang baitang ang lahat ng may baitang. Ang Sarado ay pinapatay ang awtomatikong pag-angat.",
   "Through Grade": "Hanggang baitang",
+  "Invalid setting name or value": "Hindi wastong pangalan o halaga ng setting",
+  "The geocoding service did not answer — try again later": "Hindi tumugon ang serbisyo ng geocoding — subukan muli mamaya",
+  "Only the email you sent is shown.": "Ang email na ipinadala mo lang ang ipinapakita.",
+  "%d Giving Statement": "%d Pahayag ng Pagbibigay",
+  "Repeat events could not be created. Check the application log for details.": "Hindi magawa ang mga paulit-ulit na kaganapan. Suriin ang log ng aplikasyon para sa mga detalye.",
   "\"{{name}}\": {{count}} occurrences created": {
     "one": "\"{{name}}\"：lumikha ng {{count}} occurrence",
     "other": "\"{{name}}\"：lumikha ng {{count}} occurrences"

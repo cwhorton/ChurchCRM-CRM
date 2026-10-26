@@ -17975,10 +17975,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "ส่งเอกสารภาษีจำนวน %d ไปยังครอบครัวทางอีเมลสำเร็จแล้ว"
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "แถลงการบริจาค %s %d"
-
-#: 
 msgid "All classifications"
 msgstr "การจำแนกทั้งหมด"
 
@@ -21485,10 +21481,6 @@ msgid "Signed up"
 msgstr "สมัครแล้ว"
 
 #: 
-msgid "Sincerely"
-msgstr "ด้วยความเคารพ"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "ไม่สามารถบันทึกข้อมูลของคุณบางส่วนได้ โปรดตรวจสอบช่องที่ไฮไลต์"
 
@@ -24607,4 +24599,24 @@ msgstr "เดือนที่ทุกคนที่มีชั้นเร
 #: 
 msgid "Through Grade"
 msgstr "ถึงชั้นเรียน"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "ชื่อหรือค่าการตั้งค่าไม่ถูกต้อง"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "บริการแปลงที่อยู่เป็นพิกัดไม่ตอบสนอง — โปรดลองอีกครั้งในภายหลัง"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "แสดงเฉพาะอีเมลที่คุณส่งเท่านั้น"
+
+#: 
+msgid "%d Giving Statement"
+msgstr "ใบแจ้งการถวาย %d"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "ไม่สามารถสร้างกิจกรรมซ้ำได้ โปรดตรวจสอบบันทึกแอปพลิเคชันสำหรับรายละเอียด"
 

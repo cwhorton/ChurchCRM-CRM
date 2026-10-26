@@ -18009,10 +18009,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "Hati %d ya kodi imetumwa kwa familia kwa mafanikio."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "Taarifa ya Utoaji %s %d"
-
-#: 
 msgid "All classifications"
 msgstr "Uainishaji wote"
 
@@ -21531,10 +21527,6 @@ msgid "Signed up"
 msgstr "Amejisajili"
 
 #: 
-msgid "Sincerely"
-msgstr "Wako mwaminifu"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "Baadhi ya taarifa zako hazikuweza kuhifadhiwa. Tafadhali angalia sehemu zilizoangaziwa."
 
@@ -24657,4 +24649,24 @@ msgstr "Mwezi ambao kila mtu aliye na darasa anahamia darasa moja juu. Kuzima ku
 #: 
 msgid "Through Grade"
 msgstr "Hadi Darasa"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "Jina au thamani ya mpangilio si sahihi"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "Huduma ya usimbaji wa kijiografia haikujibu — jaribu tena baadaye"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "Barua pepe uliyotuma pekee ndiyo inayoonyeshwa."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "Taarifa ya Utoaji %d"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "Matukio yanayojirudia hayakuweza kuundwa. Angalia kumbukumbu ya programu kwa maelezo."
 

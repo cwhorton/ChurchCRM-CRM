@@ -18003,10 +18003,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d dokument tatimor i dërguar me sukses në familje me email."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "Deklarata e dhurimit %s %d"
-
-#: 
 msgid "All classifications"
 msgstr "Të gjitha klasifikimet"
 
@@ -21525,10 +21521,6 @@ msgid "Signed up"
 msgstr "Regjistruar"
 
 #: 
-msgid "Sincerely"
-msgstr "Me respekt"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "Disa nga të dhënat tuaja nuk u ruajtën dot. Kontrolloni fushat e theksuara."
 
@@ -24651,4 +24643,24 @@ msgstr "Muaji në të cilin të gjithë që kanë një klasë ngjiten një klas�
 #: 
 msgid "Through Grade"
 msgstr "Deri në klasën"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "Emër ose vlerë e pavlefshme e cilësimit"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "Shërbimi i gjeokodimit nuk u përgjigj — provoni përsëri më vonë"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "Shfaqet vetëm emaili që keni dërguar."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "Deklaratë Dhëniesh %d"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "Ngjarjet e përsëritura nuk mund të krijoheshin. Kontrolloni regjistrin e aplikacionit për detaje."
 

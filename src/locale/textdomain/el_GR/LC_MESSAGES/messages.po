@@ -18013,10 +18013,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d έγγραφο φόρου αποστάλθηκε στην οικογένεια με επιτυχία."
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "%s %d Δήλωση Παροχής"
-
-#: 
 msgid "All classifications"
 msgstr "Όλες οι ταξινομήσεις"
 
@@ -21535,10 +21531,6 @@ msgid "Signed up"
 msgstr "Εγγράφηκε"
 
 #: 
-msgid "Sincerely"
-msgstr "Με εκτίμηση"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "Ορισμένα από τα στοιχεία σας δεν ήταν δυνατό να αποθηκευτούν. Ελέγξτε τα επισημασμένα πεδία."
 
@@ -24661,4 +24653,24 @@ msgstr "Ο μήνας κατά τον οποίο όλοι όσοι έχουν τ
 #: 
 msgid "Through Grade"
 msgstr "Έως τάξη"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "Μη έγκυρο όνομα ή τιμή ρύθμισης"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "Η υπηρεσία γεωκωδικοποίησης δεν απάντησε — δοκιμάστε ξανά αργότερα"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "Εμφανίζεται μόνο το email που στείλατε."
+
+#: 
+msgid "%d Giving Statement"
+msgstr "%d Δήλωση Δωρεών"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "Δεν ήταν δυνατή η δημιουργία επαναλαμβανόμενων εκδηλώσεων. Ελέγξτε το αρχείο καταγραφής της εφαρμογής για λεπτομέρειες."
 

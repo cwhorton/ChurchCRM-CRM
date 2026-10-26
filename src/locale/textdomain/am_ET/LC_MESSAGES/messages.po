@@ -18021,10 +18021,6 @@ msgid "%d tax document emailed to the family successfully."
 msgstr "%d የግብር ሰነድ ለቤተሰብ በተሳካ ሁኔታ በኢሜል ተላልፏል።"
 
 #: 
-msgid "%s %d Giving Statement"
-msgstr "%s %d የለገና መግለጫ"
-
-#: 
 msgid "All classifications"
 msgstr "ሁሉም ምድቦች"
 
@@ -21543,10 +21539,6 @@ msgid "Signed up"
 msgstr "ተመዝግቧል"
 
 #: 
-msgid "Sincerely"
-msgstr "ከሰላምታ ጋር"
-
-#: 
 msgid "Some of your details could not be saved. Please check the highlighted fields."
 msgstr "አንዳንድ ዝርዝሮችዎ ሊቀመጡ አልቻሉም። እባክዎ የደመቁትን መስኮች ይፈትሹ።"
 
@@ -24669,4 +24661,24 @@ msgstr "ክፍል ያለው ሁሉ አንድ ክፍል የሚወጣበት ወር
 #: 
 msgid "Through Grade"
 msgstr "እስከ ክፍል"
+
+#: 
+msgid "Invalid setting name or value"
+msgstr "ልክ ያልሆነ የቅንብር ስም ወይም እሴት"
+
+#: 
+msgid "The geocoding service did not answer — try again later"
+msgstr "የጂኦኮዲንግ አገልግሎቱ ምላሽ አልሰጠም — ቆይተው እንደገና ይሞክሩ"
+
+#: 
+msgid "Only the email you sent is shown."
+msgstr "የሚታየው እርስዎ የላኩት ኢሜይል ብቻ ነው።"
+
+#: 
+msgid "%d Giving Statement"
+msgstr "%d የመስጠት መግለጫ"
+
+#: 
+msgid "Repeat events could not be created. Check the application log for details."
+msgstr "ተደጋጋሚ ክስተቶች ሊፈጠሩ አልቻሉም። ለዝርዝር መረጃ የመተግበሪያውን ምዝግብ ማስታወሻ ይመልከቱ።"
 
