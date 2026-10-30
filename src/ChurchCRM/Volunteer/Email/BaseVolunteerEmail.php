@@ -81,13 +81,16 @@ abstract class BaseVolunteerEmail extends BaseEmail
     }
 
     /**
-     * Glue the three parts of a body together with blank lines between them.
+     * Glue the three parts of a body together with blank lines between them; an empty
+     * next step leaves the body at the opening and the occurrence.
      *
      * The shared template renders the body through `{{body|nl2br}}`, so
      * paragraphs are plain newlines — Appendix C's "prefer prose over a table".
      */
     protected function composeBody(string $opening, string $nextStep): string
     {
-        return $opening . "\n\n" . $this->context->describe() . "\n\n" . $nextStep;
+        $body = $opening . "\n\n" . $this->context->describe();
+
+        return $nextStep === '' ? $body : $body . "\n\n" . $nextStep;
     }
 }

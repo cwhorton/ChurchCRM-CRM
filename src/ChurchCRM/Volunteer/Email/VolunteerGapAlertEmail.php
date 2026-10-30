@@ -42,7 +42,7 @@ class VolunteerGapAlertEmail extends BaseVolunteerEmail
         $opening = sprintf(gettext('Volunteers still needed for this occurrence: %d'), $this->totalNeeded());
 
         if ($this->shortPositions === []) {
-            return $opening . "\n\n" . $this->context->describe();
+            return $this->composeBody($opening, '');
         }
 
         // Which positions, and how short each one is, on their own lines — the

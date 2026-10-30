@@ -1623,7 +1623,8 @@ class VolunteerNotificationService
     /**
      * Who took the declined slot: the other live assignments on this position made at or
      * after the decline. Both dates are to the second, so a co-volunteer assigned in the same
-     * second before the decline is listed too.
+     * second before the decline is listed too. Without a decline date (a decline always
+     * records a response row today) every other live assignment on the position is listed.
      *
      * @return array<int, array{name: string, accepted: bool}>
      */
